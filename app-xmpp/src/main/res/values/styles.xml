@@ -4,12 +4,26 @@
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 
+
+
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="ChatSDKTheme">
+    <style name="BrilliantTheme" parent="ChatSDKTheme">
+
+        <item name="android:textViewStyle">@style/HindTextViewStyle</item>
+<!--        <item name="android:buttonStyle">@style/HindButtonStyle</item>-->
+        <item name="android:textColorLink">@color/textOrange</item>
         <!-- Customize your theme here. -->
-<!--        <item name="colorPrimary">@color/colorPrimary</item>-->
-<!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
-<!--        <item name="colorAccent">@color/wowBackground</item>-->
+
+        <item name="colorPrimary">@color/textOrange</item>
+        <item name="colorPrimaryDark">@color/textPrimary</item>
+
+        <item name="actionBarTextColor">@color/textOrange</item>
+        <item name="actionBarBackgroundColor">@color/textPrimary</item>
+        <item name="dialogUnreadBubbleTextColor">@color/textPrimary</item>
+
+        <item name="android:textColorHint">@color/textPrimary</item>
+
+        <!--        <item name="colorAccent">@color/wowBackground</item>-->
 
 <!--        Wow-->
 <!--        <item name="outcomingDefaultBubbleColor">#FFFFFF</item>-->
@@ -41,4 +55,82 @@
 
     </style>
 
+    <style name="HindTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/hind_vadodara_medium</item>
+    </style>
+
+    <style name="TitleTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/hind_vadodara_medium</item>
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="SubtitleTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/hind_vadodara_light</item>
+        <item name="android:textColor">@color/textOrange</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="BodyTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/hind_vadodara_medium</item>
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="LightTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/hind_vadodara_medium</item>
+        <item name="android:textColor">@color/textGray</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="HindButtonStyle" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">@font/hind_vadodara_bold</item>
+<!--        <item name="android:backgroundTint">@color/textOrange</item>-->
+<!--        <item name="android:backgroundTint=">@color/accent"</item>-->
+<!--        <item name="android:background">@color/accent</item>-->
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/textOrange</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:topLeftRadius">10dp</item>
+        <item name="android:topRightRadius">10dp</item>
+        <item name="android:bottomLeftRadius">10dp</item>
+        <item name="android:bottomRightRadius">10dp</item>
+        <item name="android:background">@drawable/button_rounded_corners</item>
+    </style>
+
+    <style name="TextLabel" parent="TextAppearance.AppCompat">
+
+        <!-- Hint color and label color in FALSE state -->
+        <item name="android:textColorHint">@color/accent</item>
+        <item name="android:textSize">20sp</item>
+
+        <!-- Label color in TRUE state and bar color FALSE and TRUE State -->
+
+        <item name="colorAccent">@color/accent</item>
+        <item name="colorControlNormal">@color/underline</item>
+        <item name="colorControlActivated">@color/underline</item>
+    </style>
+
+    <style name="TextAppearence.App.TextInputLayout" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textSize">@dimen/_13sdp</item>
+        <item name="colorControlNormal">@color/underline</item>
+    </style>
+
+    <style name="BrilliantTextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:colorPrimary">@color/textPrimary</item>
+        <item name="android:textColor">@color/textPrimary</item>
+    </style>
+
+    <style name="MyEditTextTheme">
+        <!-- Used for the bottom line when not selected / focused -->
+        <item name="colorControlNormal">@color/underline</item>
+        <!-- colorControlActivated & colorControlHighlight use the colorAccent color by default -->
+    </style>
 </resources>

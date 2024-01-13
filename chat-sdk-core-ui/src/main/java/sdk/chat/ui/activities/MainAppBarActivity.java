@@ -12,10 +12,8 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.List;
-
 
 import materialsearchview.MaterialSearchView;
 import sdk.chat.core.Tab;
@@ -83,16 +81,16 @@ public class MainAppBarActivity extends MainActivity {
             adapter = new PagerAdapterTabs(this);
         }
 
-        final List<Tab> tabs = adapter.getTabs();
-        for (Tab tab : tabs) {
-            tabLayout.addTab(tabLayout.newTab().setText(tab.title));
-        }
+//        final List<Tab> tabs = adapter.getTabs();
+//        for (Tab tab : tabs) {
+//            tabLayout.addTab(tabLayout.newTab().setText(tab.title));
+//        }
 
         viewPager.setAdapter(adapter);
 
-        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            tab.setText(tabs.get(position).title);
-        }).attach();
+//        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+//            tab.setText(tabs.get(position).title);
+//        }).attach();
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override

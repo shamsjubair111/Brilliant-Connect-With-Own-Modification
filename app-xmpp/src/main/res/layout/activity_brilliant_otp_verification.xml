@@ -1,6 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/tvLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/enter_otp"
+        style="@style/TitleTextViewStyle"
+        android:layout_marginTop="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/tvHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        style="@style/BodyTextViewStyle"
+        android:layout_marginTop="30dp"
+        android:paddingHorizontal="30dp"
+        android:text="@string/code_has_been_sent__"
+        android:textSize="17sp"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvLogin" />
+
+    <in.aabhasjindal.otptextview.OtpTextView
+        android:id="@+id/otpView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/accent"
+        app:text_typeface="@string/font_fontFamily_medium"
+        android:layout_marginTop="20dp"
+        app:bar_enabled="true"
+        app:bar_height="2dp"
+        app:height="50dp"
+        app:otp_box_background="@drawable/otp_rounded_corners"
+        app:bar_active_color="@color/transparent"
+        app:bar_inactive_color="@color/transparent"
+        app:layout_constraintTop_toBottomOf="@id/tvHint"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:length="4"
+        app:otp=""
+        app:otp_text_size="24dp"
+        app:width="50dp" />
+
+    <TextView
+        android:id="@+id/tvCountdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        style="@style/BodyTextViewStyle"
+        android:layout_marginTop="30dp"
+        android:paddingHorizontal="30dp"
+        android:text="@string/resend__"
+        android:textSize="17sp"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/otpView" />
+
+    <Button
+        android:id="@+id/verifyButton"
+        style="@style/HindButtonStyle"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="@string/verify"
+        android:background="@drawable/button_rounded_corners"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvCountdown" />
+
+    <TextView
+        android:id="@+id/tvChangeNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        style="@style/BodyTextViewStyle"
+        android:layout_marginTop="30dp"
+        android:paddingHorizontal="30dp"
+        android:text="@string/change_number"
+        android:textSize="17sp"
+        android:textColor="@color/textOrange"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/verifyButton" />
+
+    <TextView
+        android:id="@+id/tvFailure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        style="@style/BodyTextViewStyle"
+        android:layout_marginTop="30dp"
+        android:paddingHorizontal="30dp"
+        android:text="@string/failure"
+        android:textSize="17sp"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/verifyButton"
+        android:visibility="invisible"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

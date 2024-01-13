@@ -3,8 +3,8 @@ package sdk.chat.app.xmpp.telco
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.activities.BaseActivity
 
-class TelcoLoginActivity: BaseActivity() {
+class BrilliantLoginActivity: BaseActivity() {
     override fun getLayout(): Int {
-        return R.layout.activity_telco_login
+        return R.layout.activity_brilliant_intro
     }
 }

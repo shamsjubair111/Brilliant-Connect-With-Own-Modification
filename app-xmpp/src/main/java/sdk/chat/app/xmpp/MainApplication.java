@@ -8,9 +8,15 @@ import org.pmw.tinylog.Logger;
 
 import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.receipts.XMPPReadReceiptsModule;
+import sdk.chat.app.xmpp.telco.BrilliantInterfaceAdapter;
+import sdk.chat.app.xmpp.telco.BrilliantOTPLoginActivity;
+import sdk.chat.app.xmpp.telco.BrilliantSplashScreenActivity;
+import sdk.chat.app.xmpp.telco.BrilliantTabBarActivity;
 import sdk.chat.app.xmpp.utils.SecureKeyStore;
+import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.demo.xmpp.R;
 import sdk.chat.encryption.xmpp.XMPPEncryptionModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
@@ -46,6 +52,7 @@ public class MainApplication extends Application {
 
 
 
+
             ChatSDK.builder()
 
                     // Configure the library
@@ -55,19 +62,23 @@ public class MainApplication extends Application {
                     .setThreadDestructionEnabled(false)
                     .setClientPushEnabled(true)
                     .setAllowUserToRejoinGroup(true)
+                    .setLogoDrawableResourceID(R.drawable.logo)
 
 //                    .setDebugUsername("1")
 //                    .setDebugPassword("123")
+                    .setDebugUsername("munna")
+                    .setDebugPassword("pass123")
 
                     .build()
+                    .setInterfaceAdapter(BrilliantInterfaceAdapter.class)
 
                     // Add modules to handle file uploads, push notifications
                     .addModule(FirebaseUploadModule.shared())
                     .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-                            .setXMPP("75.119.138.93", "xmpp.app", 5222)
-//                            .setSecurityMode("disabled")
+//                            .setXMPP("75.119.138.93", "xmpp.app", 5222)
+                    .setXMPP("36.255.71.143", "localhost", 5222)
                             .setSecurityMode("disabled")
                             .setAllowServerConfiguration(false)
                             .setPingInterval(5)
@@ -81,6 +92,7 @@ public class MainApplication extends Application {
                     .addModule(FileMessageModule.shared())
                     .addModule(StickerMessageModule.builder()
                             .build())
+                    .addModule(ContactBookModule.shared())
 
                     .addModule(XMPPEncryptionModule.shared())
                     .addModule(UIModule.builder()
@@ -93,6 +105,7 @@ public class MainApplication extends Application {
                             .setPublicRoomCreationEnabled(true)
                             .setPublicRoomsEnabled(false)
                             .setGroupsEnabled(true)
+                            .setTheme(0)
                             .build())
 
                     .addModule(XMPPReadReceiptsModule.shared())
@@ -103,12 +116,21 @@ public class MainApplication extends Application {
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
 
+
+
+
 //            ChatSDK.config().setDebugUsername(Device.honor() ? "a3": "a4");
 //            ChatSDK.config().setDebugPassword("123");
 
 //            ChatSDK.ui().setThreadDetailsActivity(ThreadDetailsActivity.class);
 
 //            chatsdkAuth(Device.honor() ? "xxx1" : "xxx2", "123", "test@conference.xmpp.app");
+
+            ChatSDK.ui().setLoginActivity(BrilliantOTPLoginActivity.class);
+            ChatSDK.ui().setSplashScreenActivity(BrilliantSplashScreenActivity.class);
+            ChatSDK.ui().setMainActivity(BrilliantTabBarActivity.class);
+
+//            ChatSDKUI.icons().actionBarIconColor = getColor(R.color.textOrange);
 
         }
         catch (Exception e) {

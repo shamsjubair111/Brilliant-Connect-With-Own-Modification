@@ -4,16 +4,21 @@
     <application
         android:name="sdk.chat.app.xmpp.MainApplication"
         android:allowBackup="false"
-        android:icon="@drawable/xmpp"
-        android:roundIcon="@drawable/xmpp"
+        android:icon="@drawable/ic_launcher"
+        android:roundIcon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
+        android:theme="@style/BrilliantTheme"
         android:hardwareAccelerated="true"
         tools:replace="allowBackup">
 
+        <!--        <activity-->
+        <!--            android:name="sdk.chat.ui.activities.SplashScreenActivity"-->
+        <!--            android:exported="true"-->
+        <!--            >-->
+
         <activity
-            android:name="sdk.chat.ui.activities.SplashScreenActivity"
+            android:name="sdk.chat.app.xmpp.telco.BrilliantSplashScreenActivity"
             android:exported="true"
             >
             <intent-filter>
@@ -22,20 +27,15 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="sdk.chat.app.xmpp.KeyboardTestActivity"
-            android:windowSoftInputMode="adjustPan"
-            >
-        </activity>
+        <activity android:name="sdk.chat.app.xmpp.telco.BrilliantOTPLoginActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name="sdk.chat.app.xmpp.telco.BrilliantOTPVerificationActivity"
+            android:windowSoftInputMode="adjustPan" />
 
-        <activity android:name="sdk.chat.app.xmpp.KeyboardTestActivity2"
-            android:windowSoftInputMode="adjustResize"
-            android:screenOrientation="fullSensor"
-            >
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-        </activity>
+        <activity android:name="sdk.chat.app.xmpp.telco.BrilliantLoginActivity"/>
+        <activity android:name="sdk.chat.app.xmpp.telco.BrilliantIntroActivity"/>
+        <activity android:name="sdk.chat.app.xmpp.telco.BrilliantWelcomeActivity"/>
+        <activity android:name="sdk.chat.app.xmpp.telco.BrilliantTabBarActivity"/>
 
     </application>
 

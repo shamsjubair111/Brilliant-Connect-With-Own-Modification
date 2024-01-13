@@ -5,13 +5,6 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/bg_splash"
-        android:scaleType="fitXY"
-        />
-
-    <ImageView
         android:id="@+id/imageView"
         android:layout_width="150dp"
         android:layout_height="150dp"
@@ -31,7 +24,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <TextView
-        android:id="@+id/subtitle"
+        android:id="@+id/tvSubtitle"
         style="@style/SubtitleTextViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,6 +33,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
     <TextView
+        android:id="@+id/tvDesc"
         style="@style/LightTextViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -48,6 +42,6 @@
         android:text="@string/intro_1_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/subtitle" />
+        app:layout_constraintTop_toBottomOf="@+id/tvSubtitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

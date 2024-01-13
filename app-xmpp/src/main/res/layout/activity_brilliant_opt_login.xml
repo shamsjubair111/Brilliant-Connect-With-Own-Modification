@@ -11,10 +11,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Login"
-        android:textStyle="bold"
-        android:textColor="@color/textPrimary"
-        android:textSize="24sp"
+        android:text="@string/login"
+        style="@style/TitleTextViewStyle"
         android:layout_marginTop="50dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,9 +24,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        style="@style/BodyTextViewStyle"
         android:layout_marginTop="30dp"
         android:paddingHorizontal="30dp"
-        android:text="Please confirm your country / region and enter your phone number"
+        android:text="@string/country_confirm"
         android:textSize="17sp"
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintTop_toBottomOf="@+id/tvHint"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -53,38 +52,39 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:ccp_countryPreference="BD"
+            app:ccp_defaultNameCode="BD"
+            app:ccp_contentColor="@color/accent"
             />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout"
+            style="@style/BrilliantTextInput"
             android:layout_width="250dp"
+            android:hint="@string/phone_number"
             android:layout_height="wrap_content"
+            android:textColorHint="@color/textPrimary"
+            app:hintTextColor="@color/underline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:boxStrokeColor="@color/edit_text_outline"
-
+            app:boxStrokeColor="@color/box_text_outline"
             >
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editText"
                 android:inputType="phone"
                 android:singleLine="true"
+                android:text=""
+                android:textColor="@color/textPrimary"
+                android:textColorHint="@color/textPrimary"
+                android:textCursorDrawable="@drawable/default_cursor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-<!--        <EditText-->
-<!--            android:id="@+id/etPhoneNumber"-->
-<!--            android:layout_width="200dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:editable="false"-->
-<!--            android:hint="phone"-->
-<!--            android:inputType="phone"-->
-<!--            android:singleLine="true"-->
-<!--            android:textColor="@android:color/black" />-->
+
     </LinearLayout>
 
     <TextView
@@ -92,10 +92,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        style="@style/LightTextViewStyle"
         android:layout_marginTop="40dp"
         android:paddingHorizontal="30dp"
-        android:textAlignment="center"
-        android:text="By Clicking on Continue you confirm nyto agree with Brillian Connect Terms and Policies"
+        android:text="@string/login_terms"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -103,11 +103,14 @@
 
     <Button
         android:id="@+id/btnContinue"
+        style="@style/HindButtonStyle"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:text="Continue"
+        android:text="@string/continue_button"
+        android:background="@drawable/button_rounded_corners"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTerms" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

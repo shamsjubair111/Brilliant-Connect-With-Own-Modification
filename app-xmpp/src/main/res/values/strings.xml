@@ -1,3 +1,47 @@
 <resources>
-    <string name="app_name">Chat SDK XMPP</string>
+    <string name="app_name">Brilliant Connect</string>
+    <string name="welcome_to_brilliant">Welcome to Brilliant Connect</string>
+    <string name="welcome_terms">Please read our <a href="google.com">Terms &amp; Policies</a> \n Click &quot;Agree and continue&quot; if you accept</string>
+    <string name="login_terms">By Clicking on Continue you confirm to agree with Brilliant Connect Terms &amp; Policies</string>
+    <string name="country_confirm">Please confirm your country / region and enter your phone number</string>
+    <string name="login">Login</string>
+    <string name="continue_button">Continue</string>
+    <string name="agree_button">Agree &amp; Continue</string>
+    <string name="enter_otp">ENTER OTP</string>
+    <string name="resend_otp">Resend OTP!</string>
+    <string name="code_has_been_sent__" formatted="false">Code has been sent to %s</string>
+    <string name="resend__">Resend Code in %s s</string>
+    <string name="change_number" >Change Number</string>
+    <string name="verify" >Verify</string>
+    <string name="phone_number" >Phone Number</string>
+    <string name="your_otp_is__" formatted="false" >Your OTP is %s</string>
+    <string name="otp_or_phone_invalid" formatted="false" >OTP or Phone Number invalid</string>
+    <string name="failure" >If did not receive OTP, Please contact support using below link:
+        <a href="">https://app.brilliant.com.bd/otp</a></string>
+
+    <string name="intro_1_title">Brilliant Connect</string>
+    <string name="intro_1_subtitle">Voice/Video Calling App</string>
+    <string name="intro_1_text">Brilliant connect is a voice calling app that you can use to make calls to any mobile and land phone number. App to app calls and messaging are free</string>
+    <string name="intro_2_title">Voice Quality</string>
+    <string name="intro_2_subtitle">Crystal Clear Voice and Video</string>
+    <string name="intro_2_text">Brilliant Connects\' crystal clear voice quality while making or receiving calls to/from anywhere around the globe enables you to stay close to your loved ones no matter where you are</string>
+    <string name="intro_3_title">Save with Brilliant Connect</string>
+    <string name="intro_3_subtitle">Low Data Usage</string>
+    <string name="intro_3_text">Install this app and get a unique Brilliant Connect number. This number enables you to receive calls from any mobile/landline number from anywhere in the world</string>
+    <string name="intro_4_title">Your Brilliant Connect Number</string>
+    <string name="intro_4_subtitle">09638-XXXXXX Number</string>
+    <string name="intro_4_text">Brilliant Connect gives you the freedom to call any mobile or landline number in Bangladesh anytime at the lowest call rate</string>
+    <string name="intro_5_title">Attractive Rate</string>
+    <string name="intro_5_subtitle">Low Domestic Call Rate</string>
+    <string name="intro_5_text">Brilliant connect is a voice calling app that you can use to make calls to any mobile and land phone number. App to app calls and messaging are free.</string>
+
+    <string name="allow_push">Allow Brilliant to send you notifications?</string>
+    <string name="allow">Allow</string>
+    <string name="dont_allow">Don\'t allow</string>
+
+    <string name="calls">Calls</string>
+    <string name="settings">Settings</string>
+    <string name="chats" formatted="false">Chats</string>
+
+
 </resources>

@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -12,10 +13,13 @@ android {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
         targetSdk Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
 
-
         versionName CHAT_SDK_VERSION
         versionCode CHAT_SDK_BUILD_NUMBER as int
     }
+
+//    viewBinding {
+//        enabled = true
+//    }
 
     signingConfigs {
         release {
@@ -78,24 +82,28 @@ dependencies {
     implementation project(':chat-sdk-app-xmpp')
     implementation project(':chat-sdk-pro-xmpp-read-receipts')
 
-    api project(':chat-sdk-pro-message-audio')
+//    api project(':chat-sdk-pro-message-audio')
+
 //    implementation('sdk.chat:chat-sdk-pro-message-audio:5.5.3')
 //    api "sdk.chat:pro-message-audio:5.5.0"
+
+    implementation project(':chat-sdk-mod-message-location')
+    implementation project(':chat-sdk-pro-message-audio')
 
     api project(':chat-sdk-pro-message-sticker')
     api project(':chat-sdk-pro-message-file')
     api project(':chat-sdk-pro-message-video')
     api project(':chat-sdk-pro-encryption')
+    implementation project(':chat-sdk-pro-contact-book')
+
+//    implementation("com.tbuonomo:dotsindicator:5.0")
+
+    implementation 'com.github.chat-sdk:PageIndicatorView:1.0.4'
 
     implementation 'androidx.security:security-crypto:1.0.0'
+    implementation 'com.github.aabhasr1:OtpView:v1.1.2-ktx'
+    api project(':chat-sdk-vendor')
 
-//    configurations.all {
-//        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-//            if (details.requested.group + ":" + details.requested.name == 'chat-sdk-core') {
-//                details.useVersion "5.5.2"
-//                //details.useTarget "com.google.guava:guava:15.0:cdi1.0"
-//            }
-//        }
-//    }
+    implementation 'com.hbb20:ccp:2.5.0'
 }
 

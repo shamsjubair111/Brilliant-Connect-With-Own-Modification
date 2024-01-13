@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+<!--    <color name="colorPrimary">#6200EE</color>-->
+<!--    <color name="colorPrimaryDark">#3700B3</color>-->
+<!--    <color name="colorAccent">#03DAC5</color>-->
 
-    <color name="wowBackground">#ec3449</color>
+    <color name="accent">#1A3A54</color>
+    <color name="textPrimary">#1A3A54</color>
+<!--    <color name="textOrange">#673AB7</color>-->
+    <color name="textOrange">#FB7066</color>
+    <color name="app_bar_icon_color">@color/textOrange</color>
+    <color name="underline">#87D7E2</color>
+    <color name="textGray">#BCBCBC</color>
+    <color name="semiTrans">#03000000</color>
+    <color name="primary_green">@color/underline</color>
+<!--    <color name="bubble">#87d7e2</color>-->
+
 </resources>

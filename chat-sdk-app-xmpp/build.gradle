@@ -49,6 +49,7 @@ dependencies {
     api project(':chat-sdk-mod-ui-extras')
     api project(':chat-sdk-mod-message-location')
 
+    implementation project(':chat-sdk-pro-contact-book')
 }
 
 ext {

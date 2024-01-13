@@ -38,11 +38,6 @@ android {
     namespace 'sdk.chat.message.audio'
 
 }
-rootProject.allprojects {
-    repositories {
-        maven { url "https://jitpack.io" }
-    }
-}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
