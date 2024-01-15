@@ -36,24 +36,29 @@
 
         <Button
             android:id="@+id/button_positive"
-            android:layout_width="120dp"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="@string/allow"
             android:textColor="@color/textPrimary"
             android:textAllCaps="false"
-            android:layout_marginHorizontal="10dp"
-            app:layout_constraintEnd_toStartOf="@+id/button_negative"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <Space
+            android:id="@+id/space"
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toEndOf="@+id/button_positive"
+            />
+
         <Button
             android:id="@+id/button_negative"
-            android:layout_width="120dp"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="@string/dont_allow"
             android:textAllCaps="false"
             android:textColor="@color/textPrimary"
-            android:layout_marginHorizontal="10dp"
+            app:layout_constraintStart_toEndOf="@+id/space"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

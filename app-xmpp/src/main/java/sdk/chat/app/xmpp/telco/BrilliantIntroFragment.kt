@@ -50,6 +50,7 @@ class BrilliantIntroFragment: BaseFragment {
             it.text = getString(desc)
         }
 
+
         return view
     }
 

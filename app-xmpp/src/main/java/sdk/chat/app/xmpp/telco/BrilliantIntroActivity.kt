@@ -1,12 +1,18 @@
 package sdk.chat.app.xmpp.telco
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.rd.PageIndicatorView
 import sdk.chat.core.session.ChatSDK
@@ -20,9 +26,22 @@ class BrilliantIntroActivity: BaseActivity() {
     lateinit var viewPager: ViewPager2
     lateinit var pageIndicatorView: PageIndicatorView
     lateinit var adapter: BrilliantIntroPagerAdapter
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // FCM SDK (and your app) can post notifications.
+        } else {
+            // TODO: Inform user that that your app will not show notifications.
+        }
+    }
     override fun getLayout(): Int {
         return R.layout.activity_brilliant_intro
     }
+
+    var tvNext: TextView? = null
+    var ivNext: ImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +58,13 @@ class BrilliantIntroActivity: BaseActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 pageIndicatorView.setSelected(position)
+                if (position == adapter.fragments.size - 1) {
+                    tvNext?.visibility = View.VISIBLE
+                    ivNext?.visibility = View.INVISIBLE
+                } else {
+                    tvNext?.visibility = View.INVISIBLE
+                    ivNext?.visibility = View.VISIBLE
+                }
             }
         })
 
@@ -48,13 +74,21 @@ class BrilliantIntroActivity: BaseActivity() {
 
         pageIndicatorView.count = adapter.fragments.count()
 
-        findViewById<ImageView>(R.id.ivBack)?.let {
+       findViewById<ImageView>(R.id.ivBack)?.let {
             it.setOnClickListener {
                 viewPager.currentItem = 0.coerceAtLeast(viewPager.currentItem - 1)
             }
         }
 
-        findViewById<ImageView>(R.id.ivForward)?.let {
+        tvNext = findViewById(R.id.tvNext)
+        tvNext?.let {
+            it.setOnClickListener {
+                authenticate()
+            }
+        }
+
+        ivNext = findViewById(R.id.ivForward)
+        ivNext?.let {
             it.setOnClickListener {
                 viewPager.currentItem = (adapter.fragments.count() - 1).coerceAtMost(viewPager.currentItem + 1)
                 if (viewPager.currentItem == adapter.fragments.count() - 1) {
@@ -69,6 +103,15 @@ class BrilliantIntroActivity: BaseActivity() {
     override fun onResume() {
         super.onResume()
 
+        // TODO: Testing
+        val pushAllowed = ChatSDK.shared().preferences.getBoolean("brilliant-push", false)
+        if (!pushAllowed) {
+            showPushAlert()
+        }
+
+    }
+
+    fun authenticate() {
         if (ChatSDK.auth() != null) {
             if (ChatSDK.auth().isAuthenticatedThisSession) {
                 ChatSDK.ui().startMainActivity(this)
@@ -95,15 +138,42 @@ class BrilliantIntroActivity: BaseActivity() {
         customView.findViewById<TextView>(R.id.dialog_text)?.let {
 
         }
-        customView.findViewById<Button>(R.id.button_positive)?.let {
-
+        customView.findViewById<Button>(R.id.button_positive)?.setOnClickListener {
+            ChatSDK.shared().preferences.edit().putBoolean("brilliant-push", true).commit()
+            enablePush()
+            dialog.dismiss()
         }
-        customView.findViewById<Button>(R.id.button_negative)?.let {
-
+        customView.findViewById<Button>(R.id.button_negative)?.setOnClickListener {
+            ChatSDK.shared().preferences.edit().putBoolean("brilliant-push", false).commit()
+            dialog.dismiss()
         }
 
         // Show the dialog
         dialog.show()
+    }
+
+    fun enablePush() {
+//        FirebasePushModule.shared().activate(this)
+        askNotificationPermission()
+    }
+
+    private fun askNotificationPermission() {
+        // This is only necessary for API level >= 33 (TIRAMISU)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                // FCM SDK (and your app) can post notifications.
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // TODO: display an educational UI explaining to the user the features that will be enabled
+                //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
+                //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
+                //       If the user selects "No thanks," allow the user to continue without notifications.
+            } else {
+                // Directly ask for the permission
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
     }
 
 }

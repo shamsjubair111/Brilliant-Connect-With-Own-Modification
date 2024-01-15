@@ -31,14 +31,14 @@
 
     <TextView
         android:id="@id/dialogUnreadBubble"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:background="@drawable/shape_unread_bubble"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:layout_marginStart="5dp"
         android:paddingHorizontal="5dp"
-        android:textSize="@dimen/_12sdp"
+        android:textSize="@dimen/_11sdp"
         android:textColor="@color/textPrimary"
         android:text="10"
         android:lines="1"

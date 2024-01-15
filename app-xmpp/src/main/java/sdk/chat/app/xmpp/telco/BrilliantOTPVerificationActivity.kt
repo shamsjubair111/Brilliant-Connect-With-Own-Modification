@@ -8,6 +8,7 @@ import android.text.Spanned
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import `in`.aabhasjindal.otptextview.OTPListener
 import `in`.aabhasjindal.otptextview.OtpTextView
@@ -60,6 +61,13 @@ class BrilliantOTPVerificationActivity: BaseActivity(), OTPListener {
             next()
         }
 
+        findViewById<ImageView>(R.id.backArrow)?.setOnClickListener {
+            finish()
+        }
+        findViewById<TextView>(R.id.backText)?.setOnClickListener {
+            finish()
+        }
+
         validate()
 
         otp?.otpListener = this
@@ -75,9 +83,22 @@ class BrilliantOTPVerificationActivity: BaseActivity(), OTPListener {
 
     fun next() {
         if (Brilliant.shared().api().verifyOTP(otp?.otp)) {
-            val intent = Intent(this, BrilliantIntroActivity::class.java)
-            ChatSDK.ui().startActivity(this, intent)
+            // Register the user
+            phoneNumber?.let {
+                Brilliant.shared().api.register(it, "123").observeOn(RX.main()).subscribe({
+                    startNextActivity()
+                }, {
+                    it.message?.let { message ->
+                        showToast(message)
+                    }
+                })
+            }
         }
+    }
+
+    fun startNextActivity() {
+        val intent = Intent(this, BrilliantIntroActivity::class.java)
+        ChatSDK.ui().startActivity(this, intent)
     }
 
     fun sendOTP() {

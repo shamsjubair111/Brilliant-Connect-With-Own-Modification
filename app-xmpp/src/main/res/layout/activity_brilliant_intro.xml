@@ -47,4 +47,18 @@
         android:src="@drawable/arrow_forward"
         />
 
+    <TextView
+        android:id="@+id/tvNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/hind_vadodara_medium"
+        android:textSize="19dp"
+        android:textColor="@color/textPrimary"
+        android:text="@string/next"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="33dp"
+        android:layout_gravity="bottom|end"
+        android:visibility="invisible"
+        />
+
 </FrameLayout>

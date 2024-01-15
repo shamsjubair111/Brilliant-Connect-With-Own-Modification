@@ -1,6 +1,7 @@
 package sdk.chat.app.xmpp.telco
 
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import sdk.chat.core.Tab
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
@@ -11,6 +12,12 @@ class BrilliantInterfaceAdapter: BaseInterfaceAdapter() {
 
     val callsFragment = BrilliantCallsFragment()
     val settingsFragment = BrilliantSettingsFragment()
+
+    val bptf = BrilliantPrivateThreadsFragment()
+
+    override fun privateThreadsFragment(): Fragment? {
+        return bptf
+    }
 
     override fun defaultTabs(): List<Tab>? {
         val tabs = ArrayList<Tab>()
@@ -46,8 +53,8 @@ class BrilliantInterfaceAdapter: BaseInterfaceAdapter() {
             settingsFragment
         )
 
-        tabs.add(chatsTab)
         tabs.add(callsTab)
+        tabs.add(chatsTab)
         tabs.add(contactsTab)
         tabs.add(settingsTab)
         return tabs

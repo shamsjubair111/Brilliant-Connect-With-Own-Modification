@@ -41,6 +41,8 @@ public class MainApplication extends Application {
     public void xmpp() {
         try {
 
+
+
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectDiskReads()
                     .detectDiskWrites()
@@ -126,6 +128,8 @@ public class MainApplication extends Application {
 
 //            chatsdkAuth(Device.honor() ? "xxx1" : "xxx2", "123", "test@conference.xmpp.app");
 
+            // TODO: Testing
+//            ChatSDK.ui().setLoginActivity(BrilliantIntroActivity.class);
             ChatSDK.ui().setLoginActivity(BrilliantOTPLoginActivity.class);
             ChatSDK.ui().setSplashScreenActivity(BrilliantSplashScreenActivity.class);
             ChatSDK.ui().setMainActivity(BrilliantTabBarActivity.class);

@@ -79,8 +79,6 @@ public class FirebasePushModule extends AbstractModule {
         ChatSDK.a().push = new FirebasePushHandler();
         ChatSDK.shared().addBroadcastHandler(new BaseBroadcastHandler());
 
-
-
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 
                 // Create the NotificationChannel, but only on API 26+ because

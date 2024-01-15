@@ -83,6 +83,14 @@ class BrilliantTabBarActivity: MainAppBarActivity() {
         })
     }
 
+//    override fun doOnStart() {
+//        if (supportActionBar != null) {
+//            supportActionBar!!.setHomeAsUpIndicator(ChatSDKUI.icons()[this, ChatSDKUI.icons().user, ChatSDKUI.icons().actionBarIconColor])
+//            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+//        }
+//    }
+
+
     override fun initViews() {
         super.initViews()
 

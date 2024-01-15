@@ -4,6 +4,29 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <ImageView
+        android:id="@+id/backArrow"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/back_arrow"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="15dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+    <TextView
+        android:id="@+id/backText"
+        android:fontFamily="@font/hind_vadodara_semibold"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:textColor="@color/textPrimary"
+        android:textSize="16dp"
+        android:lineHeight="25dp"
+        android:text="@string/back"
+        app:layout_constraintStart_toEndOf="@id/backArrow"
+        app:layout_constraintTop_toTopOf="@id/backArrow"
+        />
+
     <TextView
         android:id="@+id/tvLogin"
         android:layout_width="wrap_content"

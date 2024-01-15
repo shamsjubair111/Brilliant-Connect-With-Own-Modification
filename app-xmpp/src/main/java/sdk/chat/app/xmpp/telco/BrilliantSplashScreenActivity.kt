@@ -9,6 +9,8 @@ class BrilliantSplashScreenActivity: SplashScreenActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+//        Brilliant.shared().api.register("ben", "123").subscribe()
     }
 
     @Override
