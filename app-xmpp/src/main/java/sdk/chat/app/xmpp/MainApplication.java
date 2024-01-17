@@ -68,15 +68,17 @@ public class MainApplication extends Application {
 
 //                    .setDebugUsername("1")
 //                    .setDebugPassword("123")
-                    .setDebugUsername("munna")
-                    .setDebugPassword("pass123")
+                    .setDebugUsername("4")
+                    .setDebugPassword("123")
 
                     .build()
                     .setInterfaceAdapter(BrilliantInterfaceAdapter.class)
 
                     // Add modules to handle file uploads, push notifications
                     .addModule(FirebaseUploadModule.shared())
-                    .addModule(FirebasePushModule.shared())
+                    .addModule(FirebasePushModule.builder(config ->
+                            config.setFirebaseFunctionsRegion("us-central1")
+                    ).shared())
 
                     .addModule(XMPPModule.builder()
 //                            .setXMPP("75.119.138.93", "xmpp.app", 5222)
@@ -119,6 +121,7 @@ public class MainApplication extends Application {
                     .build().activateWithEmail(this, "ben@sdk.chat");
 
 
+            FirebasePushModule.config().firebaseFunctionsRegion = "us-central1";
 
 
 //            ChatSDK.config().setDebugUsername(Device.honor() ? "a3": "a4");
@@ -133,6 +136,7 @@ public class MainApplication extends Application {
             ChatSDK.ui().setLoginActivity(BrilliantOTPLoginActivity.class);
             ChatSDK.ui().setSplashScreenActivity(BrilliantSplashScreenActivity.class);
             ChatSDK.ui().setMainActivity(BrilliantTabBarActivity.class);
+
 
 //            ChatSDKUI.icons().actionBarIconColor = getColor(R.color.textOrange);
 

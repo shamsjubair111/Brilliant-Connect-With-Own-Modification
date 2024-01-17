@@ -77,6 +77,8 @@ public class FirebasePushHandler extends AbstractPushHandler {
     @Override
     public void sendPushNotification(Map<String, Object> data) {
         if (data != null) {
+
+
             functions().getHttpsCallable("pushToChannels").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
                 if(task.getException() != null) {
                     Logger.error(task.getException());
@@ -89,7 +91,7 @@ public class FirebasePushHandler extends AbstractPushHandler {
         }
     }
 
-    public static FirebaseFunctions functions () {
+    public static FirebaseFunctions functions() {
         if (FirebasePushModule.config().firebaseFunctionsRegion != null) {
             return FirebaseFunctions.getInstance(FirebaseCoreHandler.app(), FirebasePushModule.config().firebaseFunctionsRegion);
         } else {

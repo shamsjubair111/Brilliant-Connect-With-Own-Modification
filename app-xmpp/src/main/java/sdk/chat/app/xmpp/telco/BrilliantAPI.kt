@@ -79,19 +79,12 @@ class BrilliantAPI {
             val client = OkHttpClient()
 
             val mediaType = "application/json; charset=utf-8".toMediaType()
-//            val json = """
-//            {
-//                "user": "$user",
-//                "host": "localhost",
-//                "password": "$password",
-//            }
-//            """.trimIndent()
-
             var json = JSONObject(mapOf("user" to user, "host" to "localhost", "password" to password))
 //            val body = json.toRequestBody(mediaType)
             val body = json.toString().toRequestBody(mediaType)
 
             val request = Request.Builder()
+//                .header("Content-Type", "application/json")
                 .url(xmppURL)
                 .post(body)
                 .build()
@@ -99,16 +92,16 @@ class BrilliantAPI {
             client.newCall(request).execute().use { response ->
                 // 10090 is already registered code
 
-                // TODO: Testing
+//                 TODO: Testing
 
-//                if (!response.isSuccessful && response.code != 10090) {
-//                    it.onError(IOException("Unexpected code $response"))
-//                } else {
-                    // Cache the credentials
+                if (!response.isSuccessful && response.code != 10090 && response.code != 409) {
+                    it.onError(IOException("Unexpected code $response"))
+                } else {
+//                     Cache the credentials
                     ChatSDK.shared().keyStorage.save(user, password)
 
                     it.onComplete()
-//                }
+                }
             }
         }
     }

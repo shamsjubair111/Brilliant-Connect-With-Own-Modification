@@ -10,11 +10,17 @@ class BrilliantSplashScreenActivity: SplashScreenActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        Brilliant.shared().api.register("ben", "123").subscribe()
+        // TODO: Testing
+//        Brilliant.shared().api.register("ben999xxyy", "123").subscribe()
     }
 
     @Override
     override fun startLoginActivity() {
+
+//        val intent = Intent(this, LoginActivity::class.java)
+//        startActivity(intent)
+
+        // TODO: Testing
         if (ChatSDK.shared().preferences.getBoolean("terms_accepted", false)) {
             startActivityForResult(ChatSDK.ui().getLoginIntent(this, null), AUTH)
         } else {
