@@ -13,6 +13,7 @@ import sdk.chat.core.events.EventType
 import sdk.chat.core.events.NetworkEvent
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
+import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.activities.MainAppBarActivity
 import sdk.chat.ui.adapters.PagerAdapterTabs
 import sdk.guru.common.DisposableMap
@@ -83,12 +84,15 @@ class BrilliantTabBarActivity: MainAppBarActivity() {
         })
     }
 
-//    override fun doOnStart() {
-//        if (supportActionBar != null) {
-//            supportActionBar!!.setHomeAsUpIndicator(ChatSDKUI.icons()[this, ChatSDKUI.icons().user, ChatSDKUI.icons().actionBarIconColor])
-//            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-//        }
-//    }
+    override fun doOnStart() {
+        if (Brilliant.shared().debug) {
+            if (supportActionBar != null) {
+                supportActionBar!!.setHomeAsUpIndicator(ChatSDKUI.icons()[this, ChatSDKUI.icons().user, ChatSDKUI.icons().actionBarIconColor])
+                supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            }
+//            super.doOnStart()
+        }
+    }
 
 
     override fun initViews() {

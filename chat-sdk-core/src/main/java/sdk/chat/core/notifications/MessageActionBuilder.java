@@ -35,10 +35,9 @@ public class MessageActionBuilder {
 
     public Intent createReplyIntent (Context context, String threadEntityID) {
 
-        Intent intent = new Intent(context, MessagingService.class);
+        Intent intent = new Intent(context, PushReceiver.class);
 
         intent.setAction(ActionKeys.REPLY);
-
         intent.putExtra(MessagingService.EXTRA_CONVERSATION_ENTITY_ID_KEY, threadEntityID);
 
         return intent;
@@ -46,7 +45,7 @@ public class MessageActionBuilder {
 
     public Intent createMarkAsReadIntent(Context context, String threadEntityID) {
 
-        Intent intent = new Intent(context, MessagingService.class);
+        Intent intent = new Intent(context, PushReceiver.class);
 
         intent.setAction(ActionKeys.MARK_AS_READ);
         intent.putExtra(MessagingService.EXTRA_CONVERSATION_ENTITY_ID_KEY, threadEntityID);
@@ -54,14 +53,14 @@ public class MessageActionBuilder {
         return intent;
     }
 
-    public NotificationCompat.Action createReplyAction (Context context, String threadEntityID, int replyID) {
+    public NotificationCompat.Action createReplyAction(Context context, String threadEntityID, int replyID) {
         Intent replyIntent = createReplyIntent(context, threadEntityID);
 
         PendingIntent replyPendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            replyPendingIntent = PendingIntent.getActivity(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+            replyPendingIntent = PendingIntent.getBroadcast(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
         } else {
-            replyPendingIntent = PendingIntent.getActivity(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            replyPendingIntent = PendingIntent.getBroadcast(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.reply), replyPendingIntent)
@@ -78,9 +77,9 @@ public class MessageActionBuilder {
 
         PendingIntent markAsReadPendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            markAsReadPendingIntent = PendingIntent.getService(context, markAsReadId, markAsReadIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            markAsReadPendingIntent = PendingIntent.getBroadcast(context, markAsReadId, markAsReadIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         } else {
-            markAsReadPendingIntent = PendingIntent.getService(context, markAsReadId, markAsReadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            markAsReadPendingIntent = PendingIntent.getBroadcast(context, markAsReadId, markAsReadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         NotificationCompat.Action markAsReadAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.mark_as_read), markAsReadPendingIntent)

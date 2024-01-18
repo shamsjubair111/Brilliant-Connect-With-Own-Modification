@@ -65,6 +65,7 @@ public class MainApplication extends Application {
                     .setClientPushEnabled(true)
                     .setAllowUserToRejoinGroup(true)
                     .setLogoDrawableResourceID(R.drawable.logo)
+                    .setPushNotificationImageDefaultResourceId(R.drawable.logo_trans)
 
 //                    .setDebugUsername("1")
 //                    .setDebugPassword("123")

@@ -36,7 +36,7 @@ public class BaseBroadcastHandler implements BroadcastHandler {
             return false;
         }
 
-        android.os.Debug.waitForDebugger();
+//        android.os.Debug.waitForDebugger();
 
         Bundle extras = intent.getExtras();
 

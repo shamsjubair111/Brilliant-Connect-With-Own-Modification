@@ -106,8 +106,12 @@ class BrilliantOTPVerificationActivity: BaseActivity(), OTPListener {
             otpRequested = true
             otpDispoable?.dispose()
             startTimer()
-            otpDispoable = Brilliant.shared().api().sendOTP(it).observeOn(RX.main()).subscribe {
+            if (Brilliant.shared().debug) {
+                Brilliant.shared().api().otp = "0000"
+            } else {
+                otpDispoable = Brilliant.shared().api().sendOTP(it).observeOn(RX.main()).subscribe {
 
+                }
             }
         }
     }

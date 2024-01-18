@@ -15,7 +15,7 @@ public class DefaultBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-//        android.os.Debug.waitForDebugger();
+        android.os.Debug.waitForDebugger();
 
         if (ChatSDK.shared().isValid() && !ChatSDK.config().manualPushHandlingEnabled ) {
             for (BroadcastHandler handler: ChatSDK.shared().broadcastHandlers()) {

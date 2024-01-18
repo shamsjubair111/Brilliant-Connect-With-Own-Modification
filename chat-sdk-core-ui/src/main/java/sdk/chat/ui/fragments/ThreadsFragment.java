@@ -144,6 +144,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             loadData();
         }));
 
+
         dm.add(ChatSDK.events().sourceOnSingle()
                 .filter(mainEventFilter())
                 .filter(NetworkEvent.filterType(EventType.ThreadAdded))

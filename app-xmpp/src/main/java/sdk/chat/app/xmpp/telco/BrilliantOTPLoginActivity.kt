@@ -44,8 +44,13 @@ class BrilliantOTPLoginActivity: BaseActivity() {
 
     fun validate(valid: Boolean) {
         continueButton?.let {
-            it.isEnabled = valid
-            it.alpha = if(valid) 1.0f else 0.5f
+            if(Brilliant.shared().debug) {
+                it.isEnabled = true
+                it.alpha = 1.0f
+            } else {
+                it.isEnabled = valid
+                it.alpha = if(valid) 1.0f else 0.5f
+            }
         }
     }
 

@@ -2,7 +2,6 @@ package sdk.chat.app.xmpp.telco
 
 import android.Manifest
 import android.app.AlertDialog
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -10,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -18,7 +18,6 @@ import com.rd.PageIndicatorView
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.activities.BaseActivity
-import sdk.chat.ui.activities.LoginActivity
 import sdk.guru.common.RX
 
 class BrilliantIntroActivity: BaseActivity() {
@@ -26,6 +25,7 @@ class BrilliantIntroActivity: BaseActivity() {
     lateinit var viewPager: ViewPager2
     lateinit var pageIndicatorView: PageIndicatorView
     lateinit var adapter: BrilliantIntroPagerAdapter
+    lateinit var progressBar: ProgressBar
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -46,6 +46,7 @@ class BrilliantIntroActivity: BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        progressBar = findViewById(R.id.progressBar)
 
         viewPager = findViewById(R.id.viewPager)
         pageIndicatorView = findViewById(R.id.pageIndicatorView)
@@ -91,13 +92,14 @@ class BrilliantIntroActivity: BaseActivity() {
         ivNext?.let {
             it.setOnClickListener {
                 viewPager.currentItem = (adapter.fragments.count() - 1).coerceAtMost(viewPager.currentItem + 1)
-                if (viewPager.currentItem == adapter.fragments.count() - 1) {
-                    val intent = Intent(this, LoginActivity::class.java)
-                    ChatSDK.ui().startActivity(this, intent)
-                }
+//                if (viewPager.currentItem == adapter.fragments.count() - 1) {
+//                    val intent = Intent(this, LoginActivity::class.java)
+//                    ChatSDK.ui().startActivity(this, intent)
+//                }
             }
         }
         viewPager.adapter = adapter
+
     }
 
     override fun onResume() {
@@ -109,6 +111,8 @@ class BrilliantIntroActivity: BaseActivity() {
             showPushAlert()
         }
 
+        endAuthenticating()
+
     }
 
     fun authenticate() {
@@ -117,13 +121,27 @@ class BrilliantIntroActivity: BaseActivity() {
                 ChatSDK.ui().startMainActivity(this)
                 return
             } else if (ChatSDK.auth().cachedCredentialsAvailable()) {
+                startAuthenticating()
                 dm.add(ChatSDK.auth().authenticate()
                     .observeOn(RX.main())
+                    .doFinally {
+                        endAuthenticating()
+                    }
                     .subscribe {
                         ChatSDK.ui().startMainActivity(this)
                     })
             }
         }
+    }
+
+    fun startAuthenticating() {
+        progressBar.visibility = View.VISIBLE
+        tvNext?.isEnabled = false
+    }
+
+    fun endAuthenticating() {
+        progressBar.visibility = View.GONE
+        tvNext?.isEnabled = true
     }
 
     fun showPushAlert() {

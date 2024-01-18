@@ -13,6 +13,8 @@
         android:requestLegacyExternalStorage="true"
         >
 
+        <receiver android:name=".notifications.PushReceiver" />
+
         <service android:name="sdk.chat.core.notifications.MessagingService"
             android:exported="false" />
 
