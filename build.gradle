@@ -30,7 +30,7 @@ ext {
     androidxRecyclerViewVersion = "1.2.1"
     androidxMultidexVersion = "2.0.1"
     androidxAnnotation = "1.2.0"
-    materialVersion = "1.7.0"
+    materialVersion = "1.11.0"
     playAuthVersion = "17.0.0"
     playMapsVersion = "17.0.0"
     playLocationVersion = "17.0.0"

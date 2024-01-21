@@ -11,6 +11,17 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported {
 
     override fun initViews() {
 
+
+    }
+
+    override fun setTabVisibility(isVisible: Boolean) {
+        super.setTabVisibility(isVisible)
+        if (Brilliant.shared().debug) {
+            alert?.let {
+                showToast("test")
+            }
+        }
+
     }
 
     override fun clearData() {
