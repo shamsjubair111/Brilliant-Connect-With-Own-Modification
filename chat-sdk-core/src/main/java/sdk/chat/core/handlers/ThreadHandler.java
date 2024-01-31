@@ -46,7 +46,7 @@ public interface ThreadHandler {
 
     boolean canAddUsersToThread(Thread thread);
     Completable addUsersToThread(Thread thread, List<User> users);
-    Completable addUsersToThread(Thread thread, User... users);
+    Completable  addUsersToThread(Thread thread, User... users);
     /**
      * Lazy loading of messages this method will load
      * that are not already in memory
@@ -79,6 +79,8 @@ public interface ThreadHandler {
      * Send different types of text to a particular thread
      */
     Completable sendMessageWithText(String text, Thread thread);
+    Completable sendVideoCallMessage(String text, Thread thread);
+    Completable sendAudioCallMessage(String text, Thread thread);
 
         /**
          * Send a text object

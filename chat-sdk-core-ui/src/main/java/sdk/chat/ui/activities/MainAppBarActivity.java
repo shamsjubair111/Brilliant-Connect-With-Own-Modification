@@ -13,11 +13,14 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.List;
 
 import materialsearchview.MaterialSearchView;
 import sdk.chat.core.Tab;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ConnectionType;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.adapters.PagerAdapterTabs;
@@ -80,6 +83,8 @@ public class MainAppBarActivity extends MainActivity {
         if (adapter == null) {
             adapter = new PagerAdapterTabs(this);
         }
+
+
 
 //        final List<Tab> tabs = adapter.getTabs();
 //        for (Tab tab : tabs) {

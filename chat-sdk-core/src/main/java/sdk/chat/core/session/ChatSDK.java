@@ -2,6 +2,7 @@ package sdk.chat.core.session;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -12,10 +13,12 @@ import org.pmw.tinylog.Logger;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import feather.Feather;
 import io.reactivex.Completable;
 import io.reactivex.plugins.RxJavaPlugins;
+import sdk.chat.core.R;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -109,6 +112,7 @@ public class ChatSDK {
 
     protected Feather feather = Feather.with();
     protected List<MessageHandler> messageHandlers = new ArrayList<>();
+    protected static MediaPlayer mediaPlayer ;
 
     protected ChatSDK () {
     }
@@ -145,6 +149,26 @@ public class ChatSDK {
         return shared().builder.builder();
     }
 
+    //    Get ringtone media
+    public static void setMedia()
+    {
+        mediaPlayer = MediaPlayer.create(shared().context(),R.raw.whatsapp);
+    }
+
+    public static void  mediaStart(boolean looping)
+    {
+        mediaPlayer.start();
+        mediaPlayer.setLooping(looping);
+
+    }
+    public static void mediaStop()
+    {
+        mediaPlayer.pause();
+
+    }
+
+
+
     public void activate(Context context) throws Exception {
         activate(context, null);
     }
@@ -178,6 +202,8 @@ public class ChatSDK {
         if (isActive) {
             throw new Exception("Chat SDK is already active. It is not recommended to call activate twice. If you must do this, make sure to call stop() first.");
         }
+        //Telcobright Calling Tone
+
 
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(appBackgroundMonitor);
@@ -325,6 +351,7 @@ public class ChatSDK {
 
         licenseIdentifier = identifier;
         isActive = true;
+        setMedia();
 
     }
 
@@ -501,6 +528,7 @@ public class ChatSDK {
     public static StorageManager db () {
         return shared().storageManager;
     }
+
 
 //    @Deprecated
 //    public static String getMessageImageURL(Message message) {

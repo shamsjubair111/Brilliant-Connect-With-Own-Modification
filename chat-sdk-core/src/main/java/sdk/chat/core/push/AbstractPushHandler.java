@@ -20,6 +20,7 @@ public abstract class AbstractPushHandler implements PushHandler {
     public ChannelManager channelManager = new ChannelManager();
 
     public static String UserIds = "userIds";
+
     public static String Type = "type";
     public static String Body = "body";
     public static String SenderId = "senderId";

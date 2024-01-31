@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "169878543239",
+    "firebase_url": "https://ic-tb-brilliantconnect-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "ic-tb-brilliantconnect",
+    "storage_bucket": "ic-tb-brilliantconnect.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:169878543239:android:a975c127de58d363b79122",
+        "android_client_info": {
+          "package_name": "com.brilliant.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQGA0fHtquhQyId5ZFg4BrQjJ8lsggQ_g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

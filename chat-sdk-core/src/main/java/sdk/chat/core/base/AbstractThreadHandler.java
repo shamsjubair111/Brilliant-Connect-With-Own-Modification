@@ -68,6 +68,14 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     public Completable sendMessageWithText(final String text, final Thread thread) {
         return new MessageSendRig(new MessageType(MessageType.Text), thread, message -> message.setText(text)).run();
     }
+    @Override
+    public Completable sendVideoCallMessage(final String text, final Thread thread) {
+        return new MessageSendRig(new MessageType(MessageType.VideoCall), thread, message -> message.setText(text)).run();
+    }
+    @Override
+    public Completable sendAudioCallMessage(final String text, final Thread thread) {
+        return new MessageSendRig(new MessageType(MessageType.Audio), thread, message -> message.setText(text)).run();
+    }
 
 //    @Override
 //    public Completable sendSilentMessage(final Map<String, String> data, final Thread thread) {

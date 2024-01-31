@@ -42,7 +42,7 @@ import sdk.guru.common.RX;
 // KEEP INCLUDES - put your custom includes here
 
 @Entity
-public class Thread extends AbstractEntity {
+public class  Thread extends AbstractEntity {
 
     @Id private Long id;
 

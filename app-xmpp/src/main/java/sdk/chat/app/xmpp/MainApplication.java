@@ -120,6 +120,7 @@ public class MainApplication extends Application {
                             .build())
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
+//                    .build().activateWithEmail(this, "apple@telcobright.com");
 
 
             FirebasePushModule.config().firebaseFunctionsRegion = "us-central1";

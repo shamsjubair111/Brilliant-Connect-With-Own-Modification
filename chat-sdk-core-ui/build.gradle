@@ -63,6 +63,7 @@ rootProject.allprojects {
 }
 
 dependencies {
+    implementation project(':chat-sdk-app-telcobright')
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':chat-sdk-core')
 //    implementation project(':vendor-matisse')
@@ -104,6 +105,8 @@ dependencies {
 
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
+    implementation files('D:\\telcobright\\wcs-android-sdk-1.1.0.61.aar')
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
@@ -121,6 +124,11 @@ ext {
     libraryName = 'CoreUI'
     artifact = 'ui'
     libraryDescription = 'Core UI'
+}
+ext {
+    libraryName = 'CallingPro'
+    artifact = 'pro-calling'
+    libraryDescription = 'Calling '
 }
 
 if (project.hasProperty("mavenPublish") && mavenPublish) {

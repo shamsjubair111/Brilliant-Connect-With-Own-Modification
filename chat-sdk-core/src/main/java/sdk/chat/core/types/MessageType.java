@@ -19,7 +19,7 @@ package sdk.chat.core.types;
 //
 //}
 
-public class MessageType {
+public class  MessageType {
 
     public static final int None = -1;
     public static final int Text = 0;
@@ -36,6 +36,9 @@ public class MessageType {
 
     public static final int Silent = 98;
     public static final int Custom = 99;
+    public static final int AudioCall = 100;
+    public static final int VideoCall = 101;
+
     public static final int Max = 100000;
 
     private int value;

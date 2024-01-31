@@ -305,7 +305,7 @@ public class Message extends AbstractEntity {
     }
 
     public boolean setUserReadStatus(User user, ReadStatus status, Date date, boolean notify) {
-        ReadReceiptUserLink link = linkForUser(user);
+         ReadReceiptUserLink link = linkForUser(user);
 
         if (sender.isMe()) {
             isRead = true;

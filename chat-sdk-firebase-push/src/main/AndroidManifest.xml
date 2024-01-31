@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -17,7 +18,7 @@
             android:value="sdk.chat.notification.Message"/>
 
 
-        <!--        <receiver-->
+<!--                <receiver-->
 <!--            android:name="sdk.chat.core.push.DefaultBroadcastReceiver"-->
 <!--            android:permission="com.google.android.c2dm.permission.SEND"-->
 <!--            android:enabled="true"-->
@@ -35,6 +36,14 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+<!--        <service-->
+<!--            android:name="telcobrightCallNotitfication"-->
+<!--            android:exported="false">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
+<!--            </intent-filter>-->
+<!--        </service>-->
+
 
     </application>
 

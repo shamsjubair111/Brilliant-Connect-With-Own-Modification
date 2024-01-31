@@ -51,15 +51,14 @@
         android:id="@+id/tvNext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/hind_vadodara_medium"
-        android:textSize="19dp"
-        android:textColor="@color/textPrimary"
-        android:text="@string/next"
+        android:layout_gravity="bottom|end"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="33dp"
-        android:layout_gravity="bottom|end"
-        android:visibility="invisible"
-        />
+        android:fontFamily="@font/hind_vadodara_medium"
+        android:text="@string/next"
+        android:textColor="@color/textPrimary"
+        android:textSize="19dp"
+        android:visibility="invisible" />
 
     <ProgressBar
         android:id="@+id/progressBar"

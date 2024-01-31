@@ -43,3 +43,4 @@ include 'app-xmpp',
         'vendor-chatkit',
         'chat-sdk-vendor'
 include ':vendor-android-audio-recorder'
+include ':chat-sdk-app-telcobright'

@@ -79,15 +79,34 @@ public class FirebasePushHandler extends AbstractPushHandler {
         if (data != null) {
 
 
-            functions().getHttpsCallable("pushToChannels").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
-                if(task.getException() != null) {
-                    Logger.error(task.getException());
-                }
-                else {
-                    Logger.debug(task.getResult().getData().toString());
-                }
-                return null;
-            });
+            if(data.get("type").toString().equals("101")||data.get("type").toString().equals("100"))
+            {
+                functions().getHttpsCallable("pushToCall").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
+
+//                functions().getHttpsCallable("").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
+
+                    if(task.getException() != null) {
+                        Logger.error(task.getException());
+                    }
+                    else {
+                        Logger.debug(task.getResult().getData().toString());
+                    }
+                    return null;
+                });
+            }
+            else {
+                functions().getHttpsCallable("pushToChannels").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
+                    if(task.getException() != null) {
+                        Logger.error(task.getException());
+                    }
+                    else {
+                        Logger.debug(task.getResult().getData().toString());
+                    }
+                    return null;
+                });
+            }
+
+
         }
     }
 

@@ -80,6 +80,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':chat-sdk-app-xmpp')
+    implementation project(':chat-sdk-core-ui')
     implementation project(':chat-sdk-pro-xmpp-read-receipts')
 
 //    api project(':chat-sdk-pro-message-audio')

@@ -8,7 +8,7 @@
     <color name="activity_background">#ffffff</color>
 
     <color name="gray_dark_75">#BF000000</color>
-
+    <color name="brilliant_blue">#1A3954</color>
     <color name="gray_dark_50">#80000000</color>
     <color name="red_light">#FFC9C9</color>
     <color name="red_dark">#CC1515</color>
@@ -22,6 +22,7 @@
     <color name="gray_very_light">#E0E0E0</color>
 
     <color name="green_light">#CFEE88</color>
+    <color name="green">#008000</color>
     <color name="primary_green">@android:color/holo_green_light</color>
     <color name="primary_green_dark">@android:color/holo_green_dark</color>
     <color name="blue_light">#AED1DF</color>

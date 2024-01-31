@@ -44,11 +44,13 @@ dependencies {
 
     implementation project(':chat-sdk-core')
     implementation project(':chat-sdk-core-ui')
+    implementation project(':chat-sdk-app-telcobright')
     implementation project(':chat-sdk-firebase-adapter')
 
     implementation "com.google.firebase:firebase-messaging"
     implementation "com.google.firebase:firebase-functions"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+
 }
 
 ext {
