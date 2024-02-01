@@ -70,6 +70,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.activities.BaseActivity;
 import sdk.chat.ui.fragments.AbstractChatFragment;
@@ -168,6 +169,23 @@ public class ReceiverActivity extends  BaseActivity {
             showToast(throwable.getLocalizedMessage());
         }).subscribe(this);
     }
+
+
+    public String getCurrentUser()
+    {
+        String currentUserNumber = null;
+        for (User user: thread.getUsers()) {
+            if (user.isMe()) {
+
+                return  user.getName().toString();
+                //                message.setUserReadStatus(user, ReadStatus.read(), new Date(), false);
+            } else {
+                continue;
+            }
+        }
+        return  currentUserNumber;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -178,6 +196,7 @@ public class ReceiverActivity extends  BaseActivity {
 //        updateThread(savedInstanceState);
         String roomName = getIntent().getStringExtra("senderNumber").toString();
         ChatSDK.mediaStop();
+//        String currentuser = getCurrentUser();
 
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(100001);
@@ -237,7 +256,7 @@ public class ReceiverActivity extends  BaseActivity {
 
 
         int randomNumber = 10000 + random.nextInt(90000);
-        RoomManagerOptions roomManagerOptions = new RoomManagerOptions("wss://tb.intercloud.com.bd:8443", ""+randomNumber);
+        RoomManagerOptions roomManagerOptions = new RoomManagerOptions("wss://tb.intercloud.com.bd:8443", ""+currentuser);
 
         /**
          * RoomManager object is created with method createRoomManager().
@@ -257,7 +276,7 @@ public class ReceiverActivity extends  BaseActivity {
 
 
                         if(connection.getStatus().equals("ESTABLISHED")){
-                            mConnectStatus.setText("Calling "+randomNumber);
+                            mConnectStatus.setText("Joining with "+ roomName);
                         }
 
 

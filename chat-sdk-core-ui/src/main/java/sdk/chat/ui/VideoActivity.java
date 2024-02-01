@@ -184,17 +184,8 @@ public class VideoActivity extends  BaseActivity {
 //        updateThread(receiverNumber);
         String roomName = null;
         roomName = getCurrentUser();
-//        if(isBrillianUser(receiverNumber))
-//        {
-//             roomName = getCurrentUser();
-//        }
-//        else {
-//            this.finish();
-//        }
-
 
         String threadEntityID = receiverNumber+"@localhost";
-        String senderName =  receiverNumber;
         String senderId = ChatSDK.currentUser().getName()+"@localhost";
         HashMap<String,HashMap<String,String>> userIds = new HashMap<String, HashMap<String, String>>();
         HashMap<String,String> users = new HashMap<String,String>();
@@ -217,7 +208,7 @@ public class VideoActivity extends  BaseActivity {
         }
 
         TelcobrightCallMessage tm = new TelcobrightCallMessage();
-        HashMap<String, Object> newMessage =  tm.createMessage(threadEntityID,senderName,senderId,users,action,body,callType);
+        HashMap<String, Object> newMessage =  tm.createMessage(threadEntityID,receiverNumber,senderId,users,action,body,callType);
 
 //        handleMessageSend( new TelcobrightCallMessage().sendMessage(roomName,callee,thread));
 
@@ -270,12 +261,12 @@ public class VideoActivity extends  BaseActivity {
          * The connection options are set.
          * WCS server URL and user name are passed when RoomManagerOptions object is created.
          */
-
-        Random random = new Random();
-
-
-        int randomNumber = 10000 + random.nextInt(90000);
-        RoomManagerOptions roomManagerOptions = new RoomManagerOptions("wss://tb.intercloud.com.bd:8443", ""+randomNumber);
+//
+//        Random random = new Random();
+//
+//
+//        int randomNumber = 10000 + random.nextInt(90000);
+        RoomManagerOptions roomManagerOptions = new RoomManagerOptions("wss://tb.intercloud.com.bd:8443", roomName);
 
         /**
          * RoomManager object is created with method createRoomManager().
@@ -301,7 +292,7 @@ public class VideoActivity extends  BaseActivity {
                             ChatSDK.push().sendPushNotification(newMessage);
 
 //                            handleMessageSend( ChatSDK.thread().sendVideoCallMessage("video call from "+roomName,thread));
-                            mConnectStatus.setText("Calling "+randomNumber);
+                            mConnectStatus.setText("Calling "+receiverNumber);
                         }
 
 
@@ -342,6 +333,9 @@ public class VideoActivity extends  BaseActivity {
                                      * The collection size is determined, and, if the maximum allowed number (in this case, three) has already been reached, the user leaves the room with method Room.leave().
                                      */
                                     if (room.getParticipants().size() >= 2) {
+
+
+
                                         room.leave(null);
                                         runOnUiThread(
                                                 new Runnable() {
@@ -444,6 +438,7 @@ public class VideoActivity extends  BaseActivity {
                                                     }
                                                 }
                                         );
+                                        Toast.makeText(VideoActivity.this, ""+participant.getName(), Toast.LENGTH_SHORT).show();
                                         freeViews.add(participantView);
                                     }
                                 }

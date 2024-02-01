@@ -46,7 +46,7 @@ public class ContactProfile extends AppCompatActivity {
         userNameTextView.setText(getIntent().getStringExtra("contactName"));
 
         textView9.setText(getIntent().getStringExtra("contactNumber"));
-        String senderNumber = validPhoneNumber(getIntent().getStringExtra("contactNumber"));
+        String receiverNumber = validPhoneNumber(getIntent().getStringExtra("contactNumber"));
 
         videoCall.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,7 +54,7 @@ public class ContactProfile extends AppCompatActivity {
 
                 if(getIntent().getStringExtra("registered").equals("yes")){
                     Intent intent = new Intent(getApplicationContext(), VideoActivity.class);
-                    intent.putExtra("receiverNumber",senderNumber);
+                    intent.putExtra("receiverNumber",receiverNumber);
                     intent.putExtra("type","video");
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
@@ -71,7 +71,7 @@ public class ContactProfile extends AppCompatActivity {
             public void onClick(View v) {
                 if(getIntent().getStringExtra("registered").equals("yes")){
                     Intent intent = new Intent(getApplicationContext(), VideoActivity.class);
-                    intent.putExtra("receiverNumber",senderNumber);
+                    intent.putExtra("receiverNumber",receiverNumber);
                     intent.putExtra("type","audio");
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
