@@ -105,8 +105,8 @@ dependencies {
 
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
-    implementation files('D:\\telcobright\\wcs-android-sdk-1.1.0.61.aar')
     implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation files('/home/jubair/Downloads/brilliant-connect-master/chat-sdk-app-telcobright/libs/wcs-android-sdk-1.1.0.61.aar')
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
     implementation 'com.intuit.sdp:sdp-android:1.0.6'

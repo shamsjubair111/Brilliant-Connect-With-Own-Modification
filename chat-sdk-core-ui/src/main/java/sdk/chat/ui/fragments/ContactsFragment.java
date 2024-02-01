@@ -102,7 +102,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS);
         } else {
             // Permission is already granted, you can proceed with accessing contacts
-            if (contactArrayList == null||contactArrayList.size() < 0) {
+            if (contactArrayList == null) {
                 ContactUtils.getContacts(getActivity());
 
             }
@@ -216,7 +216,11 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         adapter1 = new ContactListViewAdapter(getActivity(), contactArrayList, registeredUsers);
 
 
-        listViewId.setAdapter(adapter1);
+        if(contactArrayList != null)
+        {
+            listViewId.setAdapter(adapter1);
+        }
+
 
 
     }
