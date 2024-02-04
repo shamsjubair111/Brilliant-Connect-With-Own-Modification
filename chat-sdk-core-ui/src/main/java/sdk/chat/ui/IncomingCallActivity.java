@@ -56,7 +56,8 @@ public class IncomingCallActivity extends AppCompatActivity {
                 String senderNumber = getIntent().getStringExtra("senderNumber");
                 Intent intent = new Intent(getApplicationContext(), ReceiverActivity.class);
                 intent.putExtra("senderNumber", senderNumber);
-                intent.putExtra("type", "video");
+                String callType = getIntent().getStringExtra("type");
+                intent.putExtra("type", callType);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }

@@ -1,46 +1,20 @@
 package sdk.chat.firebase.push;
 
-import static sdk.chat.core.notifications.NotificationDisplayHandler.MESSAGE_NOTIFICATION_ID;
-
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.ActivityManager;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.util.Log;
-import android.widget.RemoteViews;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import java.util.List;
-
-import io.reactivex.disposables.Disposable;
 import notification.NotificationCancelActivity;
 import notification.NotificationDisplayHandler;
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.notifications.NotificationBuilder;
-import sdk.chat.core.notifications.NotificationBuilder;
 import sdk.chat.core.push.BroadcastHandler;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageType;
 import sdk.chat.ui.IncomingCallActivity;
 import sdk.chat.ui.ReceiverActivity;
-import sdk.chat.ui.activities.MainActivity;
-
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 public class DefaultMessagingService extends FirebaseMessagingService {
 
@@ -105,8 +79,10 @@ public class DefaultMessagingService extends FirebaseMessagingService {
             }
 
             Intent fullScreenIntent = new Intent(getApplicationContext(), IncomingCallActivity.class);
+            fullScreenIntent.putExtra("type",messageType);
             PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
                 fullScreenIntent, PendingIntent.FLAG_IMMUTABLE);
+
 
             Intent answerIntent = new Intent(this, ReceiverActivity.class);
             answerIntent.putExtra("senderNumber",senderNumber);
@@ -116,6 +92,7 @@ public class DefaultMessagingService extends FirebaseMessagingService {
 
             Intent appIntent = new Intent(getApplicationContext(), IncomingCallActivity.class);
             appIntent.putExtra("senderNumber", senderNumber);
+            appIntent.putExtra("type",messageType);
             appIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 

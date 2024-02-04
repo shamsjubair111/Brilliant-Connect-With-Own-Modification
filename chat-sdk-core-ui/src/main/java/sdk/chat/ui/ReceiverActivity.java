@@ -1,47 +1,27 @@
 package sdk.chat.ui;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.Manifest;
 import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.media.MediaPlayer;
-import android.os.Bundle;
-
-import android.Manifest;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.flashphoner.fpwcsapi.Flashphoner;
 import com.flashphoner.fpwcsapi.bean.Connection;
-import com.flashphoner.fpwcsapi.bean.Data;
 import com.flashphoner.fpwcsapi.bean.StreamStatus;
 import com.flashphoner.fpwcsapi.layout.PercentFrameLayout;
 import com.flashphoner.fpwcsapi.room.Message;
@@ -52,7 +32,6 @@ import com.flashphoner.fpwcsapi.room.RoomManager;
 import com.flashphoner.fpwcsapi.room.RoomManagerEvent;
 import com.flashphoner.fpwcsapi.room.RoomManagerOptions;
 import com.flashphoner.fpwcsapi.room.RoomOptions;
-import com.flashphoner.fpwcsapi.session.RestAppCommunicator;
 import com.flashphoner.fpwcsapi.session.Stream;
 import com.flashphoner.fpwcsapi.session.StreamStatusEvent;
 
@@ -68,19 +47,17 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.reactivex.Completable;
-import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.activities.BaseActivity;
 import sdk.chat.ui.fragments.AbstractChatFragment;
-import sdk.chat.ui.fragments.ChatFragment;
 import sdk.guru.common.RX;
 
 public class ReceiverActivity extends  BaseActivity {
 
 
-    private static String TAG = ReceiverActivity.class.getName();
+    private static final String TAG = ReceiverActivity.class.getName();
 
     private static final int PUBLISH_REQUEST_CODE = 100;
     protected AbstractChatFragment chatFragment;
@@ -256,7 +233,7 @@ public class ReceiverActivity extends  BaseActivity {
 
 
         int randomNumber = 10000 + random.nextInt(90000);
-        RoomManagerOptions roomManagerOptions = new RoomManagerOptions("wss://tb.intercloud.com.bd:8443", ""+currentuser);
+        RoomManagerOptions roomManagerOptions = new RoomManagerOptions("wss://tb.intercloud.com.bd:8443", ""+randomNumber);
 
         /**
          * RoomManager object is created with method createRoomManager().
