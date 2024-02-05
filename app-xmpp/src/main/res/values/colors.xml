@@ -14,5 +14,5 @@
     <color name="semiTrans">#03000000</color>
     <color name="primary_green">@color/underline</color>
 <!--    <color name="bubble">#87d7e2</color>-->
-
+    <color name="grey">#A0A0A0</color>
 </resources>

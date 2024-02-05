@@ -11,12 +11,12 @@
     <string name="resend_otp">Resend OTP!</string>
     <string name="code_has_been_sent__" formatted="false">Code has been sent to %s</string>
     <string name="resend__">Resend Code in %s s</string>
-    <string name="change_number" >Change Number</string>
-    <string name="verify" >Verify</string>
-    <string name="phone_number" >Phone Number</string>
-    <string name="your_otp_is__" formatted="false" >Your OTP is %s</string>
-    <string name="otp_or_phone_invalid" formatted="false" >OTP or Phone Number invalid</string>
-    <string name="failure" >If did not receive OTP, Please contact support using below link:
+    <string name="change_number">Change Number</string>
+    <string name="verify">Verify</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="your_otp_is__" formatted="false">Your OTP is %s</string>
+    <string name="otp_or_phone_invalid" formatted="false">OTP or Phone Number invalid</string>
+    <string name="failure">If did not receive OTP, Please contact support using below link:
         <a href="">https://app.brilliant.com.bd/otp</a></string>
 
     <string name="intro_1_title">Brilliant Connect</string>
@@ -44,6 +44,7 @@
     <string name="chats" formatted="false">Chats</string>
     <string name="back">Back</string>
     <string name="next">Next</string>
+    <string name="contact_permission_rationale">Need contacts read permission for fetching and displaying contacts</string>
 
 
 </resources>

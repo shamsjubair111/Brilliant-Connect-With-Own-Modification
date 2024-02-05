@@ -10,7 +10,7 @@ import sdk.chat.ui.ChatSDKUI
 
 class BrilliantInterfaceAdapter: BaseInterfaceAdapter() {
 
-    val callsFragment = BrilliantCallsFragment()
+    val callsFragment = BrilliantCallsFragment()//TestFragment()//BrilliantCallsFragment()//ContactsFragment()//
     val settingsFragment = BrilliantSettingsFragment()
 
     val bptf = BrilliantPrivateThreadsFragment()

@@ -13,7 +13,13 @@ import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.AudioActivity
 import sdk.chat.ui.VideoActivity
 
-class CustomAdapter(private val context: Context, private val contactData: List<Map<String, String>>) : BaseAdapter() {
+//class CustomAdapter(private val context: Context, private val contactData: List<Map<String, String>>) : BaseAdapter() {
+    class CustomAdapter(private val context: Context, private var contactData: List<Contact>) : BaseAdapter() {
+
+    fun clear() {
+        contactData = emptyList()
+        notifyDataSetChanged()
+    }
 
     override fun getCount(): Int {
         return contactData.size
@@ -39,10 +45,10 @@ class CustomAdapter(private val context: Context, private val contactData: List<
         val imageViewAppToApp: ImageView = view.findViewById(R.id.imageViewAppToApp)
 
         val contact = contactData[position]
-        val phoneNumber = contact["phoneNumber"]
-        val contactId = contact["id"]  // Assuming you have an ID field in your data
+        val phoneNumber = contact.number
+        //val contactId = contact["id"]  // Assuming you have an ID field in your data
 
-        displayNameTextView.text = contact["displayName"]
+        displayNameTextView.text = contact.name
         phoneNumberTextView.text = phoneNumber
 
         // Set OnClickListener for each button based on the phoneNumber

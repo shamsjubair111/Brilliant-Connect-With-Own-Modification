@@ -76,65 +76,65 @@ class BrilliantIntroActivity: BaseActivity() {
     }
 
     @SuppressLint("Range")
-    fun getContacts(): List<Contact> {
-
-
-        registeredUsers = RegisteredUserService.listRegisteredUsers() as HashSet<String>
-        requestContactsPermission()
-
-        val contentResolver: ContentResolver = this.contentResolver //context.contentResolver
-        val contactArrayList: MutableList<Contact> = mutableListOf()
-        val projection = arrayOf(
-            ContactsContract.Contacts._ID,
-            ContactsContract.Contacts.DISPLAY_NAME
-        )
-        val selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + " > 0"
-
-        val cursor: Cursor? = contentResolver.query(
-            ContactsContract.Contacts.CONTENT_URI,
-            projection,
-            selection,
-            null,
-            ContactsContract.Contacts.DISPLAY_NAME
-        )
-
-        if (cursor != null && cursor.count > 0) {
-            while (cursor.moveToNext()) {
-                println("contact_id"+ cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID)))
-                val contactId: String = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-                val contactName: String = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
-
-                val projection = arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                val selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?"
-                val selectionArgs = arrayOf(contactId)
-                // Get phone numbers for the contact
-                val phoneCursor: Cursor? = contentResolver.query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    projection,
-                    selection,
-                    selectionArgs,
-                    null
-                )
-
-                if (phoneCursor != null && phoneCursor.moveToFirst()) {
-                    do {
-                        var phoneNumber: String = phoneCursor.getString(phoneCursor.getColumnIndex(
-                            ContactsContract.CommonDataKinds.Phone.NUMBER))
-                        phoneNumber = ContactListViewAdapter.validPhoneNumber(phoneNumber)
-                        val contactList = Contact(contactName, phoneNumber)
-                        if(registeredUsers.contains(phoneNumber) && !contactArrayList.contains(contactList)){
-                            contactArrayList.add(contactList)
-                        }
-                    } while (phoneCursor.moveToNext())
-
-                    phoneCursor.close()
-                }
-            }
-            cursor.close()
-        }
-
-        return contactArrayList
-    }
+//    fun getContacts(): List<Contact> {
+//
+//
+//        registeredUsers = RegisteredUserService.listRegisteredUsers() as HashSet<String>
+//        requestContactsPermission()
+//
+//        val contentResolver: ContentResolver = this.contentResolver //context.contentResolver
+//        val contactArrayList: MutableList<Contact> = mutableListOf()
+//        val projection = arrayOf(
+//            ContactsContract.Contacts._ID,
+//            ContactsContract.Contacts.DISPLAY_NAME
+//        )
+//        val selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + " > 0"
+//
+//        val cursor: Cursor? = contentResolver.query(
+//            ContactsContract.Contacts.CONTENT_URI,
+//            projection,
+//            selection,
+//            null,
+//            ContactsContract.Contacts.DISPLAY_NAME
+//        )
+//
+//        if (cursor != null && cursor.count > 0) {
+//            while (cursor.moveToNext()) {
+//                println("contact_id"+ cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID)))
+//                val contactId: String = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+//                val contactName: String = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+//
+//                val projection = arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER)
+//                val selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?"
+//                val selectionArgs = arrayOf(contactId)
+//                // Get phone numbers for the contact
+//                val phoneCursor: Cursor? = contentResolver.query(
+//                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+//                    projection,
+//                    selection,
+//                    selectionArgs,
+//                    null
+//                )
+//
+//                if (phoneCursor != null && phoneCursor.moveToFirst()) {
+//                    do {
+//                        var phoneNumber: String = phoneCursor.getString(phoneCursor.getColumnIndex(
+//                            ContactsContract.CommonDataKinds.Phone.NUMBER))
+//                        phoneNumber = ContactListViewAdapter.validPhoneNumber(phoneNumber)
+//                        val contactList = Contact(contactName, phoneNumber)
+//                        if(registeredUsers.contains(phoneNumber) && !contactArrayList.contains(contactList)){
+//                            contactArrayList.add(contactList)
+//                        }
+//                    } while (phoneCursor.moveToNext())
+//
+//                    phoneCursor.close()
+//                }
+//            }
+//            cursor.close()
+//        }
+//
+//        return contactArrayList
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -205,7 +205,7 @@ class BrilliantIntroActivity: BaseActivity() {
         }
 
         endAuthenticating()
-        //checkAndRequestContactsPermission()
+        checkAndRequestContactsPermission()
     }
 
     fun authenticate() {
