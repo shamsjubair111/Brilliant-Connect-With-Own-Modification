@@ -4,6 +4,7 @@ import static sdk.chat.ui.ContactListViewAdapter.validPhoneNumber;
 import static sdk.chat.ui.ContactUtils.contactArrayList;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
@@ -438,7 +439,12 @@ public class VideoActivity extends  BaseActivity {
                                                     }
                                                 }
                                         );
-                                        Toast.makeText(VideoActivity.this, ""+participant.getName(), Toast.LENGTH_SHORT).show();
+                                        if(participant.getName().equals(receiverNumber))
+                                        {
+                                            Toast.makeText(VideoActivity.this, "Ended", Toast.LENGTH_SHORT).show();
+                                            finish();
+                                        }
+//                                        Toast.makeText(VideoActivity.this, ""+participant.getName(), Toast.LENGTH_SHORT).show();
                                         freeViews.add(participantView);
                                     }
                                 }
@@ -695,6 +701,15 @@ public class VideoActivity extends  BaseActivity {
         }
     }
 
+
+    @SuppressLint("MissingSuperCall")
+    @Override
+    public void onBackPressed()
+    {
+        Toast.makeText(VideoActivity.this, "Call in progress", Toast.LENGTH_SHORT).show();
+
+        // super.onBackPressed(); // Comment this super call to avoid calling finish() or fragmentmanager's backstack pop operation.
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();

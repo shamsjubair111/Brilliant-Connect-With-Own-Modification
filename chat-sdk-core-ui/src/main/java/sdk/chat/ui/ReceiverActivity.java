@@ -1,6 +1,7 @@
 package sdk.chat.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -174,6 +176,7 @@ public class ReceiverActivity extends  BaseActivity {
         String roomName = getIntent().getStringExtra("senderNumber").toString();
         ChatSDK.mediaStop();
 //        String currentuser = getCurrentUser();
+        String currentUserId = ChatSDK.auth().currentUser().getName();
 
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(100001);
@@ -233,7 +236,7 @@ public class ReceiverActivity extends  BaseActivity {
 
 
         int randomNumber = 10000 + random.nextInt(90000);
-        RoomManagerOptions roomManagerOptions = new RoomManagerOptions("wss://tb.intercloud.com.bd:8443", ""+randomNumber);
+        RoomManagerOptions roomManagerOptions = new RoomManagerOptions("wss://tb.intercloud.com.bd:8443", ""+currentUserId);
 
         /**
          * RoomManager object is created with method createRoomManager().
@@ -397,6 +400,11 @@ public class ReceiverActivity extends  BaseActivity {
                                                 }
                                         );
                                         freeViews.add(participantView);
+                                        if(participant.getName().equals(roomName))
+                                        {
+                                            Toast.makeText(ReceiverActivity.this, "Ended", Toast.LENGTH_SHORT).show();
+                                            finish();
+                                        }
                                     }
                                 }
 
@@ -650,6 +658,14 @@ public class ReceiverActivity extends  BaseActivity {
                 }
             }
         }
+    }
+    @SuppressLint("MissingSuperCall")
+    @Override
+    public void onBackPressed()
+    {
+        Toast.makeText(ReceiverActivity.this, "Call in progress", Toast.LENGTH_SHORT).show();
+
+        // super.onBackPressed(); // Comment this super call to avoid calling finish() or fragmentmanager's backstack pop operation.
     }
 
     @Override
