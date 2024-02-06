@@ -133,10 +133,10 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
                             }
                         }
                     }
-
-                    val adapter = context?.let { CustomAdapter(it, contacts) }
-                    listViewContacts.adapter = adapter
                     it.close()
+                    adapter = context?.let { CustomAdapter(it, contacts) }!!
+                    listViewContacts.adapter = adapter
+
                 }
             }
         }
