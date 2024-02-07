@@ -287,19 +287,47 @@ class BrilliantIntroActivity: BaseActivity() {
         }
     }
 
+//    private fun checkAndRequestContactsPermission() {
+//        // Check if the app has READ_CONTACTS permission
+//        if (ContextCompat.checkSelfPermission(
+//                        this,
+//                        Manifest.permission.READ_CONTACTS
+//                ) == PackageManager.PERMISSION_GRANTED
+//        ) {
+//            // App already has the permission, you can perform actions related to contacts here
+//
+//        } else {
+//            // Request READ_CONTACTS permission
+//           requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+//        }
+//    }
+
     private fun checkAndRequestContactsPermission() {
         // Check if the app has READ_CONTACTS permission
         if (ContextCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.READ_CONTACTS
-                ) == PackageManager.PERMISSION_GRANTED
+                this,
+                Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
         ) {
-            // App already has the permission, you can perform actions related to contacts here
-
+            initViews()
         } else {
-            // Request READ_CONTACTS permission
-            requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+            if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) {
+                showPermissionRationale()
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+            }
         }
     }
 
+    private fun showPermissionRationale() {
+        AlertDialog.Builder(this)
+            .setTitle("Permission Required")
+            .setMessage("This app requires access to your contacts to function properly.")
+            .setPositiveButton("Grant") { _, _ ->
+                requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+            }
+            .show()
+    }
 }
