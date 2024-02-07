@@ -67,18 +67,9 @@ public class DefaultMessagingService extends FirebaseMessagingService {
                 }
             }
             ChatSDK.mediaStart(true);
-            Intent mianAppIntent = null;
-            if (ChatSDK.appBackgroundMonitor().inBackground()) {
-                mianAppIntent = new Intent(getApplicationContext(), ChatSDK.ui().getChatActivity());
-            }
-            if (mianAppIntent != null) {
-                mianAppIntent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
-                mianAppIntent.setAction(threadEntityID);
-                mianAppIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-            }
 
             Intent fullScreenIntent = new Intent(getApplicationContext(), IncomingCallActivity.class);
+            fullScreenIntent.putExtra("senderNumber",senderNumber);
             fullScreenIntent.putExtra("type",messageType);
             PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
                 fullScreenIntent, PendingIntent.FLAG_IMMUTABLE);

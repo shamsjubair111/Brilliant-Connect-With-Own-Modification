@@ -64,7 +64,7 @@ import sdk.chat.ui.api.RegisteredUserService;
 import sdk.chat.ui.fragments.AbstractChatFragment;
 import sdk.guru.common.RX;
 
-public class VideoActivity extends  BaseActivity {
+public class VideoActivity extends BaseActivity {
 
 
     private static String TAG = VideoActivity.class.getName();
@@ -90,7 +90,6 @@ public class VideoActivity extends  BaseActivity {
     private RelativeLayout relativeLayout;
 
 
-
     /**
      * RoomManager object is used to manage connection to server and video chat room.
      */
@@ -112,14 +111,14 @@ public class VideoActivity extends  BaseActivity {
     protected Thread thread;
 
     public sdk.chat.core.dao.Message message;
+
     public void updateThread(String phoneNumber) {
         thread = null;
 
 
-
         if (!phoneNumber.isEmpty()) {
 //            String threadEntityID = bundle.getString(Keys.IntentKeyThreadEntityID);
-            String threadEntityID = phoneNumber+"@localhost";
+            String threadEntityID = phoneNumber + "@localhost";
             if (threadEntityID != null) {
 
 
@@ -137,36 +136,34 @@ public class VideoActivity extends  BaseActivity {
 
     }
 
-    public  boolean isBrillianUser(String receiverNumber)
-    {
+    public boolean isBrillianUser(String receiverNumber) {
         Set<String> registeredUsers = RegisteredUserService.listRegisteredUsers();
         int i = 0;
-        for ( String registeredUser:registeredUsers) {
+        for (String registeredUser : registeredUsers) {
 
-            if(registeredUser.contains(validPhoneNumber(contactArrayList.get(i).getContactNumber()))){
+            if (registeredUser.contains(validPhoneNumber(contactArrayList.get(i).getContactNumber()))) {
 
-                return  true;
+                return true;
 
             }
             i++;
         }
-        return  false;
+        return false;
     }
 
 
-    public String getCurrentUser()
-    {
+    public String getCurrentUser() {
         String currentUserNumber = null;
-        for (User user: thread.getUsers()) {
+        for (User user : thread.getUsers()) {
             if (user.isMe()) {
 
-                return  user.getName().toString();
+                return user.getName().toString();
                 //                message.setUserReadStatus(user, ReadStatus.read(), new Date(), false);
             } else {
-               continue;
+                continue;
             }
         }
-        return  currentUserNumber;
+        return currentUserNumber;
     }
 
     protected void handleMessageSend(Completable completable) {
@@ -175,57 +172,53 @@ public class VideoActivity extends  BaseActivity {
             showToast(throwable.getLocalizedMessage());
         }).subscribe(ChatSDKUI.getChatFragment(thread));
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        updateThread(savedInstanceState);
-        this.thread= ChatSDK.db().allThreads().get(0);
+        this.thread = ChatSDK.db().allThreads().get(0);
 
         String receiverNumber = getIntent().getStringExtra("receiverNumber").toString();
 //        updateThread(receiverNumber);
         String roomName = null;
         roomName = getCurrentUser();
 
-        String threadEntityID = receiverNumber+"@localhost";
-        String senderId = ChatSDK.currentUser().getName()+"@localhost";
-        HashMap<String,HashMap<String,String>> userIds = new HashMap<String, HashMap<String, String>>();
-        HashMap<String,String> users = new HashMap<String,String>();
-        users.put(threadEntityID,receiverNumber);
-        userIds.put("userIds",users);
-        String action =  "co.chatsdk.QuickReply";
+        String threadEntityID = receiverNumber + "@localhost";
+        String senderId = ChatSDK.currentUser().getName() + "@localhost";
+        HashMap<String, HashMap<String, String>> userIds = new HashMap<String, HashMap<String, String>>();
+        HashMap<String, String> users = new HashMap<String, String>();
+        users.put(threadEntityID, receiverNumber);
+        userIds.put("userIds", users);
+        String action = "co.chatsdk.QuickReply";
         String body = "video call";
         int callType = 100;
 
 
-
         Intent intent = getIntent();
         String type = intent.getStringExtra("type");
-        if(type.contains("video"))
-        {
+        if (type.contains("video")) {
             callType = 101;
-        }
-        else {
+        } else {
             callType = 100;
         }
 
         TelcobrightCallMessage tm = new TelcobrightCallMessage();
-        HashMap<String, Object> newMessage =  tm.createMessage(threadEntityID,receiverNumber,senderId,users,action,body,callType);
+        HashMap<String, Object> newMessage = tm.createMessage(threadEntityID, receiverNumber, senderId, users, action, body, callType);
 
 //        handleMessageSend( new TelcobrightCallMessage().sendMessage(roomName,callee,thread));
-
 
 
         setContentView(R.layout.activity_video);
 
 
-        final MediaPlayer mediaPlayer = MediaPlayer.create(VideoActivity.this,R.raw.mario);
+        final MediaPlayer mediaPlayer = MediaPlayer.create(VideoActivity.this, R.raw.mario);
 
         relativeLayout = findViewById(R.id.relativeLayout);
 
-        if(type.equals("audio")){
+        if (type.equals("audio")) {
             relativeLayout.setBackgroundColor(R.color.brilliant_blue);
         }
-
 
 
         callCancelButton = findViewById(R.id.callCancelButton);
@@ -240,14 +233,10 @@ public class VideoActivity extends  BaseActivity {
         });
 
 
-
-
         /**
          * Initialization of the API.
          */
         Flashphoner.init(this);
-
-
 
 
         mConnectStatus = (TextView) findViewById(R.id.connect_status);
@@ -287,17 +276,17 @@ public class VideoActivity extends  BaseActivity {
                     public void run() {
 
 
-                        if(connection.getStatus().equals("ESTABLISHED")){
+                        if (connection.getStatus().equals("ESTABLISHED")) {
 //                            ChatSDK.thread().sendMessageWithText()
 //                            Map<String, Object> data = ChatSDK.push().pushDataForMessage(newMessage);
                             ChatSDK.push().sendPushNotification(newMessage);
 
 //                            handleMessageSend( ChatSDK.thread().sendVideoCallMessage("video call from "+roomName,thread));
-                            mConnectStatus.setText("Calling "+receiverNumber);
+                            mConnectStatus.setText("Calling " + receiverNumber);
                         }
 
 
-                        if(connection.getStatus().equals("ESTABLISHED")){
+                        if (connection.getStatus().equals("ESTABLISHED")) {
 
                             /**
                              * Room name is set with method RoomOptions.setName().
@@ -334,7 +323,6 @@ public class VideoActivity extends  BaseActivity {
                                      * The collection size is determined, and, if the maximum allowed number (in this case, three) has already been reached, the user leaves the room with method Room.leave().
                                      */
                                     if (room.getParticipants().size() >= 2) {
-
 
 
                                         room.leave(null);
@@ -392,8 +380,6 @@ public class VideoActivity extends  BaseActivity {
                                                             new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA},
                                                             100); //Apple publish
 
-
-
                                                 }
                                             }
                                     );
@@ -439,8 +425,7 @@ public class VideoActivity extends  BaseActivity {
                                                     }
                                                 }
                                         );
-                                        if(participant.getName().equals(receiverNumber))
-                                        {
+                                        if (participant.getName().equals(receiverNumber)) {
                                             Toast.makeText(VideoActivity.this, "Ended", Toast.LENGTH_SHORT).show();
                                             finish();
                                         }
@@ -531,19 +516,12 @@ public class VideoActivity extends  BaseActivity {
         });
 
 
-
-
-
-
         mJoinStatus = (TextView) findViewById(R.id.join_status);
 
 
         /**
          * The participant will join to video chat room when Join button is clicked.
          */
-
-
-
 
 
         mPublishStatus = (TextView) findViewById(R.id.publish_status);
@@ -585,7 +563,6 @@ public class VideoActivity extends  BaseActivity {
         });
 
 
-
         localRenderer = (SurfaceViewRenderer) findViewById(R.id.local_video_view);
         PercentFrameLayout localRenderLayout = (PercentFrameLayout) findViewById(R.id.local_video_layout);
         localRenderLayout.setPosition(0, 0, 100, 100);
@@ -604,7 +581,7 @@ public class VideoActivity extends  BaseActivity {
         mParticipantName = (TextView) findViewById(R.id.participant_name);
         freeViews.add(new ParticipantView(remote1Render, mParticipantName));
 
-        if(type.equals("audio")){
+        if (type.equals("audio")) {
             localRenderer.setVisibility(View.INVISIBLE);
             remote1Render.setVisibility(View.INVISIBLE);
             mMuteVideo.setVisibility(View.INVISIBLE);
@@ -612,7 +589,6 @@ public class VideoActivity extends  BaseActivity {
         }
         mParticipantName.setVisibility(View.INVISIBLE);
         mPublishStatus.setVisibility(View.GONE);
-
 
 
     }
@@ -665,13 +641,12 @@ public class VideoActivity extends  BaseActivity {
                                     if (StreamStatus.PUBLISHING.equals(streamStatus)) {
 
                                         {
-                                            if(getIntent().getStringExtra("type").equals("audio")){
+                                            if (getIntent().getStringExtra("type").equals("audio")) {
                                                 mMuteAudio.setEnabled(true);
                                                 mMuteVideo.setEnabled(false);
 
 
-                                            }
-                                            else{
+                                            } else {
                                                 mMuteAudio.setEnabled(true);
                                                 mMuteVideo.setEnabled(true);
 
@@ -685,7 +660,6 @@ public class VideoActivity extends  BaseActivity {
                                         mMuteVideo.setChecked(false);
                                         VideoActivity.this.stream = null;
                                     }
-
 
 
                                     mPublishStatus.setText(streamStatus.toString());
@@ -704,12 +678,12 @@ public class VideoActivity extends  BaseActivity {
 
     @SuppressLint("MissingSuperCall")
     @Override
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         Toast.makeText(VideoActivity.this, "Call in progress", Toast.LENGTH_SHORT).show();
 
         // super.onBackPressed(); // Comment this super call to avoid calling finish() or fragmentmanager's backstack pop operation.
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
