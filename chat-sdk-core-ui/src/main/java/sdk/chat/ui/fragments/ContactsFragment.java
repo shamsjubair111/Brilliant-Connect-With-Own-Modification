@@ -114,25 +114,31 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
 //        recyclerView = view.findViewById(R.id.recyclerView);
         listViewId = view.findViewById(R.id.listViewId);
         root = view.findViewById(R.id.root);
-        LoaderManager.getInstance(this).initLoader(0, null, this);
 
-//        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            // Permission is not granted, request it
-//            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS);
-//        } else {
-//            // Permission is already granted, you can proceed with accessing contacts
-//            if (contactArrayList == null) {
-//                ContactUtils.getContacts(getActivity());
-//
-//            }
-//        }
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            //ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS);
+        } else {
+            if (contactArrayList == null) {
+                LoaderManager.getInstance(this).initLoader(0, null, this);
+            }
+        }
         initViews();
 
         //loadData(true);
 
         return view;
     }
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        if (requestCode == CONTACTS_PERMISSION_CODE && grantResults.length > 0 &&
+//                grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//            loaderManager.initLoader(0, null, this);
+//        } else {
+//            Toast.makeText(requireContext(), "Contacts permission denied", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     @Override
     public void onStart() {
@@ -340,20 +346,19 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         loadData(false);
     }
 
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-//                                           @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//
-//        if (requestCode == REQUEST_READ_CONTACTS) {
-//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                // Permission granted, proceed with accessing contacts
-//                ContactUtils.getContacts(getContext());
-//            } else {
-//                // Permission denied, handle accordingly (e.g., show a message or take alternative actions)
-//            }
-//        }
-//    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_READ_CONTACTS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                LoaderManager.getInstance(this).initLoader(0, null, this);
+            } else {
+                Toast.makeText(requireContext(), "Contacts permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
 
     public List<User> filter(List<User> users) {
@@ -385,6 +390,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                 );
             default:
                 return new CursorLoader(
+
                         getActivity(),
                         ContactsContract.Contacts.CONTENT_URI,
                         Constants.PROJECTION_DETAILS,

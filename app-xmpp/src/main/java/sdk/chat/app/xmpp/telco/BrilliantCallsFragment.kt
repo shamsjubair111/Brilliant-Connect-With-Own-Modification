@@ -1,5 +1,6 @@
 package sdk.chat.app.xmpp.telco
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.database.Cursor
@@ -10,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
 import android.widget.SimpleCursorAdapter
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
@@ -44,19 +47,6 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
         return view
     }
 
-
-    override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
-    ) {
-        if (requestCode == CONTACTS_PERMISSION_CODE && grantResults.isNotEmpty() &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED
-        ) {
-            //initViews()
-        }
-    }
-
     @SuppressLint("Range")
     override fun initViews() {
 
@@ -78,7 +68,15 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        loaderManager.initLoader(0, null, this)
+        //loaderManager.initLoader(0, null, this)
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS)
+            != PackageManager.PERMISSION_GRANTED) {
+            // Request the permission
+            //requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), CONTACTS_PERMISSION_CODE)
+        } else {
+            // Permission already granted, you can initiate loading contacts or any other action
+            loaderManager.initLoader(0, null, this)
+        }
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
