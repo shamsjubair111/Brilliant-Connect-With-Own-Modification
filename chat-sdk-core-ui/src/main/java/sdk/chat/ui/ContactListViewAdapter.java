@@ -127,7 +127,9 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
             letterImage.setVisibility(View.GONE);
         } else {
             letterImage.setVisibility(View.VISIBLE);
-            letterImage.setText(String.valueOf(currentContact.getName().charAt(0)));
+            String[] splittedArray = currentContact.getName().trim().split("[\\s]+");
+            String st = (splittedArray.length<2) ? String.valueOf(splittedArray[0].charAt(0)) : splittedArray[0].charAt(0) + "" + splittedArray[1].charAt(0);
+            letterImage.setText(st);
             userImage.setImageResource(R.drawable.profile_circle); // Set a default image or leave it empty
         }
         userContactName.setText(list.get(position).getName());
