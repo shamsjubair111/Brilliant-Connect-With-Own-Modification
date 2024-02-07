@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import notification.NotificationCancelActivity;
 import sdk.chat.core.session.ChatSDK;
 
 public class IncomingCallActivity extends AppCompatActivity {
@@ -40,10 +41,16 @@ public class IncomingCallActivity extends AppCompatActivity {
         activity_hang_up_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String senderNumber = getIntent().getStringExtra("senderNumber");
                 NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.cancel(100001);
-                finish();
+                Intent intent = new Intent(getApplicationContext(), NotificationCancelActivity.class);
+                intent.putExtra("senderNumber", senderNumber);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 ChatSDK.mediaStop();
+                finish();
+                startActivity(intent);
+
             }
         });
 

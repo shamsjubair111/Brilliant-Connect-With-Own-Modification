@@ -204,7 +204,7 @@ public class ReceiverActivity extends  BaseActivity {
             @Override
             public void onClick(View view) {
 //                mediaPlayer.stop();
-                finish();
+                finishAndRemoveTask();
             }
         });
 
@@ -256,7 +256,7 @@ public class ReceiverActivity extends  BaseActivity {
 
 
                         if(connection.getStatus().equals("ESTABLISHED")){
-                            mConnectStatus.setText("Joining with "+ roomName);
+                            mConnectStatus.setText("Call in progress with\n     "+ roomName);
                         }
 
 
@@ -309,6 +309,11 @@ public class ReceiverActivity extends  BaseActivity {
                                         );
                                         return;
                                     }
+                                    if (room.getParticipants().size() == 0)
+                                    {
+                                        Toast.makeText(ReceiverActivity.this, "Ended", Toast.LENGTH_SHORT).show();
+                                        finishAndRemoveTask();
+                                    }
 
 
                                     final StringBuffer chatState = new StringBuffer("participants: ");
@@ -351,10 +356,14 @@ public class ReceiverActivity extends  BaseActivity {
                                                     ActivityCompat.requestPermissions(ReceiverActivity.this,
                                                             new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA},
                                                             100); //Apple publish
+
+
+
                                                 }
                                             }
                                     );
                                 }
+
                                 @Override
                                 public void onJoined(final Participant participant) {
                                     /**
@@ -367,10 +376,13 @@ public class ReceiverActivity extends  BaseActivity {
                                                 new Runnable() {
                                                     @Override
                                                     public void run() {
+
                                                         participantView.login.setText(participant.getName());
+
                                                     }
                                                 }
                                         );
+
                                         busyViews.put(participant.getName(), participantView);
                                     }
                                 }
@@ -396,6 +408,10 @@ public class ReceiverActivity extends  BaseActivity {
                                         if(participant.getName().equals(roomName))
                                         {
                                             Toast.makeText(ReceiverActivity.this, "Ended", Toast.LENGTH_SHORT).show();
+//                                            finish();
+                                            finishAndRemoveTask();
+
+
                                         }
                                     }
                                 }
