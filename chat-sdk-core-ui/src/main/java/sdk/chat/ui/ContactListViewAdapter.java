@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import org.pmw.tinylog.Logger;
 
@@ -75,6 +76,7 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
         TextView userContactNumber = convertView.findViewById(R.id.userContactNumber);
         TextView inviteText = convertView.findViewById(R.id.inviteText);
         LinearLayout linearLayout2 = convertView.findViewById(R.id.linearLayout2);
+        ConstraintLayout constraintLayout = convertView.findViewById(R.id.constraintLayout2);
 
 
         //List<User> user = ChatSDK.currentUser().getContacts();
@@ -131,7 +133,7 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
         userContactName.setText(list.get(position).getName());
         userContactNumber.setText(list.get(position).getNumber());
 
-        linearLayout2.setOnClickListener(new View.OnClickListener() {
+        constraintLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), ContactProfile.class);
