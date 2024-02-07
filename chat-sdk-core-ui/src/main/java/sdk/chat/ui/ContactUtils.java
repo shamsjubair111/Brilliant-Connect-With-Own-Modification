@@ -4,9 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.provider.ContactsContract;
 import android.widget.Toast;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,6 +39,8 @@ public class ContactUtils {
 
 //                Log.d("ContactUtils", "Contact Name: " + contactName);
 
+                //Get Image
+                Bitmap getContactPhoto = getContactPhoto(contentResolver, contactId);
                 // Get phone numbers for the contact
                 Cursor phoneCursor = contentResolver.query(
                         ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -49,7 +55,7 @@ public class ContactUtils {
 //                    Log.d("ContactUtils", "Contact Number: " + phoneNumber);
 
 
-                    ContactList contactList = new ContactList(contactName,phoneNumber);
+                    ContactList contactList = new ContactList(getContactPhoto,contactName,phoneNumber);
                     contactArrayList.add(contactList);
 //
                     Collections.sort(contactArrayList, new Comparator<ContactList>() {
@@ -63,13 +69,15 @@ public class ContactUtils {
                 }
             }
             cursor.close();
-
-
-
-
-
         }
     }
+    private static Bitmap getContactPhoto(ContentResolver contentResolver, String contactId) {
+        Uri contactUri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, contactId);
+        InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(contentResolver, contactUri);
 
-
+        if (inputStream != null) {
+            return BitmapFactory.decodeStream(inputStream);
+        }
+        return null;
+    }
 }

@@ -74,7 +74,8 @@ dependencies {
 
     api "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "org.ocpsoft.prettytime:prettytime:$prettyTimeVersion"
-
+    //for registrationService
+    //implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
     implementation "com.github.chrisbanes:PhotoView:$photoViewVersion"
 //    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "id.zelory:compressor:$compressorVersion"

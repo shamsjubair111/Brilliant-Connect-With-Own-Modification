@@ -1,28 +1,47 @@
 package sdk.chat.ui;
 
 public class Contact {
+    private long id;
+    private String name;
+    private String number;
+    private String photo;
 
-    public String contactName;
-    public String contactNumber;
-
-    public Contact(String contactName, String contactNumber) {
-        this.contactName = contactName;
-        this.contactNumber = contactNumber;
+    public Contact(long id, String name, String number, String photo) {
+        this.id = id;
+        this.name = name;
+        this.number = number;
+        this.photo = photo;
     }
 
-    public String getContactName() {
-        return contactName;
+    public long getId() {
+        return id;
     }
 
-    public void setContactName(String contactName) {
-        this.contactName = contactName;
+    public void setId(long id) {
+        this.id = id;
     }
 
-    public String getContactNumber() {
-        return contactNumber;
+    public String getName() {
+        return name;
     }
 
-    public void setContactNumber(String contactNumber) {
-        this.contactNumber = contactNumber;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 }

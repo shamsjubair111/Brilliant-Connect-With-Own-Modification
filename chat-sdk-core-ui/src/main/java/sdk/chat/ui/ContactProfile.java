@@ -22,9 +22,9 @@ public class ContactProfile extends AppCompatActivity {
     private ImageView appAudioCall;
 
     public static String validPhoneNumber(String mobileNumber) {
+        mobileNumber = mobileNumber.replaceAll("[\\s-]+", "");
         if(mobileNumber.length()<11)
             return mobileNumber;
-        mobileNumber = mobileNumber.replaceAll("[\\s-]+", "");
         mobileNumber = mobileNumber.substring(mobileNumber.length() - 11);
         mobileNumber = "88" + mobileNumber;
 

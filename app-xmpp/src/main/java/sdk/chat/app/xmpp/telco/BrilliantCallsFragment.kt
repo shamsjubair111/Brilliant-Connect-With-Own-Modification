@@ -129,14 +129,14 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
                         contactPhones?.forEach { phone ->
                             var validPhoneNumber = validPhoneNumber(phone)
                             if(validPhoneNumber != null && registeredUsers.contains(validPhoneNumber) && !contacts.contains(Contact(contactId, name, validPhoneNumber))){
-                                contacts.add(Contact(contactId, name, phone))
+                                contacts.add(Contact(contactId, name, validPhoneNumber))
                             }
                         }
                     }
-
-                    val adapter = context?.let { CustomAdapter(it, contacts) }
-                    listViewContacts.adapter = adapter
                     it.close()
+                    adapter = context?.let { CustomAdapter(it, contacts) }!!
+                    listViewContacts.adapter = adapter
+
                 }
             }
         }

@@ -1,8 +1,13 @@
 package sdk.chat.ui;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,15 +42,16 @@ import sdk.chat.core.types.ConnectionType;
 import sdk.chat.ui.api.RegisteredUserService;
 import sdk.chat.ui.fragments.ChatFragment;
 import sdk.guru.common.DisposableMap;
+import android.database.Cursor;
 
-public class ContactListViewAdapter extends ArrayAdapter<ContactList>  {
+public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
 
     Context context;
-    ArrayList<ContactList> list;
+    List<Contact> list;
     Set<String> registeredUsers;
 
     protected DisposableMap dm = new DisposableMap();
-    public ContactListViewAdapter(Context context, ArrayList<ContactList> items, Set<String> registeredUsers){
+    public ContactListViewAdapter(Context context, List<Contact> items, Set<String> registeredUsers){
         super(context, R.layout.user_row_test,items);
         this.context = context;
         list = items;
@@ -64,6 +70,7 @@ public class ContactListViewAdapter extends ArrayAdapter<ContactList>  {
         }
 
         ImageView userImage = convertView.findViewById(R.id.userImage);
+        TextView letterImage = convertView.findViewById(R.id.letterImage);
         TextView userContactName = convertView.findViewById(R.id.userContactName);
         TextView userContactNumber = convertView.findViewById(R.id.userContactNumber);
         TextView inviteText = convertView.findViewById(R.id.inviteText);
@@ -73,9 +80,9 @@ public class ContactListViewAdapter extends ArrayAdapter<ContactList>  {
         //List<User> user = ChatSDK.currentUser().getContacts();
 
 
-        System.out.println("valid phone numbers : " + validPhoneNumber(list.get(position).getContactNumber()) + " " + registeredUsers.contains(validPhoneNumber(list.get(position).getContactNumber())));
+        System.out.println("valid phone numbers : " + list.get(position).getNumber() + " " + registeredUsers.contains(list.get(position).getNumber()));
 
-       if(registeredUsers.contains(validPhoneNumber(list.get(position).getContactNumber()))){
+       if(registeredUsers.contains(list.get(position).getNumber())){
 
            inviteText.setText("");
        }
@@ -86,20 +93,51 @@ public class ContactListViewAdapter extends ArrayAdapter<ContactList>  {
        inviteText.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View v) {
-               sendInvite(validPhoneNumber(list.get(position).getContactNumber()));
+               sendInvite(validPhoneNumber(list.get(position).getNumber()));
            }
        });
 
-        userContactName.setText(list.get(position).getContactName());
-        userContactNumber.setText(list.get(position).getContactNumber());
+        //ContactList currentContact = list.get(position);
+
+        //        if (currentContact.contactImage != null) {
+        //            userImage.setImageBitmap(currentContact.contactImage);
+        //            letterImage.setVisibility(View.GONE);
+        //        } else {
+        //            letterImage.setVisibility(View.VISIBLE);
+        //            letterImage.setText(String.valueOf(currentContact.contactName.charAt(0)));
+        //            userImage.setImageResource(R.drawable.profile_circle); // Set a default image or leave it empty
+        //        }
+        Contact currentContact = list.get(position);
+
+
+
+        if (currentContact.getPhoto() != null) {
+            Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, currentContact.getId());
+            Uri photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
+            Cursor cursor = context.getContentResolver().query(photoUri,
+                    new String[]{ContactsContract.Contacts.Photo.PHOTO}, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                byte[] photoData = cursor.getBlob(0);
+                Bitmap photoBitmap = BitmapFactory.decodeByteArray(photoData, 0, photoData.length);
+                userImage.setImageBitmap(photoBitmap);
+                cursor.close();
+            }
+            letterImage.setVisibility(View.GONE);
+        } else {
+            letterImage.setVisibility(View.VISIBLE);
+            letterImage.setText(String.valueOf(currentContact.getName().charAt(0)));
+            userImage.setImageResource(R.drawable.profile_circle); // Set a default image or leave it empty
+        }
+        userContactName.setText(list.get(position).getName());
+        userContactNumber.setText(list.get(position).getNumber());
 
         linearLayout2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), ContactProfile.class);
-                intent.putExtra("contactName",list.get(position).getContactName());
-                intent.putExtra("contactNumber",list.get(position).getContactNumber());
-                if(registeredUsers.contains(validPhoneNumber(list.get(position).getContactNumber()))){
+                intent.putExtra("contactName",list.get(position).getName());
+                intent.putExtra("contactNumber",list.get(position).getNumber());
+                if(registeredUsers.contains(validPhoneNumber(list.get(position).getNumber()))){
                     intent.putExtra("registered","yes");
                 }
                 else{

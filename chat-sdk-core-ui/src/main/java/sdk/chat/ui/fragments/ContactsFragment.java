@@ -32,7 +32,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.jakewharton.rxrelay2.PublishRelay;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -61,10 +64,23 @@ import sdk.chat.ui.utils.DialogUtils;
 import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
 
+import android.database.Cursor;
+import android.os.Bundle;
+import android.provider.ContactsContract;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+
+import sdk.chat.ui.Contact;
+import sdk.chat.ui.Constants;
+
 /**
  * Created by itzik on 6/17/2014.
  */
-public class ContactsFragment extends BaseFragment implements SearchSupported {
+public class ContactsFragment extends BaseFragment implements SearchSupported, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int REQUEST_READ_CONTACTS = 123;
     protected UsersListAdapter adapter;
@@ -82,6 +98,9 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
     protected ConstraintLayout root;
     public ContactListViewAdapter adapter1;
     public ListView listViewId;
+    protected Map<Long, List<String>> phones = new HashMap<>();
+    protected List<Contact> contacts = new ArrayList<>();
+    Set<String> registeredUsers = new HashSet<>();
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -95,21 +114,22 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
 //        recyclerView = view.findViewById(R.id.recyclerView);
         listViewId = view.findViewById(R.id.listViewId);
         root = view.findViewById(R.id.root);
+        LoaderManager.getInstance(this).initLoader(0, null, this);
 
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted, request it
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        } else {
-            // Permission is already granted, you can proceed with accessing contacts
-            if (contactArrayList == null) {
-                ContactUtils.getContacts(getActivity());
-
-            }
-        }
+//        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            // Permission is not granted, request it
+//            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS);
+//        } else {
+//            // Permission is already granted, you can proceed with accessing contacts
+//            if (contactArrayList == null) {
+//                ContactUtils.getContacts(getActivity());
+//
+//            }
+//        }
         initViews();
 
-        loadData(true);
+        //loadData(true);
 
         return view;
     }
@@ -177,9 +197,9 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
     }
 
     public static String validPhoneNumber(String mobileNumber) {
+        mobileNumber = mobileNumber.replaceAll("[\\s-]+", "");
         if (mobileNumber.length() < 11)
             return mobileNumber;
-        mobileNumber = mobileNumber.replaceAll("[\\s-]+", "");
         mobileNumber = mobileNumber.substring(mobileNumber.length() - 11);
         mobileNumber = "88" + mobileNumber;
 
@@ -210,17 +230,16 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
 //        recyclerView.setAdapter(adapter);
 
 
-        Set<String> registeredUsers = RegisteredUserService.listRegisteredUsers();
-
-        System.out.println("registered: " + registeredUsers);
-        adapter1 = new ContactListViewAdapter(getActivity(), contactArrayList, registeredUsers);
-
-
-        if(contactArrayList != null)
-        {
-            listViewId.setAdapter(adapter1);
-        }
-
+//        Set<String> registeredUsers = RegisteredUserService.listRegisteredUsers();
+//
+//        System.out.println("registered: " + registeredUsers);
+//        adapter1 = new ContactListViewAdapter(getActivity(), contactArrayList, registeredUsers);
+//
+//
+//        if(contactArrayList != null)
+//        {
+//            listViewId.setAdapter(adapter1);
+//        }
 
 
     }
@@ -321,20 +340,20 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         loadData(false);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, proceed with accessing contacts
-                ContactUtils.getContacts(getContext());
-            } else {
-                // Permission denied, handle accordingly (e.g., show a message or take alternative actions)
-            }
-        }
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+//                                           @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//
+//        if (requestCode == REQUEST_READ_CONTACTS) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // Permission granted, proceed with accessing contacts
+//                ContactUtils.getContacts(getContext());
+//            } else {
+//                // Permission denied, handle accordingly (e.g., show a message or take alternative actions)
+//            }
+//        }
+//    }
 
 
     public List<User> filter(List<User> users) {
@@ -351,4 +370,95 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         return filteredUsers;
     }
 
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        switch (id) {
+            case 0:
+                return new CursorLoader(
+                        getActivity(),
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        Constants.PROJECTION_NUMBERS,
+                        null,
+                        null,
+                        null
+                );
+            default:
+                return new CursorLoader(
+                        getActivity(),
+                        ContactsContract.Contacts.CONTENT_URI,
+                        Constants.PROJECTION_DETAILS,
+                        null,
+                        null,
+                        null
+                );
+        }
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        switch (loader.getId()) {
+            case 0:
+                phones = new HashMap<>();
+                if (data != null) {
+                    while (!data.isClosed() && data.moveToNext()) {
+                        long contactId = data.getLong(0);
+                        String phone = data.getString(1);
+                        List<String> list;
+                        if (phones.containsKey(contactId)) {
+                            list = phones.get(contactId);
+                        } else {
+                            list = new ArrayList<>();
+                            phones.put(contactId, list);
+                        }
+                        list.add(phone);
+                    }
+                    data.close();
+                }
+                LoaderManager.getInstance(this).initLoader(1, null, this);
+                break;
+            case 1:
+                if (data != null) {
+                    registeredUsers = RegisteredUserService.listRegisteredUsers();
+                    while (!data.isClosed() && data.moveToNext()) {
+                        long contactId = data.getLong(0);
+                        String name = data.getString(1);
+                        String photo = data.getString(2);
+                        List<String> contactPhones = phones.get(contactId);
+                        if (contactPhones != null) {
+                            for (String phone :
+                                    contactPhones) {
+                                var validPhoneNumber = validPhoneNumber(phone);
+                                if (validPhoneNumber != null) {
+                                    contacts.add(new Contact(contactId, name, validPhoneNumber, photo));
+                                }
+                                addContact(new Contact(contactId, name, phone, photo));
+                            }
+                        }
+                    }
+                    data.close();
+                    loadAdapter();
+                }
+        }
+    }
+
+    protected void loadAdapter() {
+
+        adapter1 = new ContactListViewAdapter(getActivity(), contacts, registeredUsers);
+
+
+        if (contacts != null) {
+            listViewId.setAdapter(adapter1);
+        }
+    }
+
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+
+    }
+
+    protected void addContact(Contact contact) {
+        contacts.add(contact);
+    }
 }

@@ -1,11 +1,15 @@
 package sdk.chat.ui;
 
+import android.graphics.Bitmap;
+
 public class ContactList {
 
+    public Bitmap contactImage;
     public String contactName;
     public String contactNumber;
 
-    public ContactList(String contactName, String contactNumber) {
+    public ContactList( Bitmap contactImage, String contactName, String contactNumber) {
+        this.contactImage = contactImage;
         this.contactName = contactName;
         this.contactNumber = contactNumber;
     }
