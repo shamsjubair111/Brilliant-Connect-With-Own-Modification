@@ -381,7 +381,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                         Constants.PROJECTION_NUMBERS,
                         null,
                         null,
-                        null
+                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " ASC"
                 );
             default:
                 return new CursorLoader(
@@ -390,7 +390,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                         Constants.PROJECTION_DETAILS,
                         null,
                         null,
-                        null
+                        ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " ASC"
                 );
         }
     }
@@ -429,10 +429,9 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                             for (String phone :
                                     contactPhones) {
                                 var validPhoneNumber = validPhoneNumber(phone);
-                                if (validPhoneNumber != null) {
+                                if (validPhoneNumber != null && !contacts.contains(new Contact(contactId, name, validPhoneNumber, photo))) {
                                     contacts.add(new Contact(contactId, name, validPhoneNumber, photo));
                                 }
-                                addContact(new Contact(contactId, name, phone, photo));
                             }
                         }
                     }
