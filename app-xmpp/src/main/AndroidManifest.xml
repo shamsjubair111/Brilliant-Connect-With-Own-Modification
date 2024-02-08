@@ -20,7 +20,7 @@
         <activity
             android:name="sdk.chat.app.xmpp.telco.BrilliantSplashScreenActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboard"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,19 +30,19 @@
 
         <activity android:name="sdk.chat.app.xmpp.telco.BrilliantOTPLoginActivity"
             android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait"/>
+            android:configChanges="orientation|screenSize|keyboard"/>
         <activity android:name="sdk.chat.app.xmpp.telco.BrilliantOTPVerificationActivity"
             android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait"/>
+            android:configChanges="orientation|screenSize|keyboard"/>
 
         <activity android:name="sdk.chat.app.xmpp.telco.BrilliantLoginActivity"
-            android:screenOrientation="portrait"/>
+            android:configChanges="orientation|screenSize|keyboard"/>
         <activity android:name="sdk.chat.app.xmpp.telco.BrilliantIntroActivity"
-            android:screenOrientation="portrait"/>
+            android:configChanges="orientation|screenSize|keyboard"/>
         <activity android:name="sdk.chat.app.xmpp.telco.BrilliantWelcomeActivity"
-            android:screenOrientation="portrait"/>
+            android:configChanges="orientation|screenSize|keyboard"/>
         <activity android:name="sdk.chat.app.xmpp.telco.BrilliantTabBarActivity"
-            android:screenOrientation="portrait"/>
+            android:configChanges="orientation|screenSize|keyboard"/>
 
     </application>
 
