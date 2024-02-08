@@ -327,6 +327,7 @@ class BrilliantIntroActivity: BaseActivity() {
                 requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
             }
             .setNegativeButton("Cancel") { _, _ ->
+                initViews()
             }
             .show()
     }
