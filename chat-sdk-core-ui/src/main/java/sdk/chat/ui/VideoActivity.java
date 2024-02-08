@@ -28,7 +28,6 @@ import com.flashphoner.fpwcsapi.bean.Connection;
 import com.flashphoner.fpwcsapi.bean.StreamStatus;
 import com.flashphoner.fpwcsapi.layout.PercentFrameLayout;
 import com.flashphoner.fpwcsapi.room.Message;
-
 import com.flashphoner.fpwcsapi.room.Participant;
 import com.flashphoner.fpwcsapi.room.Room;
 import com.flashphoner.fpwcsapi.room.RoomEvent;
@@ -48,16 +47,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import callHandler.TelcobrightCallMessage;
 import io.reactivex.Completable;
-import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
-import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.activities.BaseActivity;
 import sdk.chat.ui.api.RegisteredUserService;
@@ -112,29 +108,7 @@ public class VideoActivity extends BaseActivity {
 
     public sdk.chat.core.dao.Message message;
 
-    public void updateThread(String phoneNumber) {
-        thread = null;
 
-
-        if (!phoneNumber.isEmpty()) {
-//            String threadEntityID = bundle.getString(Keys.IntentKeyThreadEntityID);
-            String threadEntityID = phoneNumber + "@localhost";
-            if (threadEntityID != null) {
-
-
-                thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
-
-            }
-        }
-
-        if (thread == null) {
-            finish();
-        }
-//        Bundle bundle = new Bundle();
-//        bundle.putString(Keys.IntentKeyThreadEntityID, thread.getEntityID());
-//        chatFragment.setArguments(bundle);
-
-    }
 
     public boolean isBrillianUser(String receiverNumber) {
         Set<String> registeredUsers = RegisteredUserService.listRegisteredUsers();
@@ -152,37 +126,37 @@ public class VideoActivity extends BaseActivity {
     }
 
 
-    public String getCurrentUser() {
-        String currentUserNumber = null;
-        for (User user : thread.getUsers()) {
-            if (user.isMe()) {
+//    public String getCurrentUser() {
+//        String currentUserNumber = null;
+//        for (User user : thread.getUsers()) {
+//            if (user.isMe()) {
+//
+//                return user.getName().toString();
+//                //                message.setUserReadStatus(user, ReadStatus.read(), new Date(), false);
+//            } else {
+//                continue;
+//            }
+//        }
+//        return currentUserNumber;
+//    }
 
-                return user.getName().toString();
-                //                message.setUserReadStatus(user, ReadStatus.read(), new Date(), false);
-            } else {
-                continue;
-            }
-        }
-        return currentUserNumber;
-    }
-
-    protected void handleMessageSend(Completable completable) {
-        completable.observeOn(RX.main()).doOnError(throwable -> {
-            Logger.warn("");
-            showToast(throwable.getLocalizedMessage());
-        }).subscribe(ChatSDKUI.getChatFragment(thread));
-    }
+//    protected void handleMessageSend(Completable completable) {
+//        completable.observeOn(RX.main()).doOnError(throwable -> {
+//            Logger.warn("");
+//            showToast(throwable.getLocalizedMessage());
+//        }).subscribe(ChatSDKUI.getChatFragment(thread));
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        updateThread(savedInstanceState);
-        this.thread = ChatSDK.db().allThreads().get(0);
+//        this.thread = ChatSDK.db().allThreads().get(0);
 
         String receiverNumber = getIntent().getStringExtra("receiverNumber").toString();
 //        updateThread(receiverNumber);
         String roomName = null;
-        roomName = getCurrentUser();
+        roomName = ChatSDK.currentUser().getName();
 
         String threadEntityID = receiverNumber + "@localhost";
         String senderId = ChatSDK.currentUser().getName() + "@localhost";
