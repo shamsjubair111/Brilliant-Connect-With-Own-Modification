@@ -52,6 +52,7 @@ import java.util.Map;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 public class AudioActivity extends AppCompatActivity {
 
@@ -484,6 +485,14 @@ public class AudioActivity extends AppCompatActivity {
                         if (token != null && !token.isEmpty()) {
                             mAuthTokenView.setText(token);
                             mConnectTokenButton.setEnabled(true);
+                           if( !connection.getAuthToken().equals("null")){
+                               call.call();
+
+                            }
+                           else {
+                               Toast.makeText(AudioActivity.this, "There might be some issue with your network, please try again", Toast.LENGTH_SHORT).show();
+                               finish();
+                           }
                         }
                     }
                 });
@@ -529,6 +538,7 @@ public class AudioActivity extends AppCompatActivity {
                         mHoldButton.setTag(R.string.action_hold);
                         mHoldButton.setEnabled(false);
                         mDTMFButton.setEnabled(false);
+                        finish();
                     }
                 });
             }
@@ -621,7 +631,7 @@ public class AudioActivity extends AppCompatActivity {
                     /**
                      * Make the outgoing call
                      */
-                    call.call();
+
                     Log.i(TAG, "Permission has been granted by user");
                     break;
                 }
