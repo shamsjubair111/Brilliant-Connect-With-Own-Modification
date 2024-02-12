@@ -202,6 +202,8 @@ public class VideoActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 mediaPlayer.pause();
+                newMessage.put("type",-1);
+                ChatSDK.push().sendPushNotification(newMessage);
                 finish();
             }
         });
@@ -379,6 +381,9 @@ public class VideoActivity extends BaseActivity {
                                         );
 
                                         busyViews.put(participant.getName(), participantView);
+                                        if (participant.getName().equals(receiverNumber)) {
+                                            mConnectStatus.setText("Connected with " + receiverNumber);
+                                        }
                                     }
                                 }
 
@@ -401,6 +406,7 @@ public class VideoActivity extends BaseActivity {
                                         );
                                         if (participant.getName().equals(receiverNumber)) {
                                             Toast.makeText(VideoActivity.this, "Ended", Toast.LENGTH_SHORT).show();
+
                                             finish();
                                         }
 //                                        Toast.makeText(VideoActivity.this, ""+participant.getName(), Toast.LENGTH_SHORT).show();

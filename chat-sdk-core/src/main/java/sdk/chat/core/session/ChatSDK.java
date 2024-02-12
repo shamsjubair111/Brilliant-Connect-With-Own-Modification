@@ -12,6 +12,7 @@ import org.pmw.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -79,6 +80,8 @@ public class ChatSDK {
     public static ChatSDK shared() {
         return instance;
     }
+
+    public static HashMap<String,Object> callActivities = new HashMap<String,Object>();
     private static final ChatSDK instance = new ChatSDK();
 
     public static String Preferences = "chat_sdk_preferences";

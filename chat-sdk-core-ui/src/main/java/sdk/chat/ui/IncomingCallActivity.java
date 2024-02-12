@@ -17,7 +17,7 @@ import android.widget.Toast;
 import notification.NotificationCancelActivity;
 import sdk.chat.core.session.ChatSDK;
 
-public class IncomingCallActivity extends AppCompatActivity {
+public class IncomingCallActivity extends AppCompatActivity   {
 
     private ImageButton activity_hang_up_button;
     private ImageButton activity_answer_call_button;
@@ -32,6 +32,8 @@ public class IncomingCallActivity extends AppCompatActivity {
             setShowWhenLocked(true);
             setTurnScreenOn(true);
         }
+
+        ChatSDK.callActivities.put("incomingCallActivity",this);
         activity_hang_up_button = findViewById(R.id.activity_hang_up_button);
         activity_answer_call_button = findViewById(R.id.activity_answer_call_button);
         caller_name = findViewById(R.id.caller_name);
@@ -53,6 +55,7 @@ public class IncomingCallActivity extends AppCompatActivity {
 
             }
         });
+
 
 
         activity_answer_call_button.setOnClickListener(new View.OnClickListener() {

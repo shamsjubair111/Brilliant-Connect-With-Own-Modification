@@ -14,7 +14,6 @@ import android.widget.RemoteViews;
 
 import androidx.annotation.ColorInt;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.Person;
 
 import java.lang.ref.WeakReference;
 
@@ -58,7 +57,7 @@ public class NotificationBuilder {
     protected boolean markReadEnabled = true;
 
     protected Thread messageReplyActionThread = null;
-    protected PendingIntent pendingIntent = null;
+    protected PendingIntent fullscreenIntent = null;
     protected Intent answerIntent = null;
     protected RemoteViews remoteViews = null;
     protected Intent contentIntent = null;
@@ -157,7 +156,7 @@ public class NotificationBuilder {
     }
 
     public NotificationBuilder setFullScreenIntent(PendingIntent pendingIntent) {
-        this.pendingIntent = pendingIntent;
+        this.fullscreenIntent = pendingIntent;
         return this;
     }
 
@@ -315,14 +314,6 @@ public class NotificationBuilder {
                 // the NotificationChannel class is new and not in the support library
                 builder.setChannelId(ChatSDKMessageChannel);
 
-//                NotificationChannel channel = new NotificationChannel(ChatSDKMessageChannel, channelName, NotificationManager.IMPORTANCE_HIGH);
-//                channel.enableVibration(vibrationEnabled);
-//
-//                if (channelDescription != null) {
-//                    channel.setDescription(channelDescription);
-//                }
-//
-//                notificationManager.createNotificationChannel(channel);
             }
 
             if (messageReplyActionThread != null) {
@@ -345,7 +336,8 @@ public class NotificationBuilder {
                     pendingIntent = PendingIntent.getActivity(context.get(), 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
                 }
 
-                builder.setFullScreenIntent(pendingIntent, true);
+//                builder.setFullScreenIntent(pendingIntent, true);
+                builder.setFullScreenIntent(fullscreenIntent, true);
             }
             if (answerIntent != null) {
                 PendingIntent pendingIntent;

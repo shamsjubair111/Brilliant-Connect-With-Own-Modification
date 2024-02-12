@@ -192,6 +192,7 @@ public class AudioActivity extends AppCompatActivity {
                         mCallStatus.setText(call.getStatus());
                     }
                 });
+                finish();
             }
 
             /**
@@ -200,6 +201,7 @@ public class AudioActivity extends AppCompatActivity {
              */
             @Override
             public void onFailed(Call call) {
+                finish();
 
             }
 
@@ -276,6 +278,7 @@ public class AudioActivity extends AppCompatActivity {
                         }
                     }
                 });
+                finish();
 
             }
         };
@@ -495,7 +498,8 @@ public class AudioActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mConnectStatus.setText(connection.getStatus());
+                        mConnectStatus.setText("Calling " + getIntent().getStringExtra("callee"));
+//                        mConnectStatus.setText(connection.getStatus());
                         mCallButton.setEnabled(true);
                     }
                 });

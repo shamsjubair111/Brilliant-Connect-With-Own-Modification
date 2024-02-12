@@ -1,10 +1,25 @@
 package sdk.chat.firebase.push;
 
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
+import com.flashphoner.fpwcsapi.Flashphoner;
+import com.flashphoner.fpwcsapi.bean.Connection;
+import com.flashphoner.fpwcsapi.room.Message;
+import com.flashphoner.fpwcsapi.room.Participant;
+import com.flashphoner.fpwcsapi.room.Room;
+import com.flashphoner.fpwcsapi.room.RoomEvent;
+import com.flashphoner.fpwcsapi.room.RoomManager;
+import com.flashphoner.fpwcsapi.room.RoomManagerEvent;
+import com.flashphoner.fpwcsapi.room.RoomManagerOptions;
+import com.flashphoner.fpwcsapi.room.RoomOptions;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -13,6 +28,7 @@ import notification.NotificationDisplayHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.push.BroadcastHandler;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.IncomingCallActivity;
 import sdk.chat.ui.ReceiverActivity;
 
@@ -23,9 +39,7 @@ public class DefaultMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
 
-//        MediaPlayer player = PhoneControl.getMediaPlayer(getApplicationContext());
-//        player.start();
-        Intent remoteIntent= remoteMessage.toIntent();
+        Intent remoteIntent = remoteMessage.toIntent();
         Bundle extras = remoteIntent.getExtras();
 
         final String threadEntityID = extras.getString(Keys.PushKeyThreadEntityID);
@@ -43,6 +57,10 @@ public class DefaultMessagingService extends FirebaseMessagingService {
                 {
                     messageType = "video";
                 }
+                else if (messageType.equals("-1"))
+                {
+                    messageType = "cancel";
+                }
             }
         }
         catch (Exception e)
@@ -55,7 +73,6 @@ public class DefaultMessagingService extends FirebaseMessagingService {
         String senderNumber = remoteMessage.getData().get("chat_sdk_push_title");
 
         if(messageType.equals("audio")||messageType.equals("video")) {
-// If the database is not open...
             if (!ChatSDK.db().isDatabaseOpen()) {
                 String currentUserId = ChatSDK.auth().getCurrentUserEntityID();
                 if (currentUserId != null) {
@@ -71,8 +88,18 @@ public class DefaultMessagingService extends FirebaseMessagingService {
             Intent fullScreenIntent = new Intent(getApplicationContext(), IncomingCallActivity.class);
             fullScreenIntent.putExtra("senderNumber",senderNumber);
             fullScreenIntent.putExtra("type",messageType);
-            PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
-                fullScreenIntent, PendingIntent.FLAG_IMMUTABLE);
+            PendingIntent fullScreenPendingIntent ;
+
+
+            final Context context = ChatSDK.ctx();
+
+
+            fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK );
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                fullScreenPendingIntent = PendingIntent.getActivity(context, 0, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                fullScreenPendingIntent = PendingIntent.getActivity(context, 0, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
 
 
             Intent answerIntent = new Intent(this, ReceiverActivity.class);
@@ -90,12 +117,24 @@ public class DefaultMessagingService extends FirebaseMessagingService {
 
             Intent deleteIntent = new Intent(getApplicationContext(), NotificationCancelActivity.class);
             deleteIntent.putExtra("senderNumber", senderNumber);
-            deleteIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            deleteIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
 
 
             NotificationDisplayHandler notification = new NotificationDisplayHandler();
             notification.createCallNotification(getApplicationContext(), appIntent, senderNumber, senderNumber,fullScreenPendingIntent,messageType,answerIntent,deleteIntent);
-
+        }
+        else if(messageType.equals("cancel"))
+        {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                notificationManager.cancel(100001);
+                ChatSDK.mediaStop();
+                IncomingCallActivity incomingCallActivity = (IncomingCallActivity) ChatSDK.callActivities.get("incomingCallActivity");
+                if(incomingCallActivity!=null)
+                {
+                    incomingCallActivity. finishAndRemoveTask();
+                }
+            }
         }
         else {
             if (ChatSDK.shared().isValid() && !ChatSDK.config().manualPushHandlingEnabled) {
@@ -106,6 +145,6 @@ public class DefaultMessagingService extends FirebaseMessagingService {
                 }
             }
         }
-        }
+    }
 
 }
