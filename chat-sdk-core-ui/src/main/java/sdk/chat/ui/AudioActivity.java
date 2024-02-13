@@ -458,6 +458,8 @@ public class AudioActivity extends AppCompatActivity {
 
             }
 
+
+
             /**
              * Connection established
              * @param connection Current connection state
@@ -485,14 +487,11 @@ public class AudioActivity extends AppCompatActivity {
                         if (token != null && !token.isEmpty()) {
                             mAuthTokenView.setText(token);
                             mConnectTokenButton.setEnabled(true);
-                           if( !connection.getAuthToken().equals("null")){
-                               call.call();
-
-                            }
-                           else {
-                               Toast.makeText(AudioActivity.this, "There might be some issue with your network, please try again", Toast.LENGTH_SHORT).show();
-                               finish();
-                           }
+                            call.call();
+                            
+                        }
+                        else{
+                            Toast.makeText(AudioActivity.this, "There might be some issue with your network, please try again after a few seconds", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -523,6 +522,8 @@ public class AudioActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
+                        finish();
                         mConnectButton.setText(R.string.action_connect);
                         mConnectButton.setTag(R.string.action_connect);
                         mConnectButton.setEnabled(true);
@@ -538,7 +539,7 @@ public class AudioActivity extends AppCompatActivity {
                         mHoldButton.setTag(R.string.action_hold);
                         mHoldButton.setEnabled(false);
                         mDTMFButton.setEnabled(false);
-                        finish();
+
                     }
                 });
             }
