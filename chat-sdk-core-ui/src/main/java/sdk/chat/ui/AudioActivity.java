@@ -371,6 +371,8 @@ public class AudioActivity extends AppCompatActivity {
          * Call button pressed
          */
 
+
+
         ActivityCompat.requestPermissions(AudioActivity.this,
                 new String[]{Manifest.permission.RECORD_AUDIO},
                 CALL_REQUEST_CODE);
@@ -485,21 +487,7 @@ public class AudioActivity extends AppCompatActivity {
                         if (token != null && !token.isEmpty()) {
                             mAuthTokenView.setText(token);
                             mConnectTokenButton.setEnabled(true);
-                            try {
-                                if(call != null)
-                                {
-                                    call.call();
-                                }
-                                else {
-                                    Toast.makeText(AudioActivity.this, "problem with permission", Toast.LENGTH_SHORT).show();
-                                    finish();
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Toast.makeText(AudioActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
-                            }
-
+                            call.call();
                             
                         }
                         else{
@@ -607,7 +595,6 @@ public class AudioActivity extends AppCompatActivity {
                 if (grantResults.length == 0 ||
                         grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     Log.i(TAG, "Permission has been denied by user");
-                    finish();
                 } else {
                     mCallButton.setEnabled(false);
                     /**
@@ -637,12 +624,11 @@ public class AudioActivity extends AppCompatActivity {
                                 new TypeToken<Map<String, String>>() {
                                 }.getType());
                         callOptions.setInviteParameters(inviteParameters);
-                        call = session.createCall(callOptions);
-                        call.on(callStatusEvent);
                     } catch (Throwable t) {
                         Log.e(TAG, "Invite Parameters have wrong format of json object");
                     }
-
+                    call = session.createCall(callOptions);
+                    call.on(callStatusEvent);
                     /**
                      * Make the outgoing call
                      */

@@ -44,88 +44,9 @@ class BrilliantIntroActivity: BaseActivity() {
 
     var tvNext: TextView? = null
     var ivNext: ImageView? = null
-    var registeredUsers = hashSetOf<String>()
-    private val CONTACTS_PERMISSION_CODE = 101
-    private val CALL_REQUEST_CODE = 100
+    private val PERMISSIONS_REQUEST_CODE = 100
 
 
-    private fun requestContactsPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-            ContextCompat.checkSelfPermission(
-               this,
-                Manifest.permission.READ_CONTACTS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.READ_CONTACTS),
-                CONTACTS_PERMISSION_CODE
-            )
-        } else {
-            initViews()
-        }
-    }
-
-    @SuppressLint("Range")
-//    fun getContacts(): List<Contact> {
-//
-//
-//        registeredUsers = RegisteredUserService.listRegisteredUsers() as HashSet<String>
-//        requestContactsPermission()
-//
-//        val contentResolver: ContentResolver = this.contentResolver //context.contentResolver
-//        val contactArrayList: MutableList<Contact> = mutableListOf()
-//        val projection = arrayOf(
-//            ContactsContract.Contacts._ID,
-//            ContactsContract.Contacts.DISPLAY_NAME
-//        )
-//        val selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + " > 0"
-//
-//        val cursor: Cursor? = contentResolver.query(
-//            ContactsContract.Contacts.CONTENT_URI,
-//            projection,
-//            selection,
-//            null,
-//            ContactsContract.Contacts.DISPLAY_NAME
-//        )
-//
-//        if (cursor != null && cursor.count > 0) {
-//            while (cursor.moveToNext()) {
-//                println("contact_id"+ cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID)))
-//                val contactId: String = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-//                val contactName: String = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
-//
-//                val projection = arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER)
-//                val selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?"
-//                val selectionArgs = arrayOf(contactId)
-//                // Get phone numbers for the contact
-//                val phoneCursor: Cursor? = contentResolver.query(
-//                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-//                    projection,
-//                    selection,
-//                    selectionArgs,
-//                    null
-//                )
-//
-//                if (phoneCursor != null && phoneCursor.moveToFirst()) {
-//                    do {
-//                        var phoneNumber: String = phoneCursor.getString(phoneCursor.getColumnIndex(
-//                            ContactsContract.CommonDataKinds.Phone.NUMBER))
-//                        phoneNumber = ContactListViewAdapter.validPhoneNumber(phoneNumber)
-//                        val contactList = Contact(contactName, phoneNumber)
-//                        if(registeredUsers.contains(phoneNumber) && !contactArrayList.contains(contactList)){
-//                            contactArrayList.add(contactList)
-//                        }
-//                    } while (phoneCursor.moveToNext())
-//
-//                    phoneCursor.close()
-//                }
-//            }
-//            cursor.close()
-//        }
-//
-//        return contactArrayList
-//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -194,10 +115,7 @@ class BrilliantIntroActivity: BaseActivity() {
         if (!pushAllowed) {
             showPushAlert()
         }
-
         endAuthenticating()
-        checkAndRequestContactsPermission()
-        checkAndRequestRecordPermission()
     }
 
     fun authenticate() {
@@ -244,6 +162,7 @@ class BrilliantIntroActivity: BaseActivity() {
         customView.findViewById<Button>(R.id.button_positive)?.setOnClickListener {
             ChatSDK.shared().preferences.edit().putBoolean("brilliant-push", true).commit()
             enablePush()
+            requestBothPermissions()
             dialog.dismiss()
         }
         customView.findViewById<Button>(R.id.button_negative)?.setOnClickListener {
@@ -279,72 +198,29 @@ class BrilliantIntroActivity: BaseActivity() {
         }
     }
 
-//    private fun checkAndRequestContactsPermission() {
-//        // Check if the app has READ_CONTACTS permission
-//        if (ContextCompat.checkSelfPermission(
-//                        this,
-//                        Manifest.permission.READ_CONTACTS
-//                ) == PackageManager.PERMISSION_GRANTED
-//        ) {
-//            // App already has the permission, you can perform actions related to contacts here
-//
-//        } else {
-//            // Request READ_CONTACTS permission
-//           requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
-//        }
-//    }
+    fun requestBothPermissions() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.RECORD_AUDIO
+            ),
+            PERMISSIONS_REQUEST_CODE
+        )
+    }
 
-    private fun checkAndRequestContactsPermission() {
-        // Check if the app has READ_CONTACTS permission
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_CONTACTS
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            initViews()
-        } else {
-            if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) {
-                showPermissionRationale()
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSIONS_REQUEST_CODE) {
+            // Check if both permissions are granted
+            val contactsPermissionGranted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            val recordPermissionGranted = grantResults.size > 1 && grantResults[1] == PackageManager.PERMISSION_GRANTED
+            if (contactsPermissionGranted && recordPermissionGranted) {
+                // Both permissions granted
+                // Add your logic here
             } else {
-                requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+                // Handle denied permissions
             }
         }
-    }
-
-    private fun checkAndRequestRecordPermission(){
-
-
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-            != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted, request it
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.RECORD_AUDIO),
-                CALL_REQUEST_CODE
-            )
-        } else {
-            initViews()
-        }
-
-//
-//        ActivityCompat.requestPermissions(
-//            this,
-//            arrayOf(Manifest.permission.RECORD_AUDIO),
-//            CALL_REQUEST_CODE
-//        )
-    }
-
-    private fun showPermissionRationale() {
-        AlertDialog.Builder(this)
-            .setTitle("Permission Required")
-            .setMessage("This app requires access to your contacts to function properly.")
-            .setPositiveButton("Grant") { _, _ ->
-                requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
-            }
-            .setNegativeButton("Cancel") { _, _ ->
-                initViews()
-            }
-            .show()
     }
 }
