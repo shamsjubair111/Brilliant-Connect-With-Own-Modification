@@ -3,13 +3,9 @@ package sdk.chat.app.xmpp.telco
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.ContentResolver
-import android.content.Context
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.os.Build
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
@@ -21,15 +17,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.rd.PageIndicatorView
-import sdk.chat.core.dao.User
 import sdk.chat.core.session.ChatSDK
-import sdk.chat.core.types.ConnectionType
 import sdk.chat.demo.xmpp.R
-import sdk.chat.ui.ContactListViewAdapter
-import sdk.chat.ui.ContactUtils
 import sdk.chat.ui.activities.BaseActivity
-import sdk.chat.ui.api.RegisteredUserService
-import sdk.chat.ui.fragments.ContactsFragment
 import sdk.guru.common.RX
 
 class BrilliantIntroActivity: BaseActivity() {
@@ -56,6 +46,7 @@ class BrilliantIntroActivity: BaseActivity() {
     var ivNext: ImageView? = null
     var registeredUsers = hashSetOf<String>()
     private val CONTACTS_PERMISSION_CODE = 101
+    private val CALL_REQUEST_CODE = 100
 
 
     private fun requestContactsPermission() {
@@ -206,6 +197,7 @@ class BrilliantIntroActivity: BaseActivity() {
 
         endAuthenticating()
         checkAndRequestContactsPermission()
+        checkAndRequestRecordPermission()
     }
 
     fun authenticate() {
@@ -317,6 +309,30 @@ class BrilliantIntroActivity: BaseActivity() {
                 requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
             }
         }
+    }
+
+    private fun checkAndRequestRecordPermission(){
+
+
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted, request it
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                CALL_REQUEST_CODE
+            )
+        } else {
+            initViews()
+        }
+
+//
+//        ActivityCompat.requestPermissions(
+//            this,
+//            arrayOf(Manifest.permission.RECORD_AUDIO),
+//            CALL_REQUEST_CODE
+//        )
     }
 
     private fun showPermissionRationale() {

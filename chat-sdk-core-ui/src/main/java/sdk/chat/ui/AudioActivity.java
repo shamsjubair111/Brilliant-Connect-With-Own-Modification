@@ -371,8 +371,6 @@ public class AudioActivity extends AppCompatActivity {
          * Call button pressed
          */
 
-
-
         ActivityCompat.requestPermissions(AudioActivity.this,
                 new String[]{Manifest.permission.RECORD_AUDIO},
                 CALL_REQUEST_CODE);
@@ -609,6 +607,7 @@ public class AudioActivity extends AppCompatActivity {
                 if (grantResults.length == 0 ||
                         grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     Log.i(TAG, "Permission has been denied by user");
+                    finish();
                 } else {
                     mCallButton.setEnabled(false);
                     /**
