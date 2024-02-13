@@ -487,7 +487,21 @@ public class AudioActivity extends AppCompatActivity {
                         if (token != null && !token.isEmpty()) {
                             mAuthTokenView.setText(token);
                             mConnectTokenButton.setEnabled(true);
-                            call.call();
+                            try {
+                                if(call != null)
+                                {
+                                    call.call();
+                                }
+                                else {
+                                    Toast.makeText(AudioActivity.this, "problem with permission", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Toast.makeText(AudioActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                            }
+
                             
                         }
                         else{
@@ -624,11 +638,12 @@ public class AudioActivity extends AppCompatActivity {
                                 new TypeToken<Map<String, String>>() {
                                 }.getType());
                         callOptions.setInviteParameters(inviteParameters);
+                        call = session.createCall(callOptions);
+                        call.on(callStatusEvent);
                     } catch (Throwable t) {
                         Log.e(TAG, "Invite Parameters have wrong format of json object");
                     }
-                    call = session.createCall(callOptions);
-                    call.on(callStatusEvent);
+
                     /**
                      * Make the outgoing call
                      */
