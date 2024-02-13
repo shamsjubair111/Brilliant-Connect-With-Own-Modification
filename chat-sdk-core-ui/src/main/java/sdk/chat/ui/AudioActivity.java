@@ -485,20 +485,14 @@ public class AudioActivity extends AppCompatActivity {
                         if (token != null && !token.isEmpty()) {
                             mAuthTokenView.setText(token);
                             mConnectTokenButton.setEnabled(true);
-                            try {
-                                if(call != null)
-                                {
-                                    call.call();
-                                }
-                                else {
-                                    Toast.makeText(AudioActivity.this, "problem with permission", Toast.LENGTH_SHORT).show();
-                                    finish();
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Toast.makeText(AudioActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
-                            }
+//                            try {
+
+//                            }
+//                            catch (Exception e)
+//                            {
+
+
+//                            }
 
                             
                         }
@@ -535,7 +529,7 @@ public class AudioActivity extends AppCompatActivity {
                     @Override
                     public void run() {
 
-                        finish();
+//                        finish();
                         mConnectButton.setText(R.string.action_connect);
                         mConnectButton.setTag(R.string.action_connect);
                         mConnectButton.setEnabled(true);
@@ -637,8 +631,19 @@ public class AudioActivity extends AppCompatActivity {
                                 new TypeToken<Map<String, String>>() {
                                 }.getType());
                         callOptions.setInviteParameters(inviteParameters);
-                        call = session.createCall(callOptions);
-                        call.on(callStatusEvent);
+
+
+                            call = session.createCall(callOptions);
+                        if(call != null)
+                        {
+                            call.on(callStatusEvent);
+                            call.call();
+
+                        }
+                        else {
+                            Toast.makeText(AudioActivity.this, "problem with permission", Toast.LENGTH_SHORT).show();
+//                            finish();
+                        }
                     } catch (Throwable t) {
                         Log.e(TAG, "Invite Parameters have wrong format of json object");
                     }
