@@ -6,20 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
-import com.flashphoner.fpwcsapi.Flashphoner;
-import com.flashphoner.fpwcsapi.bean.Connection;
-import com.flashphoner.fpwcsapi.room.Message;
-import com.flashphoner.fpwcsapi.room.Participant;
-import com.flashphoner.fpwcsapi.room.Room;
-import com.flashphoner.fpwcsapi.room.RoomEvent;
-import com.flashphoner.fpwcsapi.room.RoomManager;
-import com.flashphoner.fpwcsapi.room.RoomManagerEvent;
-import com.flashphoner.fpwcsapi.room.RoomManagerOptions;
-import com.flashphoner.fpwcsapi.room.RoomOptions;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -28,7 +16,6 @@ import notification.NotificationDisplayHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.push.BroadcastHandler;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.IncomingCallActivity;
 import sdk.chat.ui.ReceiverActivity;
 
@@ -83,7 +70,9 @@ public class DefaultMessagingService extends FirebaseMessagingService {
                     }
                 }
             }
-            ChatSDK.mediaStart(true);
+            ChatSDK.mediaStart(true,getApplicationContext());
+
+
 
             Intent fullScreenIntent = new Intent(getApplicationContext(), IncomingCallActivity.class);
             fullScreenIntent.putExtra("senderNumber",senderNumber);
@@ -126,7 +115,7 @@ public class DefaultMessagingService extends FirebaseMessagingService {
         else if(messageType.equals("cancel"))
         {
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 notificationManager.cancel(100001);
                 ChatSDK.mediaStop();
                 IncomingCallActivity incomingCallActivity = (IncomingCallActivity) ChatSDK.callActivities.get("incomingCallActivity");
@@ -134,7 +123,8 @@ public class DefaultMessagingService extends FirebaseMessagingService {
                 {
                     incomingCallActivity. finishAndRemoveTask();
                 }
-            }
+//            }
+
         }
         else {
             if (ChatSDK.shared().isValid() && !ChatSDK.config().manualPushHandlingEnabled) {

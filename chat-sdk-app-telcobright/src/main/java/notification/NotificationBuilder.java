@@ -260,7 +260,8 @@ public class NotificationBuilder {
             }
 
             if (soundUri != null) {
-                builder.setSound(soundUri);
+//                builder.setSound(soundUri);
+                builder.setSound(Uri.EMPTY);
             }
 
             if (number != -1) {

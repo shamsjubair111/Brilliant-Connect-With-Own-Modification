@@ -3,6 +3,9 @@ package sdk.chat.core.session;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -116,6 +119,8 @@ public class ChatSDK {
     protected Feather feather = Feather.with();
     protected List<MessageHandler> messageHandlers = new ArrayList<>();
     protected static MediaPlayer mediaPlayer ;
+    public static Uri notificationSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);;
+    public  static Ringtone ringtone ;
 
     protected ChatSDK () {
     }
@@ -155,18 +160,27 @@ public class ChatSDK {
     //    Get ringtone media
     public static void setMedia()
     {
+
         mediaPlayer = MediaPlayer.create(shared().context(),R.raw.whatsapp);
     }
 
-    public static void  mediaStart(boolean looping)
+    public static void  mediaStart(boolean looping,Context context)
     {
-        mediaPlayer.start();
-        mediaPlayer.setLooping(looping);
+//        mediaPlayer.reset();
+//        mediaPlayer.start();
+//        mediaPlayer.setLooping(looping);
+        ringtone = RingtoneManager.getRingtone(context, notificationSoundUri);
+        ringtone.play();
 
     }
     public static void mediaStop()
     {
-        mediaPlayer.pause();
+        if(ringtone!=null)
+        {
+            ringtone.stop();
+
+        }
+//        mediaPlayer.pause();
 
     }
 
@@ -354,7 +368,6 @@ public class ChatSDK {
 
         licenseIdentifier = identifier;
         isActive = true;
-        setMedia();
 
     }
 
