@@ -99,20 +99,7 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
            }
        });
 
-        //ContactList currentContact = list.get(position);
-
-        //        if (currentContact.contactImage != null) {
-        //            userImage.setImageBitmap(currentContact.contactImage);
-        //            letterImage.setVisibility(View.GONE);
-        //        } else {
-        //            letterImage.setVisibility(View.VISIBLE);
-        //            letterImage.setText(String.valueOf(currentContact.contactName.charAt(0)));
-        //            userImage.setImageResource(R.drawable.profile_circle); // Set a default image or leave it empty
-        //        }
         Contact currentContact = list.get(position);
-
-
-
         if (currentContact.getPhoto() != null) {
             Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, currentContact.getId());
             Uri photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);

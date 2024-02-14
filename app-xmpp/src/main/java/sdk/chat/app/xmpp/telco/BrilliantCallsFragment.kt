@@ -22,9 +22,10 @@ import sdk.chat.ui.fragments.BaseFragment
 import sdk.chat.ui.interfaces.SearchSupported
 
 data class Contact(
-    var id: Int,
+    var id: Long,
     var name: String,
-    var number: String
+    var number: String,
+    var photo: String?
 )
 class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.LoaderCallbacks<Cursor> {
     private lateinit var listViewContacts: ListView
@@ -32,7 +33,7 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
     private val CONTACTS_PERMISSION_CODE = 101
     var registeredUsers = hashSetOf<String>()
     private lateinit var adapter: CustomAdapter
-    private var phones: HashMap<Int, MutableList<String>> = hashMapOf()
+    private var phones: HashMap<Long, MutableList<String>> = hashMapOf()
     protected val contacts: MutableList<Contact> = ArrayList()
 
     override fun getLayout(): Int {
@@ -107,7 +108,7 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
             0 -> {
                 data?.let {
                     while (!it.isClosed && it.moveToNext()) {
-                        val contactId = it.getInt(0)
+                        val contactId = it.getLong(0)
                         val phone = it.getString(1)
                         val list = phones.getOrPut(contactId) { mutableListOf() }
                         list.add(phone)
@@ -120,14 +121,14 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
                 registeredUsers = RegisteredUserService.listRegisteredUsers() as HashSet<String>
                 data?.let {
                     while (!it.isClosed && it.moveToNext()) {
-                        val contactId = it.getInt(0)
+                        val contactId = it.getLong(0)
                         val name = it.getString(1)
-                        //val photo = it.getString(2)
+                        val photo = it.getString(2)
                         var contactPhones = phones[contactId]
                         contactPhones?.forEach { phone ->
                             var validPhoneNumber = validPhoneNumber(phone)
-                            if(validPhoneNumber != null && registeredUsers.contains(validPhoneNumber) && !contacts.contains(Contact(contactId, name, validPhoneNumber))){
-                                contacts.add(Contact(contactId, name, validPhoneNumber))
+                            if(validPhoneNumber != null && registeredUsers.contains(validPhoneNumber) && !contacts.contains(Contact(contactId, name, validPhoneNumber, photo))){
+                                contacts.add(Contact(contactId, name, validPhoneNumber, photo))
                             }
                         }
                     }

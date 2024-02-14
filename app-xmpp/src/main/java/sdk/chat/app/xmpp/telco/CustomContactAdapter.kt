@@ -1,8 +1,12 @@
 package sdk.chat.app.xmpp.telco
 
 import android.annotation.SuppressLint
+import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +16,7 @@ import android.widget.TextView
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.AudioActivity
 import sdk.chat.ui.VideoActivity
+import java.util.Locale
 
 //class CustomAdapter(private val context: Context, private val contactData: List<Map<String, String>>) : BaseAdapter() {
     class CustomAdapter(private val context: Context, private var contactData: List<Contact>) : BaseAdapter() {
@@ -38,6 +43,8 @@ import sdk.chat.ui.VideoActivity
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.call_item, parent, false)
 
+        val userImage: ImageView = view.findViewById(R.id.userImage)
+        val letterImage:TextView = view.findViewById(R.id.letterImage);
         val displayNameTextView: TextView = view.findViewById(R.id.userContactName)
         val phoneNumberTextView: TextView = view.findViewById(R.id.userContactNumber)
         val imageViewAppToSip: ImageView = view.findViewById(R.id.imageViewAppToSip)
@@ -48,6 +55,36 @@ import sdk.chat.ui.VideoActivity
         val phoneNumber = contact.number
         //val contactId = contact["id"]  // Assuming you have an ID field in your data
 
+        if (contact.photo != null) {
+            val contactUri =
+                ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contact.id)
+            val photoUri =
+                Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY)
+            val cursor = context.contentResolver.query(
+                photoUri,
+                arrayOf(ContactsContract.Contacts.Photo.PHOTO),
+                null,
+                null,
+                null
+            )
+            if (cursor != null && cursor.moveToFirst()) {
+                val photoData = cursor.getBlob(0)
+                val photoBitmap = BitmapFactory.decodeByteArray(photoData, 0, photoData.size)
+                userImage.setImageBitmap(photoBitmap)
+                cursor.close()
+            }
+            letterImage.setVisibility(View.GONE)
+        } else {
+            letterImage.setVisibility(View.VISIBLE)
+            val splittedArray = contact.name.trim { it <= ' ' }.split("[\\s]+".toRegex())
+                .dropLastWhile { it.isEmpty() }
+                .toTypedArray()
+            val st =
+                if (splittedArray.size < 2) splittedArray[0][0].toString() else splittedArray[0][0].toString() + "" + splittedArray[1][0]
+            letterImage.setText(st.uppercase(Locale.getDefault()))
+            userImage.setImageResource(R.drawable.profile_circle)
+//            userImage.setColorFilter(android.R.color.darker_gray);
+        }
         displayNameTextView.text = contact.name
         phoneNumberTextView.text = phoneNumber
 
