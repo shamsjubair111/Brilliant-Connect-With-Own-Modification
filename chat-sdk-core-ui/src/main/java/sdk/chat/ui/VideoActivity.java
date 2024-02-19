@@ -26,6 +26,7 @@ import androidx.core.app.ActivityCompat;
 import com.flashphoner.fpwcsapi.Flashphoner;
 import com.flashphoner.fpwcsapi.bean.Connection;
 import com.flashphoner.fpwcsapi.bean.StreamStatus;
+import com.flashphoner.fpwcsapi.constraints.Constraints;
 import com.flashphoner.fpwcsapi.layout.PercentFrameLayout;
 import com.flashphoner.fpwcsapi.room.Message;
 import com.flashphoner.fpwcsapi.room.Participant;
@@ -36,6 +37,7 @@ import com.flashphoner.fpwcsapi.room.RoomManagerEvent;
 import com.flashphoner.fpwcsapi.room.RoomManagerOptions;
 import com.flashphoner.fpwcsapi.room.RoomOptions;
 import com.flashphoner.fpwcsapi.session.Stream;
+import com.flashphoner.fpwcsapi.session.StreamOptions;
 import com.flashphoner.fpwcsapi.session.StreamStatusEvent;
 
 import org.pmw.tinylog.Logger;
@@ -107,6 +109,7 @@ public class VideoActivity extends BaseActivity {
     protected Thread thread;
 
     public sdk.chat.core.dao.Message message;
+    private boolean isVideo = false;
 
 
 
@@ -173,6 +176,7 @@ public class VideoActivity extends BaseActivity {
         String type = intent.getStringExtra("type");
         if (type.contains("video")) {
             callType = 101;
+            isVideo = true;
         } else {
             callType = 100;
         }
@@ -201,7 +205,8 @@ public class VideoActivity extends BaseActivity {
         callCancelButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                mediaPlayer.pause();
+                //mediaPlayer.pause();
+                mediaPlayer.stop();
                 newMessage.put("type",-1);
                 ChatSDK.push().sendPushNotification(newMessage);
                 finish();
@@ -607,7 +612,17 @@ public class VideoActivity extends BaseActivity {
                      * Stream is created and published with method Room.publish().
                      * SurfaceViewRenderer to be used to display video from the camera is passed to the method.
                      */
-                    stream = room.publish(localRenderer);
+                    StreamOptions streamOptions = new StreamOptions();
+                    if (isVideo) {
+                        streamOptions.setConstraints(new Constraints(true, true));
+                        stream = room.publish(localRenderer);
+                    } else {
+                        streamOptions.setConstraints(new Constraints(true, false));
+                        stream = room.publish(null, streamOptions);
+                    }
+
+
+
 
                     /**
                      * Callback function for stream status change is added to make appropriate changes in controls of the interface when stream is being published.
