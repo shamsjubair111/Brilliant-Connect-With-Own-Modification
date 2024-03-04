@@ -485,6 +485,10 @@ public class VideoActivity extends BaseActivity {
                         mMuteVideo.setEnabled(false);
                         mMuteVideo.setChecked(false);
                         stream = null;
+                        room.leave(null);
+                        room.unpublish();
+
+
                         mConnectStatus.setText(connection.getStatus());
                         Iterator<Map.Entry<String, ParticipantView>> i = busyViews.entrySet().iterator();
                         while (i.hasNext()) {

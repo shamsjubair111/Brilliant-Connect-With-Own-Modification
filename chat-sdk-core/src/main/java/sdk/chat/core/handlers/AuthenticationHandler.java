@@ -40,7 +40,6 @@ public interface AuthenticationHandler {
     * DidLogout the user from the current account
     */
     Completable logout();
-
     Boolean accountTypeEnabled(AccountDetails.Type type);
 
     /**

@@ -28,7 +28,7 @@ public class Config<T> extends BaseConfig<T> {
     public int userSearchLimit = 20;
 
     // Testing
-    public boolean debug = false;
+    public boolean debug = true;
     public Level logLevel = Level.WARNING;
 
     public String debugUsername = null;

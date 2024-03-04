@@ -658,7 +658,7 @@ public class XMPPManager {
 
     public void performPostAuthenticationSetup() {
 
-        
+
 
         sendAvailablePresence();
 
