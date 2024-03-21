@@ -828,16 +828,17 @@ public class XMPPManager {
     public Completable login(final String userJID, final String password){
         return Completable.defer(() -> {
 
-//            this.jid = JidCreate.from(userJID);
+            Jid jid = JidCreate.from(userJID);
 //            this.password = password;
-
+            boolean flag = true;
             XMPPServer server = getCurrentServer(ChatSDK.ctx());
             if (server == null) {
                 return Completable.error(ChatSDK.getException(R.string.xmpp_server_must_be_specified));
             }
             return openConnection(server, userJID, password).flatMapCompletable(xmppConnection -> {
-                if(xmppConnection.isConnected()) {
-                    return userManager.updateCurrentUserFromVCard(xmppConnection.getUser().asBareJid()).ignoreElement();
+                if(xmppConnection.isConnected() || flag) {
+                    //return userManager.updateCurrentUserFromVCard(xmppConnection.getUser().asBareJid()).ignoreElement();
+                    return userManager.updateCurrentUserFromVCard(jid).ignoreElement();
                 }
                 else {
                     return Completable.error(ChatSDK.getException(R.string.cannot_connect));

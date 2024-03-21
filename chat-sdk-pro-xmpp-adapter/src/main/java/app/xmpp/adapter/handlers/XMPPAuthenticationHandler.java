@@ -1,5 +1,7 @@
 package app.xmpp.adapter.handlers;
 
+import static com.mikepenz.iconics.Iconics.getApplicationContext;
+
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jxmpp.jid.Jid;
@@ -9,6 +11,7 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import app.xmpp.adapter.R;
 import app.xmpp.adapter.XMPPManager;
+import app.xmpp.adapter.network.NetworkUtils;
 import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractAuthenticationHandler;
 import sdk.chat.core.dao.User;
@@ -88,12 +91,21 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
 
                     switch (details.type) {
                         case Username:
-                            return XMPPManager.shared().login(details.username, details.password).andThen(Completable.defer(() -> {
-                                return loginSuccessful(details);
-                            })).doOnError(throwable -> {
+                            if(!NetworkUtils.isNetworkConnected(getApplicationContext()))
+                            {
+                                return Completable.defer(() -> {
+                                    return loginSuccessful(details);
+                                }).doOnError(throwable -> {
 //                                setAuthStateToIdle();
-                                clearCurrentUserEntityID();
                             }).doFinally(this::setAuthStateToIdle);
+                            } else {
+                                return XMPPManager.shared().login(details.username, details.password).andThen(Completable.defer(() -> {
+                                    return loginSuccessful(details);
+                                })).doOnError(throwable -> {
+//                                setAuthStateToIdle();
+                                    clearCurrentUserEntityID();
+                                }).doFinally(this::setAuthStateToIdle);
+                            }
                         case Register:
                             return XMPPManager.shared().register(details.username, details.password).andThen(Completable.defer(() -> {
                                 return loginSuccessful(details);
@@ -114,13 +126,16 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
         return Completable.defer(() -> {
             ChatSDK.shared().getKeyStorage().save(details.username, details.password);
             if(!details.username.contains("@")) {
-                details.username = details.username + "@" + XMPPManager.shared().getDomain();
+                details.username = details.username + "@" + "localhost";//XMPPManager.shared().getDomain();
             }
 
             setCurrentUserEntityID(details.username);
 
             try {
-                userAuthenticationCompletedWithJID(JidCreate.bareFrom(details.username));
+                if(NetworkUtils.isNetworkConnected(getApplicationContext()))
+                {
+                    userAuthenticationCompletedWithJID(JidCreate.bareFrom(details.username));
+                }
                 return Completable.complete();
             }
             catch (XmppStringprepException ex) {
