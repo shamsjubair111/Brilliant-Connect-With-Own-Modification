@@ -13,7 +13,7 @@ public class OutgoingStanza {
 
     public static String Delay = "delay";
     public static String DelayXMLNS = "co:chatsdk:delay";
-    public static Long delay = TimeUnit.SECONDS.toMillis(10);
+    public static Long delay = TimeUnit.SECONDS.toMillis(0);  //10
 
     public Stanza stanza;
     public Date date = new Date();
@@ -56,6 +56,6 @@ public class OutgoingStanza {
         ExtensionElement extension = StandardExtensionElement.builder(XMPPDefines.Extras, XMPPDefines.DelayNamespace)
                 .addElement(Delay, getDelay().toString())
                 .build();
-        stanza.addExtension(extension);
+        //stanza.addExtension(extension);
     }
 }
