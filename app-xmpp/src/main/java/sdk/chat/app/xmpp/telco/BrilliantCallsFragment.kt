@@ -2,8 +2,12 @@ package sdk.chat.app.xmpp.telco
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.net.ConnectivityManager
+import android.net.Network
+import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.view.LayoutInflater
@@ -11,11 +15,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
 import android.widget.SimpleCursorAdapter
-import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
+import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.api.RegisteredUserService
 import sdk.chat.ui.fragments.BaseFragment
@@ -36,6 +41,7 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
     private var phones: HashMap<Long, MutableList<String>> = hashMapOf()
     protected val contacts: MutableList<Contact> = ArrayList()
 
+    private lateinit var networkCallback: ConnectivityManager.NetworkCallback
     override fun getLayout(): Int {
         return R.layout.fragment_brilliant_calls
     }
@@ -47,6 +53,35 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
         listViewContacts = view.findViewById(R.id.contactListView)
         return view
     }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val connectivityManager = requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                if(ChatSDK.auth().cachedCredentialsAvailable()) {
+                    ChatSDK.auth().authenticate()
+                }
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                // Network connection lost
+            }
+        }
+
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        val connectivityManager = requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.unregisterNetworkCallback(networkCallback)
+    }
+
 
     @SuppressLint("Range")
     override fun initViews() {
