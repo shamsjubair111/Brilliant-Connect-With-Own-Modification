@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
+import com.lassi.common.utils.Logger
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.api.RegisteredUserService
@@ -60,10 +61,15 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
 
         val connectivityManager = requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         networkCallback = object : ConnectivityManager.NetworkCallback() {
+            @SuppressLint("CheckResult")
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
                 if(ChatSDK.auth().cachedCredentialsAvailable()) {
-                    ChatSDK.auth().authenticate()
+                    ChatSDK.auth().authenticate().subscribe({
+                        Logger.d("Re Authentication","Authentication succeeded")
+                    }, { error ->
+                        Logger.d("Re Authentication","Authentication failed")
+                    })
                 }
             }
 
