@@ -28,6 +28,7 @@ class BrilliantIntroActivity: BaseActivity() {
     lateinit var pageIndicatorView: PageIndicatorView
     lateinit var adapter: BrilliantIntroPagerAdapter
     lateinit var progressBar: ProgressBar
+    private var pushAlertShowed = false
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -56,7 +57,7 @@ class BrilliantIntroActivity: BaseActivity() {
         viewPager = findViewById(R.id.viewPager)
         pageIndicatorView = findViewById(R.id.pageIndicatorView)
 
-        io.reactivex.plugins.RxJavaPlugins.setErrorHandler(this)
+        //io.reactivex.plugins.RxJavaPlugins.setErrorHandler(this)
 
         adapter = BrilliantIntroPagerAdapter(supportFragmentManager, lifecycle)
         viewPager.registerOnPageChangeCallback(object :
@@ -112,9 +113,10 @@ class BrilliantIntroActivity: BaseActivity() {
 
         // TODO: Testing
         val pushAllowed = ChatSDK.shared().preferences.getBoolean("brilliant-push", false)
-        if (!pushAllowed) {
+        if (!pushAlertShowed) {
             showPushAlert()
         }
+        ChatSDK.config().showLocalNotifications = pushAllowed;
         endAuthenticating()
     }
 
@@ -162,16 +164,17 @@ class BrilliantIntroActivity: BaseActivity() {
         customView.findViewById<Button>(R.id.button_positive)?.setOnClickListener {
             ChatSDK.shared().preferences.edit().putBoolean("brilliant-push", true).commit()
             enablePush()
-            requestBothPermissions()
             dialog.dismiss()
         }
         customView.findViewById<Button>(R.id.button_negative)?.setOnClickListener {
             ChatSDK.shared().preferences.edit().putBoolean("brilliant-push", false).commit()
             dialog.dismiss()
+            askPermissionsWithoutPush()
         }
 
         // Show the dialog
         dialog.show()
+        pushAlertShowed = true
     }
 
     fun enablePush() {
@@ -193,12 +196,22 @@ class BrilliantIntroActivity: BaseActivity() {
                 //       If the user selects "No thanks," allow the user to continue without notifications.
             } else {
                 // Directly ask for the permission
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.RECORD_AUDIO,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ),
+                    PERMISSIONS_REQUEST_CODE
+                )
             }
+        } else{
+            askPermissionsWithoutPush()
         }
     }
 
-    fun requestBothPermissions() {
+    private fun askPermissionsWithoutPush(){
         ActivityCompat.requestPermissions(
             this,
             arrayOf(
@@ -215,6 +228,7 @@ class BrilliantIntroActivity: BaseActivity() {
             // Check if both permissions are granted
             val contactsPermissionGranted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
             val recordPermissionGranted = grantResults.size > 1 && grantResults[1] == PackageManager.PERMISSION_GRANTED
+            val pushPermissionGranted = grantResults.size > 2 && grantResults[2] == PackageManager.PERMISSION_GRANTED
             if (contactsPermissionGranted && recordPermissionGranted) {
                 // Both permissions granted
                 // Add your logic here
