@@ -10,6 +10,11 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.push.PushQueueAction;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.ui.LifecycleService;
 import sdk.chat.core.utils.StringChecker;
@@ -32,6 +37,18 @@ public class SplashScreenActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getIntent() != null) {
+            Bundle extras = getIntent().getExtras();
+            if (extras != null) {
+                String threadEntityID = extras.getString(Keys.PushKeyThreadEntityID);
+                if (threadEntityID != null) {
+                    Map<String, String> data = new HashMap<>();
+                    data.put(Keys.IntentKeyThreadEntityID, threadEntityID);
+                    ChatSDK.pushQueue().add(new PushQueueAction(PushQueueAction.Type.openThread, data));
+                }
+            }
+        }
 
         startService(new Intent(getBaseContext(), LifecycleService.class));
 
@@ -106,3 +123,4 @@ public class SplashScreenActivity extends BaseActivity {
     }
 
 }
+

@@ -26,7 +26,7 @@ public class Device {
     }
 
     public static boolean pixel() {
-        return named("Pixel 6");
+        return named("Pixel 6a");
     }
 
     public static boolean named(String name) {
