@@ -1,5 +1,17 @@
 package sdk.chat.core.handlers;
 
+
+
+import java.util.List;
+
+import io.reactivex.Maybe;
+import sdk.chat.core.dao.User;
+import io.reactivex.Observable;
+
+/**
+ * Created by SimonSmiley-Andrews on 01/05/2017.
+ */
+
 import java.util.List;
 
 import io.reactivex.Maybe;
@@ -19,7 +31,7 @@ public interface SearchHandler {
     // Checks a particular index
     Observable<User> usersForIndex(final String value, final String index);
 
-    Maybe<User> userForIndex(final String value, final String index);
+    Maybe<User> /**/userForIndex(final String value, final String index);
 
     Observable<User> usersForIndex(final String value, int limit, final String index);
     Observable<User> usersForIndexes(final String value, List<String> indexes);

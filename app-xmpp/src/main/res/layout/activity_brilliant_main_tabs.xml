@@ -6,6 +6,7 @@
     android:animateLayoutChanges="true"
     android:fitsSystemWindows="true"
     android:background="?activityBackgroundColor"
+
     >
 
     <RelativeLayout
@@ -23,6 +24,7 @@
             android:layout_below="@id/toolbar"
             app:tabBackground="@drawable/tab_color_selector"
             app:tabGravity="fill"
+            app:tabMaxWidth="2000dp"
             app:tabMode="fixed"/>
 
         <androidx.viewpager2.widget.ViewPager2

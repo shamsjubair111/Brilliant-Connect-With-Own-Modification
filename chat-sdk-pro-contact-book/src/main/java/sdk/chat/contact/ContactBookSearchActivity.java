@@ -82,22 +82,22 @@ public class ContactBookSearchActivity extends BaseActivity {
                 ContactBookUser contactUser = (ContactBookUser) item;
                 showProgressIndicator();
 
-                ContactBookManager.searchServer(contactUser).observeOn(RX.main()).doOnSuccess(searchResult -> {
-                    if (searchResult.user != null) {
-                        ChatSDK.contact().addContact(searchResult.user, ConnectionType.Contact)
-                                .observeOn(RX.main())
-                                .doOnComplete(() -> {
-                                    showToast(R.string.contact_added);
-                                    adapter.getItems().remove(item);
-                                    adapter.notifyDataSetChanged();
-                                })
-                                .subscribe(this);
-                    } else {
-                        inviteUser(contactUser);
-                    }
-                }).doOnComplete(() -> {
-                    inviteUser(contactUser);
-                }).doFinally(this::hideProgressIndicator)
+                ContactBookModule.config().contactBookManager.searchServer(contactUser).observeOn(RX.main()).doOnSuccess(searchResult -> {
+                            if (searchResult.user != null) {
+                                ChatSDK.contact().addContact(searchResult.user, ConnectionType.Contact)
+                                        .observeOn(RX.main())
+                                        .doOnComplete(() -> {
+                                            showToast(R.string.contact_added);
+                                            adapter.getItems().remove(item);
+                                            adapter.notifyDataSetChanged();
+                                        })
+                                        .subscribe(this);
+                            } else {
+                                inviteUser(contactUser);
+                            }
+                        }).doOnComplete(() -> {
+                            inviteUser(contactUser);
+                        }).doFinally(this::hideProgressIndicator)
                         .ignoreElement()
                         .subscribe(this);
             }
@@ -110,8 +110,8 @@ public class ContactBookSearchActivity extends BaseActivity {
             showProgressIndicator();
 
             loadUsersFromContactBook().doFinally(() -> {
-                hideProgressIndicator();
-            }).doOnError(throwable -> finish())
+                        hideProgressIndicator();
+                    }).doOnError(throwable -> finish())
                     .ignoreElement()
                     .subscribe(this);
         }
@@ -200,34 +200,34 @@ public class ContactBookSearchActivity extends BaseActivity {
 
     private Single<List<ContactBookUser>> loadUsersFromContactBook() {
         return PermissionRequestHandler.requestReadContact(this)
-                .andThen(ContactBookManager.getContactList(getApplicationContext())
+                .andThen(ContactBookModule.config().contactBookManager.getContactList(getApplicationContext())
                         .map(contactBookUsers -> {
-                        List<User> contacts = ChatSDK.contact().contacts();
+                            List<User> contacts = ChatSDK.contact().contacts();
 
-                        final List<ContactBookUser> toAdd = new ArrayList<>();
+                            final List<ContactBookUser> toAdd = new ArrayList<>();
 
-                        for (ContactBookUser u : contactBookUsers) {
-                            // Check to see if this user is already in our contacts
-                            boolean exists = false;
-                            for (User user: contacts) {
-                                if (u.isUser(user)) {
-                                    exists = true;
-                                    break;
+                            for (ContactBookUser u : contactBookUsers) {
+                                // Check to see if this user is already in our contacts
+                                boolean exists = false;
+                                for (User user: contacts) {
+                                    if (u.isUser(user)) {
+                                        exists = true;
+                                        break;
+                                    }
+                                }
+                                if (!exists) {
+                                    toAdd.add(u);
                                 }
                             }
-                            if (!exists) {
-                                toAdd.add(u);
-                            }
-                        }
 
-                        RX.main().scheduleDirect(() -> {
-                            for (ContactBookUser u: toAdd) {
-                                adapter.addUser(u);
-                            }
-                            adapter.notifyDataSetChanged();
-                        });
+                            RX.main().scheduleDirect(() -> {
+                                for (ContactBookUser u: toAdd) {
+                                    adapter.addUser(u);
+                                }
+                                adapter.notifyDataSetChanged();
+                            });
 
-                        return contactBookUsers;
-                    }).subscribeOn(RX.computation()));
+                            return contactBookUsers;
+                        }).subscribeOn(RX.computation()));
     }
 }

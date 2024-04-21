@@ -1,5 +1,7 @@
 package sdk.chat.app.xmpp.telco
 
+import android.content.Context
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -18,6 +20,8 @@ import sdk.chat.ui.activities.MainAppBarActivity
 import sdk.chat.ui.adapters.PagerAdapterTabs
 import sdk.guru.common.DisposableMap
 import sdk.guru.common.RX
+import kotlin.math.max
+import kotlin.math.min
 
 
 class BrilliantTabBarActivity: MainAppBarActivity() {
@@ -77,7 +81,7 @@ class BrilliantTabBarActivity: MainAppBarActivity() {
             Single.just(count)
         }.observeOn(RX.main()).subscribe { result ->
 
-        //            unreadMessages?.text = "$result"
+            //            unreadMessages?.text = "$result"
 //            unreadMessages?.visibility = if(result > 0) VISIBLE else INVISIBLE
             unreadMessagesCount = result
             updateTabs()
@@ -175,39 +179,38 @@ class BrilliantTabBarActivity: MainAppBarActivity() {
                 it.view.layoutParams = lp
             }
         }
-   }
+    }
+
+    fun getScreenWidth(context: Context): Int {
+        val orientation = context.resources.configuration.orientation
+        val metrics = Resources.getSystem().displayMetrics
+        return if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            max(metrics.heightPixels, metrics.widthPixels)
+        } else {
+            min(metrics.heightPixels, metrics.widthPixels)
+        }
+    }
 
     fun updateTabWidth(selected: TabLayout.Tab) {
-        val screenWidth = Resources.getSystem().displayMetrics.widthPixels
+//        val screenWidth = Resources.getSystem().displayMetrics.widthPixels
+        val screenWidth = getScreenWidth(this)
         var availableWidth = screenWidth
         for (i in 0 until tabLayout.tabCount) {
             val tab = tabLayout.getTabAt(i)
             tab?.let {
-//                val titleView = it.customView?.findViewById<TextView>(R.id.tvTitle)
-//                val imageView = it.customView?.findViewById<ImageView>(R.id.imageView)
-
-
-//                titleView?.visibility = if(selected == tab) VISIBLE else GONE
-//                imageView?.visibility = if(selected == tab) GONE else VISIBLE
-//
                 if (tab != selected) {
-//                    val lp = tab.view.layoutParams
-//                    lp.width = ViewGroup.LayoutParams.WRAP_CONTENT
-//                    it.view.layoutParams = lp
-
                     availableWidth -= it.view.width
                 }
-
-//                if (!wide) {
-//                    availableWidth -= it.view.width
-//                }
-
+                println("Tab $i width: ${it.view.width}")
             }
         }
         val lp = selected.view.layoutParams
         lp.width = availableWidth
         selected.view.layoutParams = lp
-
+        selected.view.post {
+            println("Tab lp: ${lp.width}")
+            println("Tab selected width: ${selected.view.width}")
+        }
     }
 
     fun updateTabs() {

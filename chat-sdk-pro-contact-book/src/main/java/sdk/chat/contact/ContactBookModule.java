@@ -13,6 +13,19 @@ import sdk.guru.common.BaseConfig;
  * Created by ben on 10/9/17.
  */
 
+import android.content.Context;
+
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Configure;
+import sdk.chat.licensing.Report;
+import sdk.guru.common.BaseConfig;
+
+
+/**
+ * Created by ben on 10/9/17.
+ */
+
 public class ContactBookModule extends AbstractModule {
 
     public static final ContactBookModule instance = new ContactBookModule();
@@ -52,6 +65,8 @@ public class ContactBookModule extends AbstractModule {
         public Config(T onBuild) {
             super(onBuild);
         }
+
+        public ContactBookManager contactBookManager = new ContactBookManager();
 
         /**
          * Define custom messages for the contact book module invite

@@ -8,6 +8,7 @@ import org.pmw.tinylog.Logger;
 
 import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.receipts.XMPPReadReceiptsModule;
+import sdk.chat.app.xmpp.telco.BrilliantContactBookManager;
 import sdk.chat.app.xmpp.telco.BrilliantInterfaceAdapter;
 import sdk.chat.app.xmpp.telco.BrilliantOTPLoginActivity;
 import sdk.chat.app.xmpp.telco.BrilliantSplashScreenActivity;
@@ -97,7 +98,7 @@ public class MainApplication extends Application {
                     .addModule(FileMessageModule.shared())
                     .addModule(StickerMessageModule.builder()
                             .build())
-                    .addModule(ContactBookModule.shared())
+                    .addModule(ContactBookModule.builder(config -> config.contactBookManager = new BrilliantContactBookManager())) //.addModule(ContactBookModule.shared())
 
                     .addModule(XMPPEncryptionModule.shared())
                     .addModule(UIModule.builder()

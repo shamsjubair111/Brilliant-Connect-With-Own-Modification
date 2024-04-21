@@ -4,6 +4,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 
+import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
@@ -11,6 +15,7 @@ import org.jivesoftware.smack.roster.packet.RosterPacket;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.search.ReportedData;
+import org.jivesoftware.smackx.search.UserSearch;
 import org.jivesoftware.smackx.search.UserSearchManager;
 import org.jivesoftware.smackx.vcardtemp.VCardManager;
 import org.jivesoftware.smackx.vcardtemp.packet.VCard;
@@ -125,7 +130,7 @@ public class XMPPUserManager {
         }).subscribeOn(RX.io());
     }
 
-    public Single<Jid> getSearchService () {
+    public Single<Jid> getSearchService() {
         return Single.create((SingleOnSubscribe<Jid>) emitter -> {
             UserSearchManager userSearchManager = manager.get().userSearchManager();
             List<DomainBareJid> jids = userSearchManager.getSearchServices();
@@ -151,12 +156,27 @@ public class XMPPUserManager {
         }).subscribeOn(RX.io());
     }
 
+    public DataForm getSearchForm(XMPPConnection con, DomainBareJid searchService) throws SmackException.NoResponseException, XMPPException.XMPPErrorException, SmackException.NotConnectedException, InterruptedException {
+        UserSearch search = new UserSearch();
+        search.setType(IQ.Type.get);
+        search.setTo(searchService);
+
+        IQ response = con.createStanzaCollectorAndSend(search).nextResultOrThrow();
+        return DataForm.from(response, null); // "jabber:iq:search"
+    }
+
     public Observable<Jid> searchUser(final String searchIndex, final String searchValue) {
         return getSearchService().flattenAsObservable(jid -> {
 
             UserSearchManager userSearchManager = manager.get().userSearchManager();
+//            userSearchManager.getSearchServices();
 
-            DataForm searchForm = userSearchManager.getSearchForm(jid.asDomainBareJid());
+//            DataForm searchForm = getSearchForm(manager.get().connection, jid.asDomainBareJid());
+
+//            DataForm searchForm = userSearchManager.getSearchForm(jid.asDomainBareJid());
+            DataForm searchForm = getSearchForm(manager.get().connection, jid.asDomainBareJid());
+
+//            DataForm searchForm = userSearchManager.getSearchForm(userSearchManager.getSearchServices().iterator().next());
 
             DataForm.Builder answerFormBuilder = searchForm.asBuilder();
 
@@ -181,17 +201,12 @@ public class XMPPUserManager {
 
             }
             else {
-                // This isn't tested...
-                answerFormBuilder.removeField(searchIndex)
+                answerFormBuilder = DataForm.builder().setFormType(UserSearch.NAMESPACE)
                         .addField(FormField.textSingleBuilder(searchIndex)
                                 .setValue(searchValue)
                                 .build());
-
-//                answerForm.setAnswer(searchIndex, searchValue);
             }
-
             ReportedData data = userSearchManager.getSearchResults(answerFormBuilder.build(), jid.asDomainBareJid());
-//            userSearchManager.getSearchResults(answerForm)
 
             List<Jid> jids = new ArrayList<>();
             for(ReportedData.Row row : data.getRows()) {
@@ -540,3 +555,4 @@ public class XMPPUserManager {
 
 
 }
+

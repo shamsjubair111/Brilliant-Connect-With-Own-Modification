@@ -10,25 +10,25 @@ import sdk.guru.common.RX
 
 class BrilliantContactBookManager: ContactBookManager() {
 
-//    override fun searchServer(contactBookUser: ContactBookUser): Maybe<SearchResult?>? {
-//        return Maybe.defer {
-//            val maybeList: MutableList<Maybe<User>> =
-//                ArrayList()
-//
-//            for (index in contactBookUser.searchIndexes) {
-//                if(index.key == Keys.Phone) {
-//                    maybeList.add(ChatSDK.search().userForIndex(index.value, "user"))
-//                }
-//            }
-//            Maybe.concat(maybeList)
-//                .map { user: User? ->
-//                    SearchResult(
-//                        user,
-//                        contactBookUser
-//                    )
-//                }.firstElement()
-//        }.subscribeOn(RX.computation())
-//    }
+    override fun searchServer(contactBookUser: ContactBookUser): Maybe<SearchResult?>? {
+        return Maybe.defer {
+            val maybeList: MutableList<Maybe<User>> =
+                ArrayList()
+
+            for (index in contactBookUser.searchIndexes) {
+                if(index.key == Keys.Phone) {
+                    maybeList.add(ChatSDK.search().userForIndex(index.value, "user"))
+                }
+            }
+            Maybe.concat(maybeList)
+                .map { user: User? ->
+                    SearchResult(
+                        user,
+                        contactBookUser
+                    )
+                }.firstElement()
+        }.subscribeOn(RX.computation())
+    }
 
 
 }

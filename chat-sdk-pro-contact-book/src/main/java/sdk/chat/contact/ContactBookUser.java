@@ -2,6 +2,8 @@ package sdk.chat.contact;
 
 import java.util.ArrayList;
 
+import java.util.ArrayList;
+
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
@@ -56,13 +58,13 @@ public class ContactBookUser implements UserListItem {
     public ArrayList<SearchIndex> getSearchIndexes () {
         ArrayList<SearchIndex> indexes = new ArrayList<>();
 
-        for(String email : emailAddresses) {
+        for(String email: emailAddresses) {
             if(!StringChecker.isNullOrEmpty(email)) {
                 indexes.add(new SearchIndex(Keys.Email, email));
             }
         }
 
-        for(String phone : phoneNumbers) {
+        for(String phone: phoneNumbers) {
             if(!StringChecker.isNullOrEmpty(phone)) {
                 indexes.add(new SearchIndex(Keys.Phone, phone));
             }
@@ -136,3 +138,4 @@ public class ContactBookUser implements UserListItem {
         return false;
     }
 }
+
