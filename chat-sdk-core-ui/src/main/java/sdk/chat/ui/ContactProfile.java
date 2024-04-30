@@ -9,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.codewithkael.webrtcprojectforrecord.MainActivity;
+import com.codewithkael.webrtcprojectforrecord.OutgoingCall;
+
 public class ContactProfile extends AppCompatActivity {
 
     private  TextView userNameTextView;
@@ -88,8 +91,9 @@ public class ContactProfile extends AppCompatActivity {
         imageView3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent =  new Intent(ContactProfile.this, AudioActivity.class);
+                Intent intent =  new Intent(ContactProfile.this, OutgoingCall.class);
                 intent.putExtra("callee",validPhoneNumber(getIntent().getStringExtra("contactNumber")));
+                intent.putExtra("activityName", "ContactProfile");
                 startActivity(intent);
             }
         });

@@ -41,6 +41,7 @@ include 'app-xmpp',
         'chat-sdk-pro-xmpp-omemo',
         'chat-sdk-mod-image-editor',
         'vendor-chatkit',
-        'chat-sdk-vendor'
-include ':vendor-android-audio-recorder'
-include ':chat-sdk-app-telcobright'
+        'chat-sdk-vendor',
+        'vendor-android-audio-recorder',
+        'chat-sdk-app-telcobright',
+        'janus'

@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import com.codewithkael.webrtcprojectforrecord.OutgoingCall
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.AudioActivity
 import sdk.chat.ui.VideoActivity
@@ -92,7 +93,7 @@ import java.util.Locale
         imageViewAppToSip.setOnClickListener {
             // Perform action for button1 based on phoneNumber
 
-            val intent = Intent(context, AudioActivity::class.java)
+            val intent = Intent(context, OutgoingCall::class.java)
                 intent.putExtra("callee", phoneNumber?.let { it1 -> validPhoneNumber(it1) })
                 context.startActivity(intent)
         }

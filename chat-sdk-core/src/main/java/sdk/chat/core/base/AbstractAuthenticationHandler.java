@@ -31,7 +31,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     }
 
     public Boolean isAuthenticatedThisSession() {
-        return isAuthenticated() && isAuthenticatedThisSession ;
+        return isAuthenticated() && isAuthenticatedThisSession;
     }
 
     /**

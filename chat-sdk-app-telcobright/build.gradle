@@ -70,7 +70,7 @@ dependencies {
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
-    implementation files('../chat-sdk-app-telcobright/libs/wcs-android-sdk-1.1.0.61.aar')
+//    implementation files('../chat-sdk-app-telcobright/libs/wcs-android-sdk-1.1.0.61.aar')
 }
 ext {
     libraryName = 'Core'
