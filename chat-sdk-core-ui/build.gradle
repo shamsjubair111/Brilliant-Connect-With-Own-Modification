@@ -108,12 +108,19 @@ dependencies {
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation project(path: ':janus')
+    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'androidx.activity:activity:1.8.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
 //    implementation files('../chat-sdk-app-telcobright/libs/wcs-android-sdk-1.1.0.61.aa
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
     implementation 'com.mikhaellopez:circularprogressbar:3.1.0'
+
+//    Easin Vai extended services dependency
+    implementation 'com.android.volley:volley:1.2.0'
+    implementation 'com.google.code.gson:gson:2.8.8'
 
 //    api 'com.github.Mindinventory:Lassi:1.2.0'
 //    api 'com.github.Mindinventory:Lassi:1.1.0'
