@@ -1,11 +1,9 @@
 package com.codewithkael.webrtcprojectforrecord;
 
-import static com.codewithkael.webrtcprojectforrecord.OutgoingCall.TID;
-
-import static org.webrtc.ContextUtils.getApplicationContext;
-import static java.security.AccessController.getContext;
+import static com.fasterxml.jackson.core.util.InternCache.instance;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,6 +16,8 @@ import com.google.gson.Gson;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
@@ -35,30 +35,31 @@ public class Websocket {
     private final String TAG = "SocketRepository";
     private final Gson gson = new Gson();
     private final NewJanusMessageInterface messageInterface;
-    public OutgoingCall outgoingCall = new OutgoingCall();
-    public JanusVideoCall janusVideoCall = new JanusVideoCall();
-
-    private enum callType {
-        audio,
-        video,
-        sip
-    }
-    callType callType;
-    public Websocket(NewJanusMessageInterface messageInterface, OutgoingCall outgoingCall) {
+    public Object dynamicClassInstance = new Object();
+    public Websocket(NewJanusMessageInterface messageInterface, Object dynamicClassInstance) {
         this.messageInterface = messageInterface;
-        this.outgoingCall = outgoingCall;
-        this.callType = callType.sip;
-    }
-    public Websocket(NewJanusMessageInterface messageInterface, JanusVideoCall janusVideoCall) {
-        this.messageInterface = messageInterface;
-        this.janusVideoCall = janusVideoCall;
-        this.callType = callType.video;
+        this.dynamicClassInstance = dynamicClassInstance;
     }
 
     public void sendKeepAlive() {
-        // Construct the JSON message for sending keep alive
-        String keepAliveMessage = "{ \"janus\": \"keepalive\", \"session_id\":" + OutgoingCall.sessionId + ", \"transaction\":\"" + TID() + "\" }";
-        sendMessage(keepAliveMessage);
+        try {
+            Field sessionIdField = dynamicClassInstance.getClass().getField("sessionId");
+            long sessionId = (long) sessionIdField.get(dynamicClassInstance);
+            System.out.println("sessionId: " + sessionId);
+//            System.out.println("sessionId: " + sessionId);
+
+            // Get the TID method from the dynamic class using reflection
+            Method tidMethod = dynamicClassInstance.getClass().getMethod("TID");
+            String tid = (String) tidMethod.invoke(dynamicClassInstance);
+
+            // Construct the JSON message for sending keep alive
+            String keepAliveMessage = "{ \"janus\": \"keepalive\", \"session_id\":" + sessionId + ", \"transaction\":\"" + tid + "\" }";
+
+            // Invoke the sendMessage method of the dynamic class using reflection
+            sendMessage(keepAliveMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void initSocket(String username) {
@@ -68,14 +69,21 @@ public class Websocket {
             httpHeaders.put("Sec-Websocket-Protocol","janus-protocol");
 
 //            webSocket = new WebSocketClient(new URI("wss://tb.intercloud.com.bd/"),httpHeaders) {
-            webSocket = new WebSocketClient(new URI("wss://103.248.13.73/"),httpHeaders) {
+            webSocket = new WebSocketClient(new URI("wss://103.248.13.76/"),httpHeaders) {
 //            webSocket = new WebSocketClient(new URI("wss://192.168.0.105/"),httpHeaders) {
 //            webSocket = new WebSocketClient(new URI("wss://192.168.68.122/"),httpHeaders) {
                 @Override
                 public void onOpen(ServerHandshake handshakedata) {
                     System.out.println("open");
 //                    sendMessage("{\"janus\":\"create\",\"transaction\":\"" + TID() + "\"}");
-                    outgoingCall.createSession();
+
+                    try {
+                        // Invoke the createSession method of the dynamic class using reflection
+                        Method createSessionMethod = dynamicClassInstance.getClass().getMethod("createSession");
+                        createSessionMethod.invoke(dynamicClassInstance);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
@@ -112,7 +120,13 @@ public class Websocket {
                     if (!webSocket.isOpen()) {
                         System.out.println("Service Unavailable");
                         showServiceUnavailableToast();
-                        outgoingCall.finish();
+                        try {
+                            // Invoke the createSession method of the dynamic class using reflection
+                            Method createSessionMethod = dynamicClassInstance.getClass().getMethod("finish");
+                            createSessionMethod.invoke(dynamicClassInstance);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         // WebSocket connection failed due to timeout
                         // Handle the timeout here
                         // For example, show an error message or retry the connection
@@ -121,8 +135,6 @@ public class Websocket {
             };
             Timer connectionTimer = new Timer();
             connectionTimer.schedule(connectionTimeoutTask, 2000); // 2 seconds timeout
-
-//            outgoingCall.createSession();
         }
     }
 
@@ -152,14 +164,18 @@ public class Websocket {
     }
 
     public void showServiceUnavailableToast() {
-        outgoingCall.runOnUiThread(() -> {
-            Toast.makeText(outgoingCall, "Service Unavailable", Toast.LENGTH_SHORT).show();
-        });
+        if (dynamicClassInstance != null) {
+            ((Activity) dynamicClassInstance).runOnUiThread(() -> {
+                Toast.makeText((Context) dynamicClassInstance, "Service Unavailable", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
     public void showToast(String message) {
-        outgoingCall.runOnUiThread(() -> {
-            Toast.makeText(outgoingCall, message, Toast.LENGTH_SHORT).show();
-        });
+        if (dynamicClassInstance != null) {
+            ((Activity) dynamicClassInstance).runOnUiThread(() -> {
+                Toast.makeText((Context) dynamicClassInstance, message, Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     public void sendMessage(String message) {

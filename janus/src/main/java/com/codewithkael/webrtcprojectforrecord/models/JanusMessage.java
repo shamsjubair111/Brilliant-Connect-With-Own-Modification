@@ -43,13 +43,16 @@ public class JanusMessage {
         this.handleId = handleId;
     }
 
-    @JsonPropertyOrder({ "request", "uri", "autoaccept_reinvites" })
+    @JsonPropertyOrder({ "request", "username","uri", "autoaccept_reinvites" })
     public static class Body {
         @JsonProperty("request")
         private String request;
 
         @JsonProperty("uri")
         private String uri;
+
+        @JsonProperty("username")
+        private String username;
 
         @JsonProperty("autoaccept_reinvites")
         private boolean autoacceptReinvites;
@@ -62,6 +65,11 @@ public class JanusMessage {
 
         public Body(String request) {
             this.request = request;
+        }
+
+        public Body(String request, String username) {
+            this.request = request;
+            this.username = username;
         }
     }
     @JsonPropertyOrder({ "type", "sdp" })
