@@ -12,6 +12,7 @@ import com.codewithkael.webrtcprojectforrecord.utils.SDPParser;
 import org.webrtc.*;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,7 +58,7 @@ public class RTCClient {
 //        iceServers.add(PeerConnection.IceServer.builder("stun:stun.cloudflare.com:3478").createIceServer());
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.voip.eutelia.it:3478").createIceServer());
 //        iceServers.add(PeerConnection.IceServer.builder("stun:ip-9-232.sn2.clouditalia.com:3478").createIceServer());
-//        iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").setUsername("83eebabf8b4cce9d5dbcb649").setPassword("2D7JvfkOQtBdYW3R").createIceServer());
+        iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").setUsername("83eebabf8b4cce9d5dbcb649").setPassword("2D7JvfkOQtBdYW3R").createIceServer());
 
 
         peerConnectionFactory = createPeerConnectionFactory();
@@ -183,10 +184,19 @@ public class RTCClient {
                     public void onSetSuccess() {
                         String sdp = sessionDescription.description;
                         String type = sessionDescription.type.toString().toLowerCase();
-                        sdp = sdp.replaceAll("(\\r)", "");
-                        sdp = SDPParser.filterCodecs(sdp);
+                        JanusMessage.Body body;
+                        if (websocket.dynamicClassInstance instanceof OutgoingCall)
+                        {
+                            sdp = sdp.replaceAll("(\\r)", "");
+                            sdp = SDPParser.filterCodecs(sdp);
 
-                        JanusMessage.Body body = new JanusMessage.Body("call", target,false);
+                            body = new JanusMessage.Body("call", target,false);
+                        }
+                        else
+                        {
+                            body = new JanusMessage.Body("call", target);
+                        }
+
                         JanusMessage.Jsep jsep = new JanusMessage.Jsep(type, sdp);
                         JanusMessage message = new JanusMessage("message", body, TID(), jsep, sessionId, handleId);
 

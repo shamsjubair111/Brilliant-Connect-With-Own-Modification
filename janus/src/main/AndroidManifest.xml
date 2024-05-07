@@ -30,6 +30,11 @@
             android:exported="true"
             android:configChanges="orientation|screenSize|keyboard">
         </activity>
+        <activity
+            android:name=".AppToAppAudio"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|keyboard">
+        </activity>
 
         <activity
             android:name=".MainActivity"
