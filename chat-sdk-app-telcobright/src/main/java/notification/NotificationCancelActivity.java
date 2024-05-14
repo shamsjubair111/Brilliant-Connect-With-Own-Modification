@@ -1,6 +1,14 @@
 package notification;
 
 
+import static sdk.chat.core.dao.Keys.Type;
+import static sdk.chat.core.push.AbstractPushHandler.Action;
+import static sdk.chat.core.push.AbstractPushHandler.Body;
+import static sdk.chat.core.push.AbstractPushHandler.SenderId;
+import static sdk.chat.core.push.AbstractPushHandler.SenderName;
+import static sdk.chat.core.push.AbstractPushHandler.ThreadId;
+import static sdk.chat.core.push.AbstractPushHandler.UserIds;
+
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
@@ -9,9 +17,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-
-
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -48,7 +54,28 @@ public class NotificationCancelActivity extends AppCompatActivity {
         notificationManager.cancel(100001);
         ChatSDK.mediaStop();
 //        Flashphoner.init(this);
-        String currentUserId = ChatSDK.auth().currentUser().getName();
+        String receiverNumber = getIntent().getStringExtra("senderNumber");
+        roomName = ChatSDK.currentUser().getName();
+        HashMap<String, Object> newMessage = new HashMap<>();
+        String threadEntityID = receiverNumber + "@localhost";
+        String senderId = ChatSDK.currentUser().getName() + "@localhost";
+        HashMap<String, HashMap<String, String>> userIds = new HashMap<String, HashMap<String, String>>();
+        HashMap<String, String> users = new HashMap<String, String>();
+        users.put(threadEntityID, receiverNumber);
+        userIds.put("userIds", users);
+        String action = "co.chatsdk.QuickReply";
+        String body = "video call";
+        int callType = -1;
+        users.put(ThreadId,senderId);
+        newMessage.put(ThreadId, threadEntityID);
+        newMessage.put(SenderName, receiverNumber);
+        newMessage.put(SenderId, senderId);
+        newMessage.put(UserIds, users);
+        newMessage.put(Action, action);
+        newMessage.put(Body, body);
+        newMessage.put(Type, callType);
+        ChatSDK.push().sendPushNotification(newMessage);
+        finish();
 //        RoomManagerOptions roomManagerOptions = new RoomManagerOptions("wss://tb.intercloud.com.bd:8443", "" + currentUserId);
 //        roomManager = Flashphoner.createRoomManager(roomManagerOptions);
 //        roomManager.on(new RoomManagerEvent() {

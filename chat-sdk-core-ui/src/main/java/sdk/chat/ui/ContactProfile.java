@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.codewithkael.webrtcprojectforrecord.AppToAppAudio;
 import com.codewithkael.webrtcprojectforrecord.MainActivity;
 import com.codewithkael.webrtcprojectforrecord.OutgoingCall;
 
@@ -73,7 +74,7 @@ public class ContactProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(getIntent().getStringExtra("registered").equals("yes")){
-                    Intent intent = new Intent(getApplicationContext(), VideoActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), AppToAppAudio.class);
                     intent.putExtra("receiverNumber",receiverNumber);
                     intent.putExtra("type","audio");
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

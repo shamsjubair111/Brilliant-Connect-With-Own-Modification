@@ -95,7 +95,7 @@ import java.util.Locale
             // Perform action for button1 based on phoneNumber
 
             val intent = Intent(context, OutgoingCall::class.java)
-                intent.putExtra("callee", phoneNumber?.let { it1 -> validPhoneNumber(it1) })
+                intent.putExtra("receiverNumber", phoneNumber?.let { it1 -> validPhoneNumber(it1) })
                 context.startActivity(intent)
         }
 

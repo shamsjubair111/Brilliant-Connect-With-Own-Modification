@@ -1,8 +1,19 @@
 package com.codewithkael.webrtcprojectforrecord;
 
 
+import static sdk.chat.core.dao.Keys.Type;
+import static sdk.chat.core.push.AbstractPushHandler.Action;
+import static sdk.chat.core.push.AbstractPushHandler.Body;
+import static sdk.chat.core.push.AbstractPushHandler.SenderId;
+import static sdk.chat.core.push.AbstractPushHandler.SenderName;
+import static sdk.chat.core.push.AbstractPushHandler.ThreadId;
+import static sdk.chat.core.push.AbstractPushHandler.UserIds;
+
 import android.Manifest;
-import android.content.Intent;
+import android.annotation.SuppressLint;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,16 +22,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.codewithkael.webrtcprojectforrecord.databinding.ActivityCallBinding;
-import com.codewithkael.webrtcprojectforrecord.databinding.ActivityMainBinding;
 import com.codewithkael.webrtcprojectforrecord.models.JanusCallHandlerInterface;
 import com.codewithkael.webrtcprojectforrecord.models.JanusMessage;
 import com.codewithkael.webrtcprojectforrecord.models.JanusResponse;
-import com.codewithkael.webrtcprojectforrecord.utils.KeepAliveMessage;
 import com.codewithkael.webrtcprojectforrecord.utils.PeerConnectionObserver;
 import com.codewithkael.webrtcprojectforrecord.utils.RTCAudioManager;
 import com.google.gson.Gson;
 import com.permissionx.guolindev.PermissionX;
-import com.permissionx.guolindev.callback.RequestCallback;
 
 import org.json.JSONException;
 import org.webrtc.IceCandidate;
@@ -29,13 +37,12 @@ import org.webrtc.PeerConnection;
 import org.webrtc.SessionDescription;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
-public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerInterface {
+import sdk.chat.core.session.ChatSDK;
+
+public class ReceiverActivityAudio extends AppCompatActivity implements JanusCallHandlerInterface {
     private Websocket websocket;
     public static long sessionId = 0;
     public long handleId = 0;
@@ -45,7 +52,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
     private String userName;
     private String receiver;
     private RTCClient rtcClient;
-    private String TAG = "OutgoingCall";
+    private String TAG = "AppToAppAudio";
     private String target = "";
     private Gson gson = new Gson();
     private boolean isMute = false ;
@@ -53,38 +60,40 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
     private RTCAudioManager rtcAudioManager;
     private boolean isSpeakerMode = false;
 
-
+    private boolean isVideo = false;
+    HashMap<String, Object> newMessage = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true);
+            setTurnScreenOn(true);
+        }
         binding = ActivityCallBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setCallLayoutVisible();
-        PermissionX.init(OutgoingCall.this)
+        PermissionX.init(ReceiverActivityAudio.this)
                 .permissions(
                         Manifest.permission.RECORD_AUDIO
                 ).request((allGranted, grantedList, deniedList) -> {
                     if (allGranted) {
                         init();
+                        ChatSDK.callActivities.put("ReceiverActivityAudio",this);
                     } else {
-                        Toast.makeText(OutgoingCall.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ReceiverActivityAudio.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
                     }
                 });
     }
 
     private void init() {
+        ChatSDK.mediaStop();
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(100001);
+        userName = ChatSDK.currentUser().getName() + "@localhost";
 
-//        userName = "sip:1001@192.168.0.150";
-        userName = "sip:9638000123@103.248.13.73";
-
-
-        receiver = "sip:"+getIntent().getStringExtra("receiverNumber")+"@103.248.13.73";
-//        receiver = "sip:1000@192.168.0.150:5080";
-//        receiver = "sip:1002@103.248.13.73";
-//        userName = getIntent().getStringExtra("username");
-        websocket = new Websocket( this,OutgoingCall.this);
+        receiver = getIntent().getStringExtra("senderNumber");
+        websocket = new Websocket( this,ReceiverActivityAudio.this);
         if (userName != null) {
             websocket.initSocket(userName);
         }
@@ -106,8 +115,6 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                         throw new RuntimeException(e);
                     }
                 }
-
-
 
             }
 
@@ -140,12 +147,11 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
 
         rtcAudioManager = new RTCAudioManager(this);
         rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE);
-//        binding.callBtn.setOnClickListener(v -> {
-//        startCall(userName);
+
         target = receiver;
 //        });
 
-//        binding.switchCameraButton.setOnClickListener(v -> rtcClient.switchCamera());
+
 
         binding.micButton.setOnClickListener(v -> {
             isMute = !isMute;
@@ -157,15 +163,6 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
             rtcClient.toggleAudio(isMute);
         });
 
-//        binding.videoButton.setOnClickListener(v -> {
-//            isCameraPause = !isCameraPause;
-//            if (isCameraPause) {
-//                binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_off_24);
-//            } else {
-//                binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_24);
-//            }
-//            rtcClient.toggleCamera(isCameraPause);
-//        });
 
         binding.audioOutputButton.setOnClickListener(v -> {
             isSpeakerMode = !isSpeakerMode;
@@ -180,27 +177,224 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
 
         binding.endCallButton.setOnClickListener(v -> {
             setCallLayoutGone();
-//            setWhoToCallLayoutVisible();
-//            setIncomingCallLayoutGone();
-            rtcClient.endCall();
+            newMessage.put("type",-1);
+            ChatSDK.push().sendPushNotification(newMessage);
+            rtcClient.stopLocalAudio();
             websocket.stopKeepAliveTimer();
             hangup();
-            finish();
-//            try {
-//                Intent intent = new Intent(OutgoingCall.this, Class.forName(getIntent().getStringExtra("activityName")));
-//                startActivity(intent);
-//            } catch (ClassNotFoundException e) {
-//                throw new RuntimeException(e);
-//            }
+//            finish();
+//            finishAffinity();
+            finishAndRemoveTask();
+
         });
     }
-    private void setIncomingCallLayoutGone() {
-        binding.incomingCallLayout.setVisibility(View.GONE);
+    @Override
+    public void onNewMessage(JanusResponse message) throws JSONException, IOException {
+        String janusType = message.getJanus();
+        switch (janusType) {
+            case "keepalive":
+                System.out.println("Got a keepalive on session " + sessionId);
+                break;
+            case "server_info":
+            case "success":
+                if(message.getSessionId() == 0)
+                {
+                    JanusResponse.Data = message.getData();
+                    sessionId = JanusResponse.Data.getId();
+                    attachPlugin("janus.plugin.videocall");
+//                    websocket.showToast("Janus Connected");
+                }
+                else
+                {
+                    JanusResponse.Data = message.getData();
+                    handleId = JanusResponse.Data.getId();
+//                    registerToSIP(userName, "2001", "2001", "2001", "sip:192.168.0.105:5060");
+                    register(userName);
+                    websocket.startKeepAliveTimer();
+                }
+                System.out.println("Session Running... ");
+                break;
+            case "timeout":
+            {
+                System.out.println("Time out....... ");
+//                websocket.showToast("Time Out");
+                websocket.stopKeepAliveTimer();
+                websocket.closeSocket();
+                finish();
+            }
+            break;
+            case "event":
+                JanusResponse.plugin = message.getPluginData();
+                if (JanusResponse.plugin.getData().getErrorCode() == 476 || JanusResponse.plugin.getData().getResult().getEvent().contains("registered"))
+                {
+
+                    String receiverNumber = getIntent().getStringExtra("senderNumber");
+                    String roomName = null;
+                    roomName = ChatSDK.currentUser().getName();
+
+                    String threadEntityID = receiverNumber + "@localhost";
+                    String senderId = ChatSDK.currentUser().getName() + "@localhost";
+                    HashMap<String, HashMap<String, String>> userIds = new HashMap<String, HashMap<String, String>>();
+                    HashMap<String, String> users = new HashMap<String, String>();
+                    users.put(threadEntityID, receiverNumber);
+                    userIds.put("userIds", users);
+                    String action = "co.chatsdk.QuickReply";
+                    String body = "video call";
+                    int callType = -2;
+                    users.put(ThreadId,senderId);
+                    newMessage.put(ThreadId, threadEntityID);
+                    newMessage.put(SenderName, receiverNumber);
+                    newMessage.put(SenderId, senderId);
+                    newMessage.put(UserIds, users);
+                    newMessage.put(Action, action);
+                    newMessage.put(Body, body);
+                    newMessage.put(Type, callType);
+                    ChatSDK.push().sendPushNotification(newMessage);
+
+                    System.out.println("Registered");
+
+                    runOnUiThread(() -> {
+    //                        setWhoToCallLayoutGone();
+    //                        setCallLayoutVisible();
+//                        websocket.showToast("Registered Success");
+                        websocket.showToast("Connecting");
+    //                        rtcClient.startLocalAudio();
+    //                        rtcClient.call(receiver,handleId,sessionId);
+                    });
+
+
+                }
+                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("registering"))
+                {
+                    System.out.println("Registering...");
+                }
+                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("calling"))
+                {
+                    System.out.println("Calling");
+
+                    //some works to do
+                }
+                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("ringing"))
+                {
+                    System.out.println("ringing");
+                    websocket.showToast("ringing");
+                    //some works to do
+                }
+                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("proceeding"))
+                {
+                    System.out.println("proceeding");
+                    websocket.showToast("proceeding");
+                    //some works to do
+                }
+                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("registration_failed"))
+                {
+
+                    websocket.showToast("registration_failed");
+                    System.out.println(message.toString());
+                    websocket.stopKeepAliveTimer();
+                    websocket.closeSocket();
+                    finish();
+                    //some works to do
+                }
+
+//                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("accepted")
+
+                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("progress")
+                )
+                {
+                    System.out.println("accepted");
+                    if(message.getJsep().getSdp()!=null) {
+                        JanusMessage.Jsep = message.getJsep();
+                        SessionDescription session = new SessionDescription(
+                                SessionDescription.Type.ANSWER, message.getJsep().getSdp());
+                        rtcClient.onRemoteSessionReceived(session);
+                        runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+                    }
+                    //some works to do
+                }
+            else if(JanusResponse.plugin.getData().getResult().getEvent().contains("incomingcall")
+            )
+            {
+                System.out.println("accepted");
+                if(message.getJsep().getSdp()!=null) {
+                    JanusMessage.Jsep = message.getJsep();
+                    SessionDescription session = new SessionDescription(
+                            SessionDescription.Type.OFFER, message.getJsep().getSdp());
+                    rtcClient.onRemoteSessionReceived(session);
+                    rtcClient.startLocalAudio();
+                    rtcClient.answer(sessionId, handleId);
+                    runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+                }
+                //some works to do
+            }
+                else if (JanusResponse.plugin.getData().getResult().getEvent().contains("updating"))
+                {
+                    System.out.println("updating");
+                    JanusMessage.Jsep = message.getJsep();
+                    SessionDescription session = new SessionDescription(
+                            SessionDescription.Type.OFFER, message.getJsep().getSdp());
+                    rtcClient.onRemoteSessionReceived(session);
+                    rtcClient.answer(sessionId, handleId);
+
+                    runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+                }
+                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("accepted"))
+                {
+                    System.out.println("accepted");
+//                    if(message.getJsep().getSdp()!=null) {
+//                        JanusMessage.Jsep = message.getJsep();
+//                        SessionDescription session = new SessionDescription(
+//                                SessionDescription.Type.ANSWER, message.getJsep().getSdp());
+//                        rtcClient.onRemoteSessionReceived(session);
+//                        runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+//                    }
+                }
+                else
+                {
+                    System.out.println("Some errors occur!");
+                }
+                break;
+            case "webrtcup":
+                System.out.println("webrtcup");
+                websocket.showToast("webrtcup");
+                break;
+            case "media":
+
+                System.out.println("media received");
+                break;
+            case "hangup":
+                System.out.println(message.toString());
+                websocket.stopKeepAliveTimer();
+//                websocket.showToast("hangup");
+                websocket.closeSocket();
+                rtcClient.stopLocalAudio();
+                rtcClient.endCall();
+                finishAndRemoveTask();
+//                finish();
+                break;
+            case "ack":
+                System.out.println(message.toString());
+                break;
+//            case "detached":
+//                handleDetached(json);
+//                break;
+
+//            case "slowlink":
+//                handleSlowLink(json);
+//                break;
+//            case "error":
+//                handleError(json);
+//                break;
+
+//            case "timeout":
+//                handleTimeout(json);
+//                break;
+            default:
+                System.out.println("Unknown message/event  '" + janusType + "' on session " + sessionId);
+                System.out.println(message.toString());
+        }
     }
 
-    private void setIncomingCallLayoutVisible() {
-        binding.incomingCallLayout.setVisibility(View.VISIBLE);
-    }
 
     private void setCallLayoutGone() {
         binding.callLayout.setVisibility(View.GONE);
@@ -210,13 +404,6 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
         binding.callLayout.setVisibility(View.VISIBLE);
     }
 
-//    private void setWhoToCallLayoutGone() {
-//        binding.whoToCallLayout.setVisibility(View.GONE);
-//    }
-
-    //    private void setWhoToCallLayoutVisible() {
-//        binding.whoToCallLayout.setVisibility(View.VISIBLE);
-//    }
     public static String TID()
     {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -251,30 +438,23 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
 
     public void attachPlugin(String pluginName) {
         // Construct the JSON message for attaching to a plugin
-        String attachMessage = "{\"janus\":\"attach\",\"plugin\":\"" + pluginName + "\",\"opaque_id\":\"" + "siptest-" + TID() + "\",\"transaction\":\"" + TID() + "\",\"session_id\":" + sessionId + "}";
+        String attachMessage = "{\"janus\":\"attach\",\"plugin\":\"" + pluginName + "\",\"opaque_id\":\"" + "videocalltest-" + TID() + "\",\"transaction\":\"" + TID() + "\",\"session_id\":" + sessionId + "}";
         websocket.sendMessage(attachMessage);
     }
 
-    public void registerToSIP(String username, String authuser, String displayName, String secret, String proxy) {
+    public void register(String username) {
         // Construct the JSON message for registering to SIP
-        String registerMessage = "{\"janus\":\"message\",\"body\":{\"request\":\"register\",\"username\":\"" + username + "\",\"authuser\":\"" + authuser + "\",\"display_name\":\"" + displayName + "\",\"secret\":\"" + secret + "\",\"proxy\":\"" + proxy + "\"},\"transaction\":\"" + TID() + "\",\"session_id\":" + sessionId + ",\"handle_id\":" + handleId + "}";
+        String registerMessage = "{\n" +
+                "  \"janus\": \"message\",\n" +
+                "  \"body\": {\n" +
+                "    \"request\": \"register\",\n" +
+                "    \"username\": \""+username+"\"\n" +
+                "  },\n" +
+                " \"transaction\": \"" + TID() + "\",\n" +
+                "  \"session_id\": "+sessionId+",\n" +
+                "  \"handle_id\": "+handleId+" \n" +
+                "}";
         websocket.sendMessage(registerMessage);
-    }
-
-    public void sendKeepAlive() {
-        // Construct the JSON message for sending keep alive
-        String keepAliveMessage = "{ \"janus\": \"keepalive\", \"session_id\":" + sessionId + ", \"transaction\":\"" + TID() + "\" }";
-        websocket.sendMessage(keepAliveMessage);
-    }
-
-    public void sendCandidate(String candidate, String sdpMid, int sdpMLineIndex, String transaction) {
-        // Construct the JSON message for sending candidate
-        String candidateMessage = "{\"janus\":\"trickle\",\"candidate\":{\"candidate\":\"" + candidate + "\",\"sdpMid\":\"" + sdpMid + "\",\"sdpMLineIndex\":" + sdpMLineIndex + "},\"transaction\":\"" + transaction + "\",\"session_id\":" + sessionId + ",\"handle_id\":" + handleId + "}";
-        websocket.sendMessage(candidateMessage);
-    }
-
-    public void startCall(String receiver) {
-        websocket.sendMessage("{ \"janus\": \"message\", \"body\": { \"request\": \"call\", \"uri\": " + receiver + ", \"autoaccept_reinvites\": false }, \"transaction\": " + TID() + ", \"jsep\": { \"type\": \"offer\", \"sdp\": \"v=0\\r\\no=- 804709356943256984 2 IN IP4 127.0.0.1\\r\\ns=-\\r\\nt=0 0\\r\\na=group:BUNDLE 0\\r\\na=extmap-allow-mixed\\r\\na=msid-semantic: WMS de52d32f-97c5-42d2-885a-56207354f5fd\\r\\nm=audio 9 UDP/TLS/RTP/SAVPF 111 63 9 0 8 13 110 126\\r\\nc=IN IP4 0.0.0.0\\r\\na=rtcp:9 IN IP4 0.0.0.0\\r\\na=ice-ufrag:QMDB\\r\\na=ice-pwd:gc12jERQgZdU+uz1tPnQzwRG\\r\\na=ice-options:trickle\\r\\na=fingerprint:sha-256 4B:7C:AE:70:09:F6:06:99:12:78:B2:D0:8E:C6:0C:86:E0:39:B9:5B:0E:69:9E:39:8F:19:4F:A7:55:88:96:6B\\r\\na=setup:actpass\\r\\na=mid:0\\r\\na=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level\\r\\na=extmap:2 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time\\r\\na=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01\\r\\na=extmap:4 urn:ietf:params:rtp-hdrext:sdes:mid\\r\\na=sendrecv\\r\\na=msid:de52d32f-97c5-42d2-885a-56207354f5fd abc774c3-fa5f-4259-96ae-47d2b2f6ed92\\r\\na=rtcp-mux\\r\\na=rtpmap:111 opus/48000/2\\r\\na=rtcp-fb:111 transport-cc\\r\\na=fmtp:111 minptime=10;useinbandfec=1\\r\\na=rtpmap:63 red/48000/2\\r\\na=fmtp:63 111/111\\r\\na=rtpmap:9 G722/8000\\r\\na=rtpmap:0 PCMU/8000\\r\\na=rtpmap:8 PCMA/8000\\r\\na=rtpmap:13 CN/8000\\r\\na=rtpmap:110 telephone-event/48000\\r\\na=rtpmap:126 telephone-event/8000\\r\\na=ssrc:291203786 cname:hKNnjFzhAYyMftEr\\r\\na=ssrc:291203786 msid:de52d32f-97c5-42d2-885a-56207354f5fd abc774c3-fa5f-4259-96ae-47d2b2f6ed92\\r\\n\" }, \"session_id\": " + sessionId + ", \"handle_id\": " + handleId + " }");
     }
 
     @Override
@@ -288,180 +468,14 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
         // Implement logic to handle received messages
         System.out.println("Received message: " + message);
     }
-
+    @SuppressLint("MissingSuperCall")
     @Override
-    public void onNewMessage(JanusResponse message) throws JSONException {
-        String janusType = message.getJanus();
-        switch (janusType) {
-            case "keepalive":
-                System.out.println("Got a keepalive on session " + sessionId);
-                break;
-            case "server_info":
-            case "success":
-                if(message.getSessionId() == 0)
-                {
-                    JanusResponse.Data = message.getData();
-                    sessionId = JanusResponse.Data.getId();
-                    attachPlugin("janus.plugin.sip");
-                    System.out.println("Got a keepalive on session " + sessionId);
-                    websocket.showToast("Janus Connected");
-                }
-                else
-                {
-                    JanusResponse.Data = message.getData();
-                    handleId = JanusResponse.Data.getId();
-//                    registerToSIP(userName, "1001", "1001", "1001", "sip:192.168.0.150:5080");
-                    registerToSIP(userName, "9638000123", "9638000123", "telcobright$9638000123", "sip:103.248.13.73");
-                    websocket.startKeepAliveTimer();
-                }
-                System.out.println("Session Running... ");
-                break;
-            case "timeout":
-            {
-                System.out.println("Time out....... ");
-                websocket.showToast("Time Out");
-                websocket.stopKeepAliveTimer();
-                websocket.closeSocket();
-                finish();
-            }
-            break;
-            case "event":
-                JanusResponse.plugin = message.getPluginData();
-                if(JanusResponse.plugin.getData().getResult().getEvent().contains("registering"))
-                {
-                    System.out.println("Registering...");
-                }
-                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("registered"))
-                {
-                    System.out.println("Registered");
+    public void onBackPressed() {
+        Toast.makeText(ReceiverActivityAudio.this, "Call in progress", Toast.LENGTH_SHORT).show();
 
-                    runOnUiThread(() -> {
-//                        setWhoToCallLayoutGone();
-//                        setCallLayoutVisible();
-                        websocket.showToast("Registered Success");
-                        rtcClient.startLocalAudio();
-                        rtcClient.call(receiver,handleId,sessionId);
-                    });
-
-
-                }
-                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("calling"))
-                {
-                    System.out.println("Calling");
-
-                    //some works to do
-                }
-                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("ringing"))
-                {
-                    System.out.println("ringing");
-                    websocket.showToast("ringing");
-                    //some works to do
-                }
-                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("proceeding"))
-                {
-                    System.out.println("proceeding");
-                    websocket.showToast("proceeding");
-                    //some works to do
-                }
-                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("registration_failed"))
-                {
-
-                    websocket.showToast("registration_failed");
-                    System.out.println(message.toString());
-                    websocket.stopKeepAliveTimer();
-                    websocket.closeSocket();
-                    finish();
-                    //some works to do
-                }
-
-                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("accepted"))
-                {
-
-                    if(message.getJsep().getSdp()!=null) {
-                        System.out.println("Got answer SDP");
-                        JanusMessage.Jsep = message.getJsep();
-                        SessionDescription session = new SessionDescription(
-                                SessionDescription.Type.ANSWER, message.getJsep().getSdp());
-                        rtcClient.onRemoteSessionReceived(session);
-                        runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
-                    }
-                    else
-                    {
-
-                    }
-                }
-                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("progress")
-                )
-                {
-                    if(message.getJsep().getSdp()!=null) {
-                        System.out.println("Got answer SDP");
-
-                        JanusMessage.Jsep = message.getJsep();
-                        SessionDescription session = new SessionDescription(
-                                SessionDescription.Type.ANSWER, message.getJsep().getSdp());
-                        rtcClient.onRemoteSessionReceived(session);
-                        runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
-                    }
-                    else
-                    {
-                        System.out.println("No answer SDP");
-                    }
-                    //some works to do
-                }
-                else if (JanusResponse.plugin.getData().getResult().getEvent().contains("updating"))
-                {
-                    System.out.println("updating");
-                    JanusMessage.Jsep = message.getJsep();
-                    SessionDescription session = new SessionDescription(
-                            SessionDescription.Type.OFFER, message.getJsep().getSdp());
-                    rtcClient.onRemoteSessionReceived(session);
-                    rtcClient.answer(sessionId, handleId);
-
-                    runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
-                }
-                else
-                {
-                    System.out.println("Some errors occur!");
-                }
-                break;
-            case "webrtcup":
-                System.out.println("webrtcup");
-                websocket.showToast("webrtcup");
-                break;
-            case "media":
-
-                System.out.println("media received");
-                break;
-            case "hangup":
-                System.out.println(message.toString());
-                websocket.stopKeepAliveTimer();
-                websocket.showToast("hangup");
-                websocket.closeSocket();
-                finish();
-//                finishAffinity();
-//                handleHangup(json);
-                break;
-            case "ack":
-                System.out.println(message.toString());
-                break;
-//            case "detached":
-//                handleDetached(json);
-//                break;
-
-//            case "slowlink":
-//                handleSlowLink(json);
-//                break;
-//            case "error":
-//                handleError(json);
-//                break;
-
-//            case "timeout":
-//                handleTimeout(json);
-//                break;
-            default:
-                System.out.println("Unknown message/event  '" + janusType + "' on session " + sessionId);
-                System.out.println(message.toString());
-        }
+        // super.onBackPressed(); // Comment this super call to avoid calling finish() or fragmentmanager's backstack pop operation.
     }
+
+
 
 }

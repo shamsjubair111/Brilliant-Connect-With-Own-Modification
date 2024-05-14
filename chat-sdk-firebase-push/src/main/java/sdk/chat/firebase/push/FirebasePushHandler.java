@@ -79,7 +79,10 @@ public class FirebasePushHandler extends AbstractPushHandler {
         if (data != null) {
 
 
-            if(data.get("type").toString().equals("101")||data.get("type").toString().equals("100")||data.get("type").toString().equals("-1"))
+            if(data.get("type").toString().equals("101")
+                    ||data.get("type").toString().equals("100")
+                    ||data.get("type").toString().equals("-2")
+                    ||data.get("type").toString().equals("-1"))
             {
                 functions().getHttpsCallable("pushToCall").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
 

@@ -28,11 +28,20 @@
         <activity
             android:name=".OutgoingCall"
             android:exported="true"
+            android:showOnLockScreen="true"
             android:configChanges="orientation|screenSize|keyboard">
         </activity>
         <activity
             android:name=".AppToAppAudio"
             android:exported="true"
+            android:showOnLockScreen="true"
+            android:configChanges="orientation|screenSize|keyboard">
+        </activity>
+
+        <activity
+            android:name=".ReceiverActivityAudio"
+            android:exported="true"
+            android:showOnLockScreen="true"
             android:configChanges="orientation|screenSize|keyboard">
         </activity>
 

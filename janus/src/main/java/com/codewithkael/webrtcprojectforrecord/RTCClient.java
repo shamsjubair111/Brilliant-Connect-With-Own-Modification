@@ -2,20 +2,31 @@ package com.codewithkael.webrtcprojectforrecord;
 
 import android.app.Application;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.codewithkael.webrtcprojectforrecord.models.JanusMessage;
-import com.codewithkael.webrtcprojectforrecord.models.MessageModel;
-import com.codewithkael.webrtcprojectforrecord.utils.NewMessageInterface;
 import com.codewithkael.webrtcprojectforrecord.utils.SDPParser;
 
-import org.webrtc.*;
+import org.webrtc.AudioSource;
+import org.webrtc.AudioTrack;
+import org.webrtc.Camera1Enumerator;
+import org.webrtc.Camera2Enumerator;
+import org.webrtc.CameraVideoCapturer;
+import org.webrtc.DefaultVideoDecoderFactory;
+import org.webrtc.DefaultVideoEncoderFactory;
+import org.webrtc.EglBase;
+import org.webrtc.IceCandidate;
+import org.webrtc.MediaConstraints;
+import org.webrtc.MediaStream;
+import org.webrtc.PeerConnection;
+import org.webrtc.PeerConnectionFactory;
+import org.webrtc.SdpObserver;
+import org.webrtc.SessionDescription;
+import org.webrtc.SurfaceTextureHelper;
+import org.webrtc.SurfaceViewRenderer;
+import org.webrtc.VideoSource;
+import org.webrtc.VideoTrack;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -33,6 +44,8 @@ public class RTCClient {
     private CameraVideoCapturer videoCapturer;
     private AudioTrack localAudioTrack;
     private VideoTrack localVideoTrack;
+    private MediaStream localStream;
+
 
     public RTCClient(Application application, String username, Websocket websocket, PeerConnection.Observer observer) {
         this.application = application;
@@ -55,9 +68,9 @@ public class RTCClient {
 //        iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer());
 //        iceServers.add(PeerConnection.IceServer.builder("stun:stun1.l.google.com:19302").createIceServer());
 //        iceServers.add(PeerConnection.IceServer.builder("stun:stun2.l.google.com:19302").createIceServer());
-//        iceServers.add(PeerConnection.IceServer.builder("stun:stun.cloudflare.com:3478").createIceServer());
+        iceServers.add(PeerConnection.IceServer.builder("stun:stun.cloudflare.com:3478").createIceServer());
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.voip.eutelia.it:3478").createIceServer());
-//        iceServers.add(PeerConnection.IceServer.builder("stun:ip-9-232.sn2.clouditalia.com:3478").createIceServer());
+        iceServers.add(PeerConnection.IceServer.builder("stun:ip-9-232.sn2.clouditalia.com:3478").createIceServer());
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").setUsername("83eebabf8b4cce9d5dbcb649").setPassword("2D7JvfkOQtBdYW3R").createIceServer());
 
 
@@ -120,13 +133,27 @@ public class RTCClient {
         AudioSource localAudioSource = peerConnectionFactory.createAudioSource(mediaConstraints);
         localAudioTrack = peerConnectionFactory.createAudioTrack("local_track_audio", localAudioSource);
         if (localAudioTrack != null) {
-            MediaStream localStream = peerConnectionFactory.createLocalMediaStream("local_stream");
+             localStream = peerConnectionFactory.createLocalMediaStream("local_stream");
             localStream.addTrack(localAudioTrack);
             if (peerConnection != null) {
                 peerConnection.addStream(localStream);
             }
         }
     }
+    public void stopLocalAudio() {
+        if (localAudioTrack != null) {
+            localAudioTrack.setEnabled(false); // Disable the track
+            localAudioTrack.dispose(); // Dispose the track
+            localAudioTrack = null;
+        }
+        if (peerConnection != null && localStream != null) {
+            // Remove the local stream from the peer connection
+            peerConnection.removeStream(localStream);
+            localStream = null; // Reset localStream reference
+        }
+    }
+
+
 
     private CameraVideoCapturer getVideoCapturer(Application application) {
         if (Camera2Enumerator.isSupported(application)) {
@@ -185,11 +212,11 @@ public class RTCClient {
                         String sdp = sessionDescription.description;
                         String type = sessionDescription.type.toString().toLowerCase();
                         JanusMessage.Body body;
+                        sdp = sdp.replaceAll("(\\r)", "");
+                        sdp = SDPParser.filterCodecs(sdp);
+//                        sdp = sdp.replace("opus/48000/2", "opus/16000/2");
                         if (websocket.dynamicClassInstance instanceof OutgoingCall)
                         {
-                            sdp = sdp.replaceAll("(\\r)", "");
-                            sdp = SDPParser.filterCodecs(sdp);
-
                             body = new JanusMessage.Body("call", target,false);
                         }
                         else
@@ -245,10 +272,12 @@ public class RTCClient {
     public void onRemoteSessionReceived(SessionDescription sessionDescription) {
         peerConnection.setRemoteDescription(new SdpObserver() {
             @Override
-            public void onCreateSuccess(SessionDescription sessionDescription) {}
+            public void onCreateSuccess(SessionDescription sessionDescription) {
+            }
 
             @Override
-            public void onSetSuccess() {}
+            public void onSetSuccess() {
+            }
 
             @Override
             public void onCreateFailure(String s) {}
@@ -257,6 +286,7 @@ public class RTCClient {
             public void onSetFailure(String s) {}
         }, sessionDescription);
     }
+
 
     public void answer(long sessionId, long handleId) {
         MediaConstraints constraints = new MediaConstraints();
@@ -267,13 +297,16 @@ public class RTCClient {
             public void onCreateSuccess(SessionDescription sessionDescription) {
                 peerConnection.setLocalDescription(new SdpObserver() {
                     @Override
-                    public void onCreateSuccess(SessionDescription sessionDescription) {}
+                    public void onCreateSuccess(SessionDescription sessionDescription) {
+                        System.out.println(sessionDescription);
+                    }
 
                     @Override
                     public void onSetSuccess() {
-
-                        JanusMessage.Body body = new JanusMessage.Body("update");
-                        JanusMessage.Jsep jsep = new JanusMessage.Jsep("answer", sessionDescription.description);
+                        String sdp = sessionDescription.description;
+                        String type = sessionDescription.type.toString().toLowerCase();
+                        JanusMessage.Body body = new JanusMessage.Body("accept");
+                        JanusMessage.Jsep jsep = new JanusMessage.Jsep(type, sdp);
                         JanusMessage message = new JanusMessage("message", body, TID(), jsep, sessionId, handleId);
                         try {
                             websocket.sendMessage(message.toJson(message));
@@ -283,10 +316,14 @@ public class RTCClient {
                     }
 
                     @Override
-                    public void onCreateFailure(String s) {}
+                    public void onCreateFailure(String s) {
+                        System.out.println(s);
+                    }
 
                     @Override
-                    public void onSetFailure(String s) {}
+                    public void onSetFailure(String s) {
+                        System.out.println(s);
+                    }
                 }, sessionDescription);
             }
 

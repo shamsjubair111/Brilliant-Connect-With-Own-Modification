@@ -286,14 +286,14 @@ public class JanusVideoCall extends AppCompatActivity implements JanusCallHandle
             case "success":
                 if(message.getSessionId() == 0)
                 {
-                    JanusResponse.Data = message.getData();
+                    JanusResponse.Data = message.getPluginData().getData();
                     sessionId = JanusResponse.Data.getId();
                     attachPlugin("janus.plugin.sip");
                     System.out.println("Got a keepalive on session " + sessionId);
                 }
                 else
                 {
-                    JanusResponse.Data = message.getData();
+                    JanusResponse.Data = message.getPluginData().getData();
                     handleId = JanusResponse.Data.getId();
 //                    registerToSIP(userName, "2001", "2001", "2001", "sip:192.168.0.105:5060");
                     registerToSIP(userName, "9638000123", "9638000123", "telcobright@9638000123", "sip:103.248.13.73");
