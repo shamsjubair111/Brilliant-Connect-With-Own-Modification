@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application
         android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="true"
@@ -33,6 +33,13 @@
         </activity>
         <activity
             android:name=".AppToAppAudio"
+            android:exported="true"
+            android:showOnLockScreen="true"
+            android:configChanges="orientation|screenSize|keyboard">
+
+        </activity>
+        <activity
+            android:name=".AppToAppVideo"
             android:exported="true"
             android:showOnLockScreen="true"
             android:configChanges="orientation|screenSize|keyboard">

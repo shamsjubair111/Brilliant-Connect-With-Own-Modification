@@ -52,6 +52,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
     private boolean isCameraPause = false;
     private RTCAudioManager rtcAudioManager;
     private boolean isSpeakerMode = false;
+    private static String type = "audio";
 
 
 
@@ -72,6 +73,8 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                         Toast.makeText(OutgoingCall.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
                     }
                 });
+        binding.switchCameraButton.setVisibility(View.GONE);
+        binding.videoButton.setVisibility(View.GONE);
     }
 
     private void init() {
@@ -179,11 +182,9 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
         });
 
         binding.endCallButton.setOnClickListener(v -> {
-            setCallLayoutGone();
-//            setWhoToCallLayoutVisible();
-//            setIncomingCallLayoutGone();
             rtcClient.endCall();
             websocket.stopKeepAliveTimer();
+//            setCallLayoutGone();
             hangup();
             finish();
 //            try {
@@ -340,7 +341,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
 //                        setCallLayoutVisible();
                         websocket.showToast("Registered Success");
                         rtcClient.startLocalAudio();
-                        rtcClient.call(receiver,handleId,sessionId);
+                        rtcClient.call(receiver,handleId,sessionId, type);
                     });
 
 
@@ -437,6 +438,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 websocket.stopKeepAliveTimer();
                 websocket.showToast("hangup");
                 websocket.closeSocket();
+                rtcClient.stopLocalAudio();
                 finish();
 //                finishAffinity();
 //                handleHangup(json);

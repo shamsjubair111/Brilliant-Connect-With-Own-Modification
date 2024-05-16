@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.codewithkael.webrtcprojectforrecord.AppToAppAudio;
+import com.codewithkael.webrtcprojectforrecord.AppToAppVideo;
 import com.codewithkael.webrtcprojectforrecord.ReceiverActivityAudio;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -121,12 +122,16 @@ public class DefaultMessagingService extends FirebaseMessagingService {
             ChatSDK.mediaStop();
             IncomingCallActivity incomingCallActivity = (IncomingCallActivity) ChatSDK.callActivities.get("incomingCallActivity");
             AppToAppAudio appToAppAudioActivity = (AppToAppAudio) ChatSDK.callActivities.get("AppToAppAudio");
+            AppToAppVideo appToAppVideoActivity = (AppToAppVideo) ChatSDK.callActivities.get("AppToAppVideo");
             ReceiverActivityAudio receiverActivityAudio = (ReceiverActivityAudio) ChatSDK.callActivities.get("ReceiverActivityAudio");
             if (incomingCallActivity != null) {
                 incomingCallActivity.finishAndRemoveTask();
             }
             if (appToAppAudioActivity != null) {
                 appToAppAudioActivity.finish();
+            }
+            if (appToAppVideoActivity != null) {
+                appToAppVideoActivity.finish();
             }
             if (receiverActivityAudio != null) {
                 receiverActivityAudio.finishAndRemoveTask();
@@ -135,8 +140,11 @@ public class DefaultMessagingService extends FirebaseMessagingService {
 
         } else if (messageType.equals("received")) {
             AppToAppAudio appToAppAudioActivity = (AppToAppAudio) ChatSDK.callActivities.get("AppToAppAudio");
+            AppToAppVideo appToAppVideoActivity = (AppToAppVideo) ChatSDK.callActivities.get("AppToAppVideo");
             if (appToAppAudioActivity != null) {
                 AppToAppAudio.onReceived();
+            } else if (appToAppVideoActivity != null) {
+                AppToAppVideo.onReceived();
             }
         } else {
             if (ChatSDK.shared().isValid() && !ChatSDK.config().manualPushHandlingEnabled) {
