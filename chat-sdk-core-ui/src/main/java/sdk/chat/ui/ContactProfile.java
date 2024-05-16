@@ -94,7 +94,7 @@ public class ContactProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent =  new Intent(ContactProfile.this, OutgoingCall.class);
-                intent.putExtra("callee",validPhoneNumber(getIntent().getStringExtra("contactNumber")));
+                intent.putExtra("receiverNumber",validPhoneNumber(getIntent().getStringExtra("contactNumber")));
                 intent.putExtra("activityName", "ContactProfile");
                 startActivity(intent);
             }
