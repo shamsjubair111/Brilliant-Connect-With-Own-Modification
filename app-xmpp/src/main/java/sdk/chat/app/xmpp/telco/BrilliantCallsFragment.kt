@@ -26,6 +26,7 @@ import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.api.RegisteredUserService
 import sdk.chat.ui.fragments.BaseFragment
 import sdk.chat.ui.interfaces.SearchSupported
+import sdk.guru.common.RX
 
 data class Contact(
     var id: Long,

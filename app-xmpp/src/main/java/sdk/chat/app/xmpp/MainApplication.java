@@ -28,7 +28,6 @@ import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
-
 public class MainApplication extends Application {
 
     public SecureKeyStore store;
@@ -38,6 +37,7 @@ public class MainApplication extends Application {
         super.onCreate();
         xmpp();
     }
+
 
     public void xmpp() {
         try {

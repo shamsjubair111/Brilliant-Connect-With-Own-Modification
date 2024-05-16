@@ -17,6 +17,7 @@ import sdk.chat.core.dao.Keys;
 import sdk.chat.core.push.PushQueueAction;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.ui.LifecycleService;
+import sdk.chat.core.utils.KeyStorage;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.R;
 import sdk.guru.common.RX;
@@ -87,6 +88,13 @@ public class SplashScreenActivity extends BaseActivity {
                 startMainActivity();
                 return;
             } else if (ChatSDK.auth().cachedCredentialsAvailable()) {
+                startMainActivity();
+//                dm.add(ChatSDK.auth().authenticate()
+//                        .observeOn(RX.main())
+//                        .doFinally(this::stopProgressBar)
+//                        .subscribe(this::startMainActivity, throwable -> startLoginActivity()));
+                return;
+            } else {
                 startProgressBar();
                 dm.add(ChatSDK.auth().authenticate()
                         .observeOn(RX.main())
@@ -99,7 +107,8 @@ public class SplashScreenActivity extends BaseActivity {
     }
 
     protected void startMainActivity() {
-        if (StringChecker.isNullOrEmpty(ChatSDK.currentUser().getName())) {
+        String name = ChatSDK.shared().getKeyStorage().get(KeyStorage.UsernameKey); //ChatSDK.currentUser().getName();
+        if (StringChecker.isNullOrEmpty(name)) {
             ChatSDK.ui().startPostRegistrationActivity(this, null);
         } else {
             ChatSDK.ui().startMainActivity(this, null);
