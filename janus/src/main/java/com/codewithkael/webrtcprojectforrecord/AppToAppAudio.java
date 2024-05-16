@@ -65,15 +65,16 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
     private boolean isVideo = false;
     HashMap<String, Object> newMessage = new HashMap<>();
 
+    private static String type;
+
     public static void onReceived() {
         rtcClient.startLocalAudio();
-        rtcClient.call(receiver, handleId, sessionId);
+        rtcClient.call(receiver, handleId, sessionId, type);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityCallBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setCallLayoutVisible();
@@ -88,6 +89,9 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                         Toast.makeText(AppToAppAudio.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
                     }
                 });
+        type = getIntent().getStringExtra("type");
+        binding.switchCameraButton.setVisibility(View.GONE);
+        binding.videoButton.setVisibility(View.GONE);
     }
 
 
@@ -98,6 +102,7 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
         if (userName != null) {
             websocket.initSocket(userName);
         }
+
         rtcClient = new RTCClient(getApplication(), userName, websocket, new PeerConnectionObserver() {
             @Override
             public void onIceCandidate(IceCandidate p0) {
@@ -177,14 +182,21 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
         });
 
         binding.endCallButton.setOnClickListener(v -> {
-            setCallLayoutGone();
-            ChatSDK.callActivities.remove("AppToAppAudio");
-            newMessage.put("type", -1);
-            ChatSDK.push().sendPushNotification(newMessage);
-            rtcClient.stopLocalAudio();
-            rtcClient.endCall();
-            hangup();
-            finish();
+            try {
+                ChatSDK.callActivities.remove("AppToAppAudio");
+                newMessage.put("type", -1);
+                ChatSDK.push().sendPushNotification(newMessage);
+                rtcClient.stopLocalAudio();
+                rtcClient.endCall();
+//                setCallLayoutGone();
+                hangup();
+                finish();
+            }
+            catch (Exception e)
+            {
+                System.out.println(e.getMessage());
+            }
+
 
         });
     }

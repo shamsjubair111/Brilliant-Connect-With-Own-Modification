@@ -110,20 +110,16 @@ public class Websocket {
                         System.out.println("Service Unavailable");
                         showServiceUnavailableToast();
                         try {
-                            // Invoke the createSession method of the dynamic class using reflection
                             Method createSessionMethod = dynamicClassInstance.getClass().getMethod("finish");
                             createSessionMethod.invoke(dynamicClassInstance);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        // WebSocket connection failed due to timeout
-                        // Handle the timeout here
-                        // For example, show an error message or retry the connection
                     }
                 }
             };
             Timer connectionTimer = new Timer();
-            connectionTimer.schedule(connectionTimeoutTask, 2000); // 2 seconds timeout
+            connectionTimer.schedule(connectionTimeoutTask, 500); // 2 seconds timeout
         }
     }
 
