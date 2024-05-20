@@ -8,6 +8,8 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import io.reactivex.Single
@@ -159,8 +161,20 @@ class BrilliantTabBarActivity: MainAppBarActivity() {
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
         viewPager.offscreenPageLimit = 3
+        viewPager.reduceDragSensitivity()
         val tab = tabLayout.getTabAt(0)
         tab?.let { tabSelected(it) }
+    }
+
+    fun ViewPager2.reduceDragSensitivity() {
+        val recyclerViewField = ViewPager2::class.java.getDeclaredField("mRecyclerView")
+        recyclerViewField.isAccessible = true
+        val recyclerView = recyclerViewField.get(this) as RecyclerView
+
+        val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
+        touchSlopField.isAccessible = true
+        val touchSlop = touchSlopField.get(recyclerView) as Int
+        touchSlopField.set(recyclerView, touchSlop*7)       // "8" was obtained experimentally
     }
 
     fun updateTabForSelected(selected: TabLayout.Tab) {
