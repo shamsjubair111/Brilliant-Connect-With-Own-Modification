@@ -63,6 +63,9 @@ rootProject.allprojects {
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/com.googlecode.libphonenumber/libphonenumber
+    implementation 'com.googlecode.libphonenumber:libphonenumber:5.5'
+
     implementation project(':chat-sdk-app-telcobright')
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':chat-sdk-core')

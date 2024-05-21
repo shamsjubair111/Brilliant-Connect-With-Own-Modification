@@ -2,6 +2,7 @@ package sdk.chat.app.xmpp.telco
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.textfield.TextInputEditText
@@ -57,7 +58,7 @@ class BrilliantOTPLoginActivity: BaseActivity() {
     public fun next() {
         val intent = Intent(this, BrilliantOTPVerificationActivity::class.java)
         ccp?.let {
-            intent.putExtra("phone-number", it.fullNumber)
+            intent.putExtra("phone-number", it.fullNumberWithPlus)
             ChatSDK.ui().startActivity(this, intent)
         }
     }

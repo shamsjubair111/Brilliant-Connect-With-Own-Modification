@@ -5,52 +5,10 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
-    android:orientation="vertical">
+    android:animateLayoutChanges="true">
 
-    <!--    <TextView-->
-    <!--        android:id="@+id/regUsers"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="Registered Users"-->
-    <!--        android:textColor="@color/black"-->
-    <!--        android:textSize="20sp"-->
-    <!--        app:layout_constraintBottom_toTopOf="@+id/recyclerView"-->
-    <!--        app:layout_constraintEnd_toEndOf="@+id/recyclerView"-->
-    <!--        app:layout_constraintStart_toStartOf="@+id/recyclerView"-->
-    <!--        app:layout_constraintTop_toTopOf="parent"-->
-    <!--        app:layout_constraintVertical_bias="0.543" />-->
-
-    <!--    <androidx.recyclerview.widget.RecyclerView-->
-    <!--        android:id="@+id/recyclerView"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="250dp"-->
-    <!--        android:cacheColorHint="@android:color/transparent"-->
-    <!--        android:descendantFocusability="blocksDescendants"-->
-    <!--        android:divider="@null"-->
-    <!--        android:scrollbars="none"-->
-    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintHorizontal_bias="0.512"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="parent"-->
-    <!--        app:layout_constraintVertical_bias="0.118" />-->
-
-    <!--    <TextView-->
-    <!--        android:id="@+id/callTestUsers"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginTop="28dp"-->
-    <!--        android:text="Call Test Users"-->
-    <!--        android:textColor="@color/black"-->
-    <!--        android:textSize="20sp"-->
-    <!--        app:layout_constraintEnd_toEndOf="@+id/regUsers"-->
-    <!--        app:layout_constraintHorizontal_bias="0.489"-->
-    <!--        app:layout_constraintStart_toStartOf="@+id/regUsers"-->
-    <!--        app:layout_constraintTop_toBottomOf="@+id/recyclerView" />-->
-
-    <ListView
-        android:id="@+id/listViewId"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@null"
@@ -61,3 +19,4 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

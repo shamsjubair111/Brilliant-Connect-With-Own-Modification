@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jakewharton.rxrelay2.PublishRelay;
@@ -56,6 +57,7 @@ import sdk.chat.core.utils.UserListItemConverter;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.ContactList;
 import sdk.chat.ui.ContactListViewAdapter;
+import sdk.chat.ui.ContactRecyclerViewAdapter;
 import sdk.chat.ui.ContactUtils;
 import sdk.chat.ui.R;
 import sdk.chat.ui.adapters.UsersListAdapter;
@@ -98,8 +100,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
 
     protected RecyclerView recyclerView;
     protected ConstraintLayout root;
-    public ContactListViewAdapter adapter1;
-    public ListView listViewId;
+    public ContactRecyclerViewAdapter adapter1;
     protected Map<Long, List<String>> phones = new HashMap<>();
     protected List<Contact> contacts = new ArrayList<>();
     Set<String> registeredUsers = new HashSet<>();
@@ -113,8 +114,8 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
-//        recyclerView = view.findViewById(R.id.recyclerView);
-        listViewId = view.findViewById(R.id.listViewId);
+        recyclerView = view.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         root = view.findViewById(R.id.root);
 
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS)
@@ -150,15 +151,20 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     @Override
     public void onPause() {
         super.onPause();
-        int index = listViewId.getFirstVisiblePosition();
-        View v = listViewId.getChildAt(0);
-        int top = (v == null) ? 0 : (v.getTop() - listViewId.getPaddingTop());
 
-        SharedPreferences prefs = getActivity().getSharedPreferences("ContactsPrefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt("index", index);
-        editor.putInt("top", top);
-        editor.apply();
+        // Save the scroll position of the RecyclerView
+        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        if (layoutManager != null) {
+            int index = layoutManager.findFirstVisibleItemPosition();
+            View v = recyclerView.getChildAt(0);
+            int top = (v == null) ? 0 : (v.getTop() - recyclerView.getPaddingTop());
+
+            SharedPreferences prefs = getActivity().getSharedPreferences("ContactsPrefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt("index", index);
+            editor.putInt("top", top);
+            editor.apply();
+        }
     }
 
     public void addListeners() {
@@ -300,12 +306,18 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         super.onResume();
         loadData(true);
 
+        // Restore the scroll position of the RecyclerView
         SharedPreferences prefs = getActivity().getSharedPreferences("ContactsPrefs", Context.MODE_PRIVATE);
         int index = prefs.getInt("index", -1);
         int top = prefs.getInt("top", 0);
 
         if (index != -1) {
-            listViewId.setSelectionFromTop(index, top);
+            recyclerView.post(() -> {
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager != null) {
+                    layoutManager.scrollToPositionWithOffset(index, top);
+                }
+            });
         }
     }
 
@@ -402,7 +414,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                         if (contactPhones != null) {
                             for (String phone :
                                     contactPhones) {
-                                var validPhoneNumber = validPhoneNumber(phone);
+                                var validPhoneNumber = phone; //validPhoneNumber(phone);
                                 if (validPhoneNumber != null && !contacts.contains(new Contact(contactId, name, validPhoneNumber, photo))) {
                                     contacts.add(new Contact(contactId, name, validPhoneNumber, photo));
                                 }
@@ -416,12 +428,10 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     }
 
     protected void loadAdapter() {
-
-        adapter1 = new ContactListViewAdapter(getActivity(), contacts, registeredUsers);
-
+        adapter1 = new ContactRecyclerViewAdapter(getContext(), contacts, registeredUsers);
 
         if (contacts != null) {
-            listViewId.setAdapter(adapter1);
+            recyclerView.setAdapter(adapter1);
         }
     }
 
