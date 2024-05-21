@@ -1,6 +1,6 @@
 package sdk.chat.ui;
 
-import static sdk.chat.ui.ContactListViewAdapter.validPhoneNumber;
+import static sdk.chat.ui.ContactRecyclerViewAdapter.validPhoneNumber;
 import static sdk.chat.ui.ContactUtils.contactArrayList;
 
 import android.Manifest;
@@ -43,6 +43,8 @@ import androidx.annotation.NonNull;
 //import org.pmw.tinylog.Logger;
 //import org.webrtc.RendererCommon;
 //import org.webrtc.SurfaceViewRenderer;
+
+import com.google.i18n.phonenumbers.NumberParseException;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -113,7 +115,7 @@ public class VideoActivity extends BaseActivity {
 
 
 
-    public boolean isBrillianUser(String receiverNumber) {
+    public boolean isBrillianUser(String receiverNumber) throws NumberParseException {
         Set<String> registeredUsers = RegisteredUserService.listRegisteredUsers();
         int i = 0;
         for (String registeredUser : registeredUsers) {

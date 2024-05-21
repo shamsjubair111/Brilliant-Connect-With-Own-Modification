@@ -7,6 +7,7 @@
 
 package sdk.chat.ui.fragments;
 
+import static sdk.chat.ui.ContactRecyclerViewAdapter.validPhoneNumber;
 import static sdk.chat.ui.ContactUtils.contactArrayList;
 
 import android.Manifest;
@@ -14,24 +15,28 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.i18n.phonenumbers.NumberParseException;
 import com.jakewharton.rxrelay2.PublishRelay;
 
 import java.util.ArrayList;
@@ -40,7 +45,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -55,10 +59,9 @@ import sdk.chat.core.types.ConnectionType;
 import sdk.chat.core.types.SearchActivityType;
 import sdk.chat.core.utils.UserListItemConverter;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.ContactList;
-import sdk.chat.ui.ContactListViewAdapter;
+import sdk.chat.ui.Constants;
+import sdk.chat.ui.Contact;
 import sdk.chat.ui.ContactRecyclerViewAdapter;
-import sdk.chat.ui.ContactUtils;
 import sdk.chat.ui.R;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.api.RegisteredUserService;
@@ -68,39 +71,22 @@ import sdk.chat.ui.utils.DialogUtils;
 import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
 
-import android.database.Cursor;
-import android.os.Bundle;
-import android.provider.ContactsContract;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
-
-import sdk.chat.ui.Contact;
-import sdk.chat.ui.Constants;
-
 /**
  * Created by itzik on 6/17/2014.
  */
 public class ContactsFragment extends BaseFragment implements SearchSupported, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int REQUEST_READ_CONTACTS = 123;
+    public ContactRecyclerViewAdapter adapter1;
     protected UsersListAdapter adapter;
-
     protected PublishRelay<User> onClickRelay = PublishRelay.create();
     protected PublishRelay<User> onLongClickRelay = PublishRelay.create();
     protected Disposable listOnClickListenerDisposable;
     protected Disposable listOnLongClickListenerDisposable;
-
     protected String filter;
-
     protected List<User> sourceUsers = new ArrayList<>();
-
     protected RecyclerView recyclerView;
     protected ConstraintLayout root;
-    public ContactRecyclerViewAdapter adapter1;
     protected Map<Long, List<String>> phones = new HashMap<>();
     protected List<Contact> contacts = new ArrayList<>();
     Set<String> registeredUsers = new HashSet<>();
@@ -118,8 +104,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         root = view.findViewById(R.id.root);
 
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             //ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS);
         } else {
             if (contactArrayList == null) {
@@ -190,38 +175,20 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                 onLongClickRelay.accept(user);
 
                 DialogUtils.showToastDialog(getContext(), R.string.delete_contact, 0, R.string.delete, R.string.cancel, () -> {
-                    ChatSDK.contact()
-                            .deleteContact(user, ConnectionType.Contact)
-                            .subscribe(ContactsFragment.this);
+                    ChatSDK.contact().deleteContact(user, ConnectionType.Contact).subscribe(ContactsFragment.this);
                 }, null);
             }
         });
 
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterContactsChanged())
-                .subscribe(networkEvent -> loadData(true)));
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterContactsChanged()).subscribe(networkEvent -> loadData(true)));
 
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
-                .subscribe(networkEvent -> loadData(true)));
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserPresenceUpdated)).subscribe(networkEvent -> loadData(true)));
 
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
-                .subscribe(networkEvent -> loadData(true)));
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated)).subscribe(networkEvent -> loadData(true)));
     }
 
     public void startProfileActivity(String userEntityID) {
         ChatSDK.ui().startProfileActivity(getContext(), userEntityID);
-    }
-
-    public static String validPhoneNumber(String mobileNumber) {
-        mobileNumber = mobileNumber.replaceAll("[\\s-]+", "");
-        if (mobileNumber.length() < 11)
-            return mobileNumber;
-        mobileNumber = mobileNumber.substring(mobileNumber.length() - 11);
-        mobileNumber = "88" + mobileNumber;
-
-        return mobileNumber;
     }
 
     public void initViews() {
@@ -361,23 +328,9 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         switch (id) {
             case 0:
-                return new CursorLoader(
-                        getActivity(),
-                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                        Constants.PROJECTION_NUMBERS,
-                        null,
-                        null,
-                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " ASC"
-                );
+                return new CursorLoader(getActivity(), ContactsContract.CommonDataKinds.Phone.CONTENT_URI, Constants.PROJECTION_NUMBERS, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " ASC");
             default:
-                return new CursorLoader(
-                        getActivity(),
-                        ContactsContract.Contacts.CONTENT_URI,
-                        Constants.PROJECTION_DETAILS,
-                        null,
-                        null,
-                        ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " ASC"
-                );
+                return new CursorLoader(getActivity(), ContactsContract.Contacts.CONTENT_URI, Constants.PROJECTION_DETAILS, null, null, ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " ASC");
         }
     }
 
@@ -406,17 +359,21 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
             case 1:
                 if (data != null) {
                     registeredUsers = RegisteredUserService.listRegisteredUsers();
+                    Set<String> addedContactIds = new HashSet<>();
                     while (!data.isClosed() && data.moveToNext()) {
                         long contactId = data.getLong(0);
                         String name = data.getString(1);
                         String photo = data.getString(2);
                         List<String> contactPhones = phones.get(contactId);
                         if (contactPhones != null) {
-                            for (String phone :
-                                    contactPhones) {
-                                var validPhoneNumber = phone; //validPhoneNumber(phone);
-                                if (validPhoneNumber != null && !contacts.contains(new Contact(contactId, name, validPhoneNumber, photo))) {
-                                    contacts.add(new Contact(contactId, name, validPhoneNumber, photo));
+                            for (String phone : contactPhones) {
+                                try {
+                                    if (phone != null && !addedContactIds.contains(validPhoneNumber(phone))) {
+                                        contacts.add(new Contact(contactId, name, phone, photo));
+                                        addedContactIds.add(validPhoneNumber(phone));
+                                    }
+                                } catch (NumberParseException e) {
+                                    throw new RuntimeException(e);
                                 }
                             }
                         }
