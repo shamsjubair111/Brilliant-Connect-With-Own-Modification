@@ -3,6 +3,7 @@ package sdk.chat.app.xmpp.telco
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.ConnectivityManager
@@ -13,16 +14,20 @@ import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.SimpleCursorAdapter
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
+import com.codewithkael.webrtcprojectforrecord.AppToAppAudio
 import com.lassi.common.utils.Logger
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
+import sdk.chat.ui.DialpadActivity
 import sdk.chat.ui.api.RegisteredUserService
 import sdk.chat.ui.fragments.BaseFragment
 import sdk.chat.ui.interfaces.SearchSupported
@@ -36,6 +41,7 @@ data class Contact(
 class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.LoaderCallbacks<Cursor> {
     private lateinit var listViewContacts: ListView
     private lateinit var contactsAdapter: SimpleCursorAdapter
+    private lateinit var fab: ImageView
     private val CONTACTS_PERMISSION_CODE = 101
     var registeredUsers = hashSetOf<String>()
     private lateinit var adapter: CustomAdapter
@@ -52,6 +58,12 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
     ): View? {
         val view = inflater.inflate(R.layout.fragment_brilliant_calls, container, true)
         listViewContacts = view.findViewById(R.id.contactListView)
+        fab = view.findViewById(R.id.fab)
+
+        fab.setOnClickListener {
+            val intent = Intent(context, DialpadActivity::class.java)
+            context?.startActivity(intent)
+        }
         return view
     }
 
