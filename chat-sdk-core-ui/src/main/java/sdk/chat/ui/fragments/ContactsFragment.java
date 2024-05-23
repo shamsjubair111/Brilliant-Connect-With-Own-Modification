@@ -391,14 +391,9 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
             recyclerView.setAdapter(adapter1);
         }
     }
-
-
+    
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 
-    }
-
-    protected void addContact(Contact contact) {
-        contacts.add(contact);
     }
 }

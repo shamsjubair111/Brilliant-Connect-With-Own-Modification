@@ -24,10 +24,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 
 import io.reactivex.functions.Predicate;
+import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.UserListItem;
@@ -126,6 +128,15 @@ public abstract class SelectContactActivity extends BaseActivity {
     }
 
     protected void loadData() {
+        //test
+//        User user1 = new User(1L, "1", new Date(), true);
+//        User user2 = new User(2L, "2", new Date(), false);
+//        User user3 = new User(3L, "3", new Date(), true);
+//        User user1 = new User();
+//        User user2 = new User();
+//        User user3 = new User();
+//
+//        adapter.setUsers(Arrays.asList(user1, user2, user3), true);
         adapter.setUsers(new ArrayList<>(ChatSDK.contact().contacts()), true);
     }
 
