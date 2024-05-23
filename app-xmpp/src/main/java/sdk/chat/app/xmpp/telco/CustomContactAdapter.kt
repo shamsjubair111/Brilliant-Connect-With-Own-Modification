@@ -14,6 +14,7 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.codewithkael.webrtcprojectforrecord.AppToAppAudio
+import com.codewithkael.webrtcprojectforrecord.AppToAppVideo
 import com.codewithkael.webrtcprojectforrecord.OutgoingCall
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.AudioActivity
@@ -95,14 +96,15 @@ import java.util.Locale
             // Perform action for button1 based on phoneNumber
 
             val intent = Intent(context, OutgoingCall::class.java)
-                intent.putExtra("callee", phoneNumber?.let { it1 -> validPhoneNumber(it1) })
+                intent.putExtra("receiverNumber", phoneNumber?.let { it1 -> validPhoneNumber(it1) })
                 context.startActivity(intent)
         }
 
         imageViewVideo.setOnClickListener {
             imageViewVideo.animate();
             // Perform action for button2 based on phoneNumber
-            val intent = Intent(context, VideoActivity::class.java)
+//            val intent = Intent(context, VideoActivity::class.java)
+            val intent = Intent(context, AppToAppVideo::class.java)
             intent.putExtra("type", "video")
             intent.putExtra("receiverNumber",phoneNumber);
             context.startActivity(intent)

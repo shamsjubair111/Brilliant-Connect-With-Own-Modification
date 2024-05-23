@@ -140,13 +140,13 @@ class BrilliantIntroActivity: BaseActivity() {
     }
 
     fun startAuthenticating() {
-        progressBar.visibility = View.VISIBLE
-        tvNext?.isEnabled = false
+//        progressBar.visibility = View.VISIBLE
+//        tvNext?.isEnabled = false
     }
 
     fun endAuthenticating() {
-        progressBar.visibility = View.GONE
-        tvNext?.isEnabled = true
+//        progressBar.visibility = View.GONE
+//        tvNext?.isEnabled = true
     }
 
     fun showPushAlert() {

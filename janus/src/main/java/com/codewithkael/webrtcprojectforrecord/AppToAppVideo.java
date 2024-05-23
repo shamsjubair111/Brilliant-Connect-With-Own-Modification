@@ -44,65 +44,82 @@ import callHandler.TelcobrightCallMessage;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
 
-public class AppToAppAudio extends AppCompatActivity implements JanusCallHandlerInterface {
+public class AppToAppVideo extends AppCompatActivity implements JanusCallHandlerInterface {
     private static Websocket websocket;
     public static long sessionId = 0;
     public static long handleId = 0;
     private int step = -1;
 
-    private ActivityCallBinding binding;
+    private static ActivityCallBinding binding;
     private String userName;
     private static String receiver;
     private static RTCClient rtcClient;
-    private String TAG = "AppToAppAudio";
+    private String TAG = "AppToAppVideo";
     private String target = "";
     private Gson gson = new Gson();
     private boolean isMute = false;
-    private boolean isCameraPause = false;
+    private static boolean isCameraPause = false;
     private RTCAudioManager rtcAudioManager;
-    private boolean isSpeakerMode = false;
+    private boolean isSpeakerMode = true;
 
     private boolean isVideo = false;
     HashMap<String, Object> newMessage = new HashMap<>();
-
     private static String type;
 
     public static void onReceived() {
-        rtcClient.startLocalAudio();
+        if(type.equals("audio")){
+            rtcClient.startLocalAudio();
+        }else
+        {
+//            rtcClient.initializeSurfaceView(binding.localView);
+//            rtcClient.initializeSurfaceView(binding.remoteView);
+//            rtcClient.startLocalVideo(binding.localView);
+        }
         rtcClient.call(receiver, handleId, sessionId, type);
+//        binding.videoButton.setOnClickListener(v -> {
+//            isCameraPause = !isCameraPause;
+//            if (isCameraPause) {
+//                binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_off_24);
+//            } else {
+//                binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_24);
+//            }
+//            rtcClient.toggleCamera(isCameraPause);
+//        });
+//        binding.switchCameraButton.setOnClickListener(v -> rtcClient.switchCamera());
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityCallBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        setCallLayoutVisible();
-        PermissionX.init(AppToAppAudio.this)
+
+
+        PermissionX.init(AppToAppVideo.this)
                 .permissions(
-                        Manifest.permission.RECORD_AUDIO
+                        Manifest.permission.RECORD_AUDIO,
+                        Manifest.permission.CAMERA
                 ).request((allGranted, grantedList, deniedList) -> {
                     if (allGranted) {
                         init();
-                        ChatSDK.callActivities.put("AppToAppAudio",this);
+                        ChatSDK.callActivities.put("AppToAppVideo",this);
                     } else {
-                        Toast.makeText(AppToAppAudio.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
+                        Toast.makeText(AppToAppVideo.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
                     }
                 });
         type = getIntent().getStringExtra("type");
-        binding.switchCameraButton.setVisibility(View.GONE);
-        binding.videoButton.setVisibility(View.GONE);
     }
 
 
     private void init() {
+        binding = ActivityCallBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        setCallLayoutVisible();
         userName = ChatSDK.currentUser().getName() + "@localhost";
         receiver = getIntent().getStringExtra("receiverNumber") + "@localhost";
-        websocket = new Websocket(this, AppToAppAudio.this);
+        websocket = new Websocket(this, AppToAppVideo.this);
         if (userName != null) {
             websocket.initSocket(userName);
         }
-
         rtcClient = new RTCClient(getApplication(), userName, websocket, new PeerConnectionObserver() {
             @Override
             public void onIceCandidate(IceCandidate p0) {
@@ -153,11 +170,26 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
         });
 
         rtcAudioManager = new RTCAudioManager(this);
-        rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE);
+        rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE);
+        binding.audioOutputButton.setImageResource(R.drawable.ic_baseline_hearing_24);
+
+        rtcClient.initializeSurfaceView(binding.localView);
+        rtcClient.initializeSurfaceView(binding.remoteView);
+        rtcClient.startLocalVideo(binding.localView);
 
         target = receiver;
 //        });
 
+        binding.videoButton.setOnClickListener(v -> {
+            isCameraPause = !isCameraPause;
+            if (isCameraPause) {
+                binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_off_24);
+            } else {
+                binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_24);
+            }
+            rtcClient.toggleCamera(isCameraPause);
+        });
+        binding.switchCameraButton.setOnClickListener(v -> rtcClient.switchCamera());
 
         binding.micButton.setOnClickListener(v -> {
             isMute = !isMute;
@@ -182,22 +214,14 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
         });
 
         binding.endCallButton.setOnClickListener(v -> {
-            try {
-                ChatSDK.callActivities.remove("AppToAppAudio");
-                newMessage.put("type", -1);
-                ChatSDK.push().sendPushNotification(newMessage);
-                rtcClient.stopLocalAudio();
-                rtcClient.endCall();
-//                setCallLayoutGone();
-                hangup();
-                finish();
-            }
-            catch (Exception e)
-            {
-                System.out.println(e.getMessage());
-            }
 
-
+            ChatSDK.callActivities.remove("AppToAppVideo");
+            newMessage.put("type", -1);
+            ChatSDK.push().sendPushNotification(newMessage);
+            rtcClient.stopLocalMedia();
+            rtcClient.endCall();
+            hangup();
+            finish();
         });
     }
 
@@ -249,7 +273,7 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                     userIds.put("userIds", users);
                     String action = "co.chatsdk.QuickReply";
                     String body = "video call";
-                    int callType = 100;
+                    int callType = 101;
                     users.put(ThreadId, senderId);
                     newMessage.put(ThreadId, threadEntityID);
                     newMessage.put(SenderName, ChatSDK.currentUser().getName());
@@ -341,7 +365,7 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                 System.out.println("media received");
                 break;
             case "hangup":
-                rtcClient.stopLocalAudio();
+                rtcClient.stopLocalMedia();
                 finish();
 //                finishAffinity();
 //                handleHangup(json);
@@ -445,7 +469,7 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        Toast.makeText(AppToAppAudio.this, "Call in progress", Toast.LENGTH_SHORT).show();
+        Toast.makeText(AppToAppVideo.this, "Call in progress", Toast.LENGTH_SHORT).show();
 
         // super.onBackPressed(); // Comment this super call to avoid calling finish() or fragmentmanager's backstack pop operation.
     }

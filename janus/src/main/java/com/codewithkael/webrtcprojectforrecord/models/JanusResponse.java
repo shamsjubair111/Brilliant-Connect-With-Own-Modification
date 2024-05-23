@@ -134,13 +134,25 @@ public class JanusResponse {
         @SerializedName("sip")
         private String sip;
 
+        @SerializedName("videocall")
+        private String videoCall;
+
         @SerializedName("result")
         private Result result;
 
         @SerializedName("call_id")
         private String callId;
 
+        @SerializedName("error_code")
+        private int errorCode;
+
+        @SerializedName("error")
+        private String error;
+
+
         // Getters and setters
+        public String getVideoCall() {return videoCall;}
+        public void setVideoCall(String videoCall) {this.videoCall = videoCall;}
         public long getId() {
             return id;
         }
@@ -171,6 +183,22 @@ public class JanusResponse {
 
         public void setCallId(String callId) {
             this.callId = callId;
+        }
+
+        public int getErrorCode() {
+            return errorCode;
+        }
+
+        public void setErrorCode(int errorCode) {
+            this.errorCode = errorCode;
+        }
+
+        public String getError() {
+            return error;
+        }
+
+        public void setError(String error) {
+            this.error = error;
         }
     }
 
@@ -376,6 +404,9 @@ public class JanusResponse {
         static class Data {
             @SerializedName("sip")
             private String sip;
+
+            @SerializedName("videocall")
+            private String videoCall;
 
             @SerializedName("result")
             private Result result;

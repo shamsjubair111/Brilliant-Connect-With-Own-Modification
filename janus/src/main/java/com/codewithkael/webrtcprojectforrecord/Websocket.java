@@ -1,33 +1,22 @@
 package com.codewithkael.webrtcprojectforrecord;
 
-import static com.fasterxml.jackson.core.util.InternCache.instance;
-
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.codewithkael.webrtcprojectforrecord.models.JanusResponse;
-import com.codewithkael.webrtcprojectforrecord.models.MessageModel;
-import com.codewithkael.webrtcprojectforrecord.utils.JanusVideoCall;
 import com.codewithkael.webrtcprojectforrecord.utils.NewJanusMessageInterface;
-import com.codewithkael.webrtcprojectforrecord.utils.NewMessageInterface;
 import com.google.gson.Gson;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 public class Websocket {
     public WebSocketClient webSocket;
@@ -90,7 +79,7 @@ public class Websocket {
                 public void onMessage(String message) {
                     try {
 
-                            messageInterface.onNewMessage(gson.fromJson(message, JanusResponse.class));
+                             messageInterface.onNewMessage(gson.fromJson(message, JanusResponse.class));
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -121,20 +110,16 @@ public class Websocket {
                         System.out.println("Service Unavailable");
                         showServiceUnavailableToast();
                         try {
-                            // Invoke the createSession method of the dynamic class using reflection
                             Method createSessionMethod = dynamicClassInstance.getClass().getMethod("finish");
                             createSessionMethod.invoke(dynamicClassInstance);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        // WebSocket connection failed due to timeout
-                        // Handle the timeout here
-                        // For example, show an error message or retry the connection
                     }
                 }
             };
             Timer connectionTimer = new Timer();
-            connectionTimer.schedule(connectionTimeoutTask, 2000); // 2 seconds timeout
+            connectionTimer.schedule(connectionTimeoutTask, 500); // 2 seconds timeout
         }
     }
 
@@ -182,6 +167,7 @@ public class Websocket {
         try {
             Log.d(TAG, "sendMessageToSocket: " + message);
             if (webSocket != null) {
+
                 webSocket.send(message);
             }
         } catch (Exception e) {

@@ -5,11 +5,8 @@
         <activity
             android:name="notification.NotificationCancelActivity"
             android:exported="false" />
-        <activity
-            android:name="notification.CancelNotificationActivity"
-            android:exported="false"
-            android:label="@string/title_activity_cancel_notification"
-            android:theme="@style/Theme.Connectapp" />
+
+
     </application>
 
 </manifest>

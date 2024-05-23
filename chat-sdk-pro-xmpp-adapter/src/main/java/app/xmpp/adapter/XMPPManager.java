@@ -536,6 +536,7 @@ public class XMPPManager {
                 if (userPart != null && password != null) {
                     connection.login(userPart, password);
                     ChatSDK.auth().setCurrentUserEntityID(connection.getUser().asEntityBareJidString());
+                    //ChatSDK.auth().setCurrentUserEntityID(connection.getUser().asEntityBareJidString());
                 }
 
                 // Set the current user

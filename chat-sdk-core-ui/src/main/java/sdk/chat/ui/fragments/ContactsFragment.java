@@ -11,6 +11,8 @@ import static sdk.chat.ui.ContactUtils.contactArrayList;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -130,16 +132,6 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         return view;
     }
 
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        if (requestCode == CONTACTS_PERMISSION_CODE && grantResults.length > 0 &&
-//                grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//            loaderManager.initLoader(0, null, this);
-//        } else {
-//            Toast.makeText(requireContext(), "Contacts permission denied", Toast.LENGTH_SHORT).show();
-//        }
-//    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -153,6 +145,20 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         super.onStop();
 
         dm.dispose();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        int index = listViewId.getFirstVisiblePosition();
+        View v = listViewId.getChildAt(0);
+        int top = (v == null) ? 0 : (v.getTop() - listViewId.getPaddingTop());
+
+        SharedPreferences prefs = getActivity().getSharedPreferences("ContactsPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt("index", index);
+        editor.putInt("top", top);
+        editor.apply();
     }
 
     public void addListeners() {
@@ -217,37 +223,6 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         // Create the adapter only if null this is here so we wont
         // override the adapter given from the extended class with setAdapter.
         adapter = new UsersListAdapter();
-
-
-//        ArrayList<Contact> callTestUsers = new ArrayList<>();
-//        Contact jubair = new Contact("Jubair","8801833023200");
-//        Contact appleVai = new Contact("Apple Vai","8801743801850");
-//        Contact avijitDa = new Contact("Avijit Da","8801730330021");
-//        Contact marufVai = new Contact("Maruf Vai","8801932383889");
-//        Contact mustafaVai = new Contact("Mustafa Vai","8801754105098");
-//        callTestUsers.add(jubair);
-//        callTestUsers.add(appleVai);
-//        callTestUsers.add(avijitDa);
-//        callTestUsers.add(marufVai);
-//        callTestUsers.add(mustafaVai);
-
-
-//        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-//        recyclerView.setAdapter(adapter);
-
-
-//        Set<String> registeredUsers = RegisteredUserService.listRegisteredUsers();
-//
-//        System.out.println("registered: " + registeredUsers);
-//        adapter1 = new ContactListViewAdapter(getActivity(), contactArrayList, registeredUsers);
-//
-//
-//        if(contactArrayList != null)
-//        {
-//            listViewId.setAdapter(adapter1);
-//        }
-
-
     }
 
     @Override
@@ -324,6 +299,14 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     public void onResume() {
         super.onResume();
         loadData(true);
+
+        SharedPreferences prefs = getActivity().getSharedPreferences("ContactsPrefs", Context.MODE_PRIVATE);
+        int index = prefs.getInt("index", -1);
+        int top = prefs.getInt("top", 0);
+
+        if (index != -1) {
+            listViewId.setSelectionFromTop(index, top);
+        }
     }
 
     @Override
@@ -345,21 +328,6 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         filter = text;
         loadData(false);
     }
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-//                                           @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//
-//        if (requestCode == REQUEST_READ_CONTACTS) {
-//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                // Permission granted, proceed with accessing contacts
-//                ContactUtils.getContacts(getContext());
-//            } else {
-//                // Permission denied, handle accordingly (e.g., show a message or take alternative actions)
-//            }
-//        }
-//    }
 
 
     public List<User> filter(List<User> users) {

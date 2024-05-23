@@ -266,7 +266,7 @@ public class VideoActivity extends BaseActivity {
 ////                            Map<String, Object> data = ChatSDK.push().pushDataForMessage(newMessage);
 //                            ChatSDK.push().sendPushNotification(newMessage);
 //
-////                            handleMessageSend( ChatSDK.thread().sendVideoCallMessage("video call from "+roomName,thread));
+//                            handleMessageSend( ChatSDK.thread().sendVideoCallMessage("video call from "+roomName,thread));
 //                            mConnectStatus.setText("Calling " + receiverNumber);
 //                        }
 //

@@ -1,18 +1,19 @@
 package sdk.chat.ui;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.codewithkael.webrtcprojectforrecord.ReceiverActivityAudio;
 
 import notification.NotificationCancelActivity;
 import sdk.chat.core.session.ChatSDK;
@@ -32,6 +33,11 @@ public class IncomingCallActivity extends AppCompatActivity   {
             setShowWhenLocked(true);
             setTurnScreenOn(true);
         }
+        final Window win = getWindow();
+        win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
 
         ChatSDK.callActivities.put("incomingCallActivity",this);
         activity_hang_up_button = findViewById(R.id.activity_hang_up_button);
@@ -64,7 +70,7 @@ public class IncomingCallActivity extends AppCompatActivity   {
                 finish();
                 ChatSDK.mediaStop();
                 String senderNumber = getIntent().getStringExtra("senderNumber");
-                Intent intent = new Intent(getApplicationContext(), ReceiverActivity.class);
+                Intent intent = new Intent(getApplicationContext(), ReceiverActivityAudio.class);
                 intent.putExtra("senderNumber", senderNumber);
                 String callType = getIntent().getStringExtra("type");
                 intent.putExtra("type", callType);

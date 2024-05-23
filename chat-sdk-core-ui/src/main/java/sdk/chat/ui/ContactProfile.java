@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.codewithkael.webrtcprojectforrecord.AppToAppAudio;
+import com.codewithkael.webrtcprojectforrecord.AppToAppVideo;
 import com.codewithkael.webrtcprojectforrecord.MainActivity;
 import com.codewithkael.webrtcprojectforrecord.OutgoingCall;
 
@@ -56,7 +58,7 @@ public class ContactProfile extends AppCompatActivity {
             public void onClick(View v) {
 
                 if(getIntent().getStringExtra("registered").equals("yes")){
-                    Intent intent = new Intent(getApplicationContext(), VideoActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), AppToAppVideo.class);
                     intent.putExtra("receiverNumber",receiverNumber);
                     intent.putExtra("type","video");
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -73,7 +75,7 @@ public class ContactProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(getIntent().getStringExtra("registered").equals("yes")){
-                    Intent intent = new Intent(getApplicationContext(), VideoActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), AppToAppAudio.class);
                     intent.putExtra("receiverNumber",receiverNumber);
                     intent.putExtra("type","audio");
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -92,7 +94,7 @@ public class ContactProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent =  new Intent(ContactProfile.this, OutgoingCall.class);
-                intent.putExtra("callee",validPhoneNumber(getIntent().getStringExtra("contactNumber")));
+                intent.putExtra("receiverNumber",validPhoneNumber(getIntent().getStringExtra("contactNumber")));
                 intent.putExtra("activityName", "ContactProfile");
                 startActivity(intent);
             }
