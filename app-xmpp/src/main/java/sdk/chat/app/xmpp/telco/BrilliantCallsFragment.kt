@@ -17,17 +17,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.SimpleCursorAdapter
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
-import com.codewithkael.webrtcprojectforrecord.AppToAppAudio
 import com.lassi.common.utils.Logger
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
-import sdk.chat.ui.DialpadActivity
 import sdk.chat.ui.api.RegisteredUserService
 import sdk.chat.ui.fragments.BaseFragment
 import sdk.chat.ui.interfaces.SearchSupported
@@ -60,10 +57,7 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
         listViewContacts = view.findViewById(R.id.contactListView)
         fab = view.findViewById(R.id.fab)
 
-        fab.setOnClickListener {
-            val intent = Intent(context, DialpadActivity::class.java)
-            context?.startActivity(intent)
-        }
+       
         return view
     }
 

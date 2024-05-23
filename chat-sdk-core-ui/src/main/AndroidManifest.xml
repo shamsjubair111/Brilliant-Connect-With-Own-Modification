@@ -18,9 +18,7 @@
     <application
         android:hardwareAccelerated="true"
         android:requestLegacyExternalStorage="true">
-        <activity
-            android:name=".DialpadActivity"
-            android:exported="false" />
+
         <activity
             android:name=".ExtendServices"
             android:exported="false" />

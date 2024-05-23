@@ -62,7 +62,7 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
     @NonNull
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        Log.e("GetView", "GetView Called");
+
         if(convertView == null) {
 
 
@@ -82,7 +82,7 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
         //List<User> user = ChatSDK.currentUser().getContacts();
 
 
-        System.out.println("valid phone numbers : " + list.get(position).getNumber() + " " + registeredUsers.contains(list.get(position).getNumber()));
+//        System.out.println("valid phone numbers : " + list.get(position).getNumber() + " " + registeredUsers.contains(list.get(position).getNumber()));
 
        if(registeredUsers.contains(list.get(position).getNumber())){
 
