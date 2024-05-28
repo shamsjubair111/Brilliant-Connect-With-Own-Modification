@@ -73,8 +73,10 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                         Toast.makeText(OutgoingCall.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
                     }
                 });
-        binding.switchCameraButton.setVisibility(View.GONE);
+//        binding.switchCameraButton.setVisibility(View.GONE);
         binding.videoButton.setVisibility(View.GONE);
+        binding.contactName.setText(getIntent().getStringExtra("contactName"));
+        binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
     }
 
     private void init() {
@@ -384,7 +386,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                         SessionDescription session = new SessionDescription(
                                 SessionDescription.Type.ANSWER, message.getJsep().getSdp());
                         rtcClient.onRemoteSessionReceived(session);
-                        runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+
                     }
                     else
                     {
@@ -401,7 +403,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                         SessionDescription session = new SessionDescription(
                                 SessionDescription.Type.ANSWER, message.getJsep().getSdp());
                         rtcClient.onRemoteSessionReceived(session);
-                        runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+
                     }
                     else
                     {
@@ -418,7 +420,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                     rtcClient.onRemoteSessionReceived(session);
                     rtcClient.answer(sessionId, handleId);
 
-                    runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+
                 }
                 else
                 {

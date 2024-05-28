@@ -10,7 +10,7 @@ open class Brilliant {
         }
     }
 
-    val debug = false
+    val debug = true
 
     public fun api(): BrilliantAPI {
         return api
