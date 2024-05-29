@@ -18,12 +18,15 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -45,6 +48,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -303,9 +308,26 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     }
 
     @Override
+
     public void filter(String text) {
         filter = text;
-        loadData(false);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            List<Contact> filteredContacts = contacts.stream()
+                    .filter(contact -> contact.getName().toLowerCase().startsWith(text.toLowerCase()))
+                    .collect(Collectors.toList());
+
+            adapter1 = new ContactRecyclerViewAdapter(getActivity(), filteredContacts, registeredUsers);
+
+
+            if (filteredContacts != null) {
+                recyclerView.setAdapter(adapter1);
+            }
+        }
+
+
+
+//        loadData(false);
     }
 
 

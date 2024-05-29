@@ -1,6 +1,8 @@
 package sdk.chat.ui.activities;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -37,6 +39,8 @@ public class MainAppBarActivity extends MainActivity {
     protected RelativeLayout content;
     protected MaterialSearchView searchView;
     protected FrameLayout root;
+
+
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -76,6 +80,39 @@ public class MainAppBarActivity extends MainActivity {
         content = findViewById(R.id.content);
         searchView = findViewById(R.id.searchView);
         root = findViewById(R.id.root);
+
+        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+
+            private static final long DEBOUNCE_DELAY = 250; // Adjust delay time as needed
+            private Handler handler = new Handler();
+            private Runnable searchRunnable;
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Here you get the query text when the user submits the search query
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // Here you can perform actions as the text changes in the search view
+
+                handler.removeCallbacks(searchRunnable);
+
+                // Schedule a new searchRunnable after debounce delay
+                searchRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        // Perform search after debounce delay
+                        search(newText);
+                    }
+                };
+                handler.postDelayed(searchRunnable, DEBOUNCE_DELAY);
+
+
+                return false;
+            }
+        });
 
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
