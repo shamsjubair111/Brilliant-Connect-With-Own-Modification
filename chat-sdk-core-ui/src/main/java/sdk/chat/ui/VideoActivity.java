@@ -1,7 +1,7 @@
 package sdk.chat.ui;
 
-import static sdk.chat.ui.ContactRecyclerViewAdapter.validPhoneNumber;
 import static sdk.chat.ui.ContactUtils.contactArrayList;
+import static sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber;
 
 import android.Manifest;
 import android.annotation.SuppressLint;

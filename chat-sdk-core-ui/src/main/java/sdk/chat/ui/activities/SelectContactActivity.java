@@ -128,15 +128,6 @@ public abstract class SelectContactActivity extends BaseActivity {
     }
 
     protected void loadData() {
-        //test
-//        User user1 = new User(1L, "1", new Date(), true);
-//        User user2 = new User(2L, "2", new Date(), false);
-//        User user3 = new User(3L, "3", new Date(), true);
-//        User user1 = new User();
-//        User user2 = new User();
-//        User user3 = new User();
-//
-//        adapter.setUsers(Arrays.asList(user1, user2, user3), true);
         adapter.setUsers(new ArrayList<>(ChatSDK.contact().contacts()), true);
     }
 

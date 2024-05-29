@@ -1,5 +1,7 @@
 package sdk.chat.ui;
 
+import static sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber;
+
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
@@ -44,6 +46,8 @@ import sdk.chat.ui.api.RegisteredUserService;
 import sdk.chat.ui.fragments.ChatFragment;
 import sdk.guru.common.DisposableMap;
 import android.database.Cursor;
+
+import com.google.i18n.phonenumbers.NumberParseException;
 
 public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
 
@@ -95,7 +99,11 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
        inviteText.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View v) {
-               sendInvite(validPhoneNumber(list.get(position).getNumber()));
+               try {
+                   sendInvite(validPhoneNumber(list.get(position).getNumber()));
+               } catch (NumberParseException e) {
+                   throw new RuntimeException(e);
+               }
            }
        });
 
@@ -129,11 +137,15 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
                 Intent intent = new Intent(getContext(), ContactProfile.class);
                 intent.putExtra("contactName",list.get(position).getName());
                 intent.putExtra("contactNumber",list.get(position).getNumber());
-                if(registeredUsers.contains(validPhoneNumber(list.get(position).getNumber()))){
-                    intent.putExtra("registered","yes");
-                }
-                else{
-                    intent.putExtra("registered","no");
+                try {
+                    if(registeredUsers.contains(validPhoneNumber(list.get(position).getNumber()))){
+                        intent.putExtra("registered","yes");
+                    }
+                    else{
+                        intent.putExtra("registered","no");
+                    }
+                } catch (NumberParseException e) {
+                    throw new RuntimeException(e);
                 }
 
                 getContext().startActivity(intent);
@@ -185,16 +197,16 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
 
     }
 
-    public static String  validPhoneNumber(String mobileNumber) {
-
-        mobileNumber = mobileNumber.replaceAll("[\\s-]+", "");
-        if(mobileNumber.length()<11)
-            return mobileNumber;
-        mobileNumber = mobileNumber.substring(mobileNumber.length() - 11);
-        mobileNumber = "88" + mobileNumber;
-
-        return mobileNumber;
-    }
+//    public static String  validPhoneNumber(String mobileNumber) {
+//
+//        mobileNumber = mobileNumber.replaceAll("[\\s-]+", "");
+//        if(mobileNumber.length()<11)
+//            return mobileNumber;
+//        mobileNumber = mobileNumber.substring(mobileNumber.length() - 11);
+//        mobileNumber = "88" + mobileNumber;
+//
+//        return mobileNumber;
+//    }
 
     public void sendInvite(String to) {
         OkHttpClient client = new OkHttpClient();

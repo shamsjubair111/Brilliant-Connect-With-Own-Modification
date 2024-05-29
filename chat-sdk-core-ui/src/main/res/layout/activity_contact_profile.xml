@@ -153,7 +153,7 @@
                         app:layout_constraintTop_toBottomOf="@+id/videoCall" />
 
                     <ImageView
-                        android:id="@+id/imageView5"
+                        android:id="@+id/chatIcon"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:layout_marginLeft="33dp"
@@ -171,9 +171,9 @@
                         android:textColor="#1A3A54"
                         android:textSize="12sp"
                         android:textStyle="bold"
-                        app:layout_constraintEnd_toEndOf="@+id/imageView5"
-                        app:layout_constraintStart_toStartOf="@+id/imageView5"
-                        app:layout_constraintTop_toBottomOf="@+id/imageView5" />
+                        app:layout_constraintEnd_toEndOf="@+id/chatIcon"
+                        app:layout_constraintStart_toStartOf="@+id/chatIcon"
+                        app:layout_constraintTop_toBottomOf="@+id/chatIcon" />
 
                     <ImageView
                         android:id="@+id/imageView6"
@@ -181,7 +181,7 @@
                         android:layout_height="26dp"
                         android:layout_marginLeft="28dp"
                         android:layout_marginTop="29dp"
-                        app:layout_constraintStart_toEndOf="@+id/imageView5"
+                        app:layout_constraintStart_toEndOf="@+id/chatIcon"
                         app:layout_constraintTop_toTopOf="parent"
                         app:srcCompat="@drawable/sms" />
 
