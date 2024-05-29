@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,6 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 import io.reactivex.Observable;
@@ -102,6 +104,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     public ListView listViewId;
     protected Map<Long, List<String>> phones = new HashMap<>();
     protected List<Contact> contacts = new ArrayList<>();
+    protected List<Contact> filteredContacts = new ArrayList<>();
     Set<String> registeredUsers = new HashSet<>();
 
     @Override
@@ -324,9 +327,42 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     }
 
     @Override
+
     public void filter(String text) {
         filter = text;
-        loadData(false);
+        Log.e("Error error",text);
+
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+//            List<Contact> filteredProducts = contacts.stream()
+//                    .filter(product -> product.getName().equalsIgnoreCase(text))
+//                    .collect(Collectors.toList());
+//
+//            adapter1 = new ContactListViewAdapter(getActivity(), filteredProducts, registeredUsers);
+//
+//
+//            if (filteredProducts != null) {
+//                listViewId.setAdapter(adapter1);
+//            }
+//
+//        }
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            List<Contact> filteredContacts = contacts.stream()
+                    .filter(contact -> contact.getName().toLowerCase().startsWith(text.toLowerCase()))
+                    .collect(Collectors.toList());
+
+            adapter1 = new ContactListViewAdapter(getActivity(), filteredContacts, registeredUsers);
+
+
+            if (filteredContacts != null) {
+                //listViewId.setAdapter(adapter1);
+                listViewId.setAdapter(adapter1);
+            }
+        }
+
+
+
+//        loadData(false);
     }
 
 
