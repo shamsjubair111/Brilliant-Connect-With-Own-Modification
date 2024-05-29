@@ -93,9 +93,11 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                 });
         type = getIntent().getStringExtra("type");
         if(type.equals("audio")){
-            binding.switchCameraButton.setVisibility(View.GONE);
+//            binding.switchCameraButton.setVisibility(View.GONE);
             binding.videoButton.setVisibility(View.GONE);
         }
+        binding.contactName.setText(getIntent().getStringExtra("contactName"));
+        binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
 
     }
 
@@ -182,7 +184,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                 }
                 rtcClient.toggleCamera(isCameraPause);
             });
-            binding.switchCameraButton.setOnClickListener(v -> rtcClient.switchCamera());
+//            binding.switchCameraButton.setOnClickListener(v -> rtcClient.switchCamera());
 
         }
         binding.micButton.setOnClickListener(v -> {
@@ -344,7 +346,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                         SessionDescription session = new SessionDescription(
                                 SessionDescription.Type.ANSWER, message.getJsep().getSdp());
                         rtcClient.onRemoteSessionReceived(session);
-                        runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+
                     }
                     //some works to do
                 }
@@ -377,7 +379,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
 //                    }
 
                     rtcClient.answer(sessionId, handleId);
-                    runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+
                 }
                 //some works to do
             }
@@ -390,7 +392,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                     rtcClient.onRemoteSessionReceived(session);
                     rtcClient.answer(sessionId, handleId);
 
-                    runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+
                 }
                 else if(JanusResponse.plugin.getData().getResult().getEvent().contains("accepted"))
                 {

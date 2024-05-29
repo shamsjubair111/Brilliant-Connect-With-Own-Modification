@@ -107,6 +107,8 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
                     }
                 });
         type = getIntent().getStringExtra("type");
+        binding.contactName.setText(getIntent().getStringExtra("contactName"));
+        binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
     }
 
 
@@ -189,7 +191,7 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
             }
             rtcClient.toggleCamera(isCameraPause);
         });
-        binding.switchCameraButton.setOnClickListener(v -> rtcClient.switchCamera());
+//        binding.switchCameraButton.setOnClickListener(v -> rtcClient.switchCamera());
 
         binding.micButton.setOnClickListener(v -> {
             isMute = !isMute;
@@ -332,7 +334,7 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
                         SessionDescription session = new SessionDescription(
                                 SessionDescription.Type.ANSWER, message.getJsep().getSdp());
                         rtcClient.onRemoteSessionReceived(session);
-                        runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+
                     }
                     //some works to do
                 } else if (JanusResponse.plugin.getData().getResult().getEvent().contains("updating")) {
@@ -343,14 +345,14 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
                     rtcClient.onRemoteSessionReceived(session);
                     rtcClient.answer(sessionId, handleId);
 
-                    runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+
                 } else if (JanusResponse.plugin.getData().getResult().getEvent().contains("accepted")) {
                     if (message.getJsep().getSdp() != null) {
                         JanusMessage.Jsep = message.getJsep();
                         SessionDescription session = new SessionDescription(
                                 SessionDescription.Type.ANSWER, message.getJsep().getSdp());
                         rtcClient.onRemoteSessionReceived(session);
-                        runOnUiThread(() -> binding.remoteViewLoading.setVisibility(View.GONE));
+
                     }
                 } else {
                     System.out.println("Some errors occur!");
