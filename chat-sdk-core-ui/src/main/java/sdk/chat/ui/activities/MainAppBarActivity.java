@@ -83,7 +83,7 @@ public class MainAppBarActivity extends MainActivity {
 
         searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
 
-            private static final long DEBOUNCE_DELAY = 300; // Adjust delay time as needed
+            private static final long DEBOUNCE_DELAY = 250; // Adjust delay time as needed
             private Handler handler = new Handler();
             private Runnable searchRunnable;
             @Override
