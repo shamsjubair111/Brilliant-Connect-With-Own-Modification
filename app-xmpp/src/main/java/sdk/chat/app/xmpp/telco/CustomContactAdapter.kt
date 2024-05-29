@@ -97,6 +97,7 @@ import java.util.Locale
 
             val intent = Intent(context, OutgoingCall::class.java)
                 intent.putExtra("receiverNumber", phoneNumber?.let { it1 -> validPhoneNumber(it1) })
+                intent.putExtra("contactName",contact.name);
                 context.startActivity(intent)
         }
 
@@ -107,6 +108,7 @@ import java.util.Locale
             val intent = Intent(context, AppToAppVideo::class.java)
             intent.putExtra("type", "video")
             intent.putExtra("receiverNumber",phoneNumber);
+            intent.putExtra("contactName",contact.name);
             context.startActivity(intent)
 
         }
@@ -118,6 +120,7 @@ import java.util.Locale
             val intent = Intent(context, AppToAppAudio::class.java)
             intent.putExtra("type", "audio")
             intent.putExtra("receiverNumber",phoneNumber);
+            intent.putExtra("contactName",contact.name);
             context.startActivity(intent)
         }
 
