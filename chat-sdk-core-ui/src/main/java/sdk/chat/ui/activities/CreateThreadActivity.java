@@ -2,7 +2,11 @@ package sdk.chat.ui.activities;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +65,4 @@ public class CreateThreadActivity extends SelectContactActivity {
                     finish();
                 }, this));
     }
-
-
-
 }

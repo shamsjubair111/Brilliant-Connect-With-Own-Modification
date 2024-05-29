@@ -7,8 +7,8 @@
 
 package sdk.chat.ui.fragments;
 
-import static sdk.chat.ui.ContactRecyclerViewAdapter.validPhoneNumber;
 import static sdk.chat.ui.ContactUtils.contactArrayList;
+import static sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -38,6 +38,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.jakewharton.rxrelay2.PublishRelay;
+
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,6 +91,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     protected ConstraintLayout root;
     protected Map<Long, List<String>> phones = new HashMap<>();
     protected List<Contact> contacts = new ArrayList<>();
+    protected Set<Contact> registeredContacts = new HashSet<>();
     Set<String> registeredUsers = new HashSet<>();
 
     @Override
@@ -368,9 +371,14 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                         if (contactPhones != null) {
                             for (String phone : contactPhones) {
                                 try {
-                                    if (phone != null && !addedContactIds.contains(validPhoneNumber(phone))) {
-                                        contacts.add(new Contact(contactId, name, phone, photo));
-                                        addedContactIds.add(validPhoneNumber(phone));
+                                    String validPhoneNumber = validPhoneNumber(phone);
+                                    if (phone != null && !addedContactIds.contains(validPhoneNumber)) {
+                                        Contact e = new Contact(contactId, name, phone, photo);
+                                        contacts.add(e);
+                                        addedContactIds.add(validPhoneNumber);
+                                        if (registeredUsers.contains(validPhoneNumber)) {
+                                            registeredContacts.add(e);
+                                        }
                                     }
                                 } catch (NumberParseException e) {
                                     throw new RuntimeException(e);
@@ -380,8 +388,36 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                     }
                     data.close();
                     loadAdapter();
+                    loadAddContactList();
                 }
         }
+    }
+
+    private void loadAddContactList() {
+        try {
+            for (Contact contact : registeredContacts) {
+                dm.add(ChatSDK.core()
+                    .getUserForEntityID(validPhoneNumber(contact.getNumber()))
+                    .flatMapCompletable(user -> {
+                        user.setAvatarURL(contact.getPhoto());
+                        String name = contact.getName();
+                        user.setName(name);
+                        user.setPhoneNumber(contact.getNumber());
+
+
+                        return ChatSDK.contact().addContact(user, ConnectionType.Contact);
+                    })
+                    .subscribe(() -> {
+                        Logger.debug("Success");
+                    }, error -> {
+                        Logger.debug("Error: " + error.getMessage());
+                    }));
+            }
+        } catch (NumberParseException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     protected void loadAdapter() {
@@ -391,7 +427,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
             recyclerView.setAdapter(adapter1);
         }
     }
-    
+
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 

@@ -1,6 +1,6 @@
 package sdk.chat.ui;
 
-import androidx.appcompat.app.AppCompatActivity;
+import static sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,32 +9,49 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+
 import com.codewithkael.webrtcprojectforrecord.AppToAppAudio;
 import com.codewithkael.webrtcprojectforrecord.AppToAppVideo;
-import com.codewithkael.webrtcprojectforrecord.MainActivity;
 import com.codewithkael.webrtcprojectforrecord.OutgoingCall;
+import com.google.i18n.phonenumbers.NumberParseException;
 
-public class ContactProfile extends AppCompatActivity {
+import java.util.Arrays;
 
-    private  TextView userNameTextView;
+import io.reactivex.CompletableObserver;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.utils.ToastHelper;
+import sdk.guru.common.DisposableMap;
+import sdk.guru.common.RX;
+
+public class ContactProfile extends AppCompatActivity implements Consumer<Throwable>, CompletableObserver {
+
+    DisposableMap dm = new DisposableMap();
+    private TextView userNameTextView;
     private TextView textView9;
-
     private ImageView backImage;
     private ImageView videoCall;
-
-    private  ImageView imageView3;
-
+    private ImageView imageView3;
+    private ImageView chatIcon;
     private ImageView appAudioCall;
+    private String receiverNumber;
 
-    public static String validPhoneNumber(String mobileNumber) {
-        mobileNumber = mobileNumber.replaceAll("[\\s-]+", "");
-        if(mobileNumber.length()<11)
-            return mobileNumber;
-        mobileNumber = mobileNumber.substring(mobileNumber.length() - 11);
-        mobileNumber = "88" + mobileNumber;
-
-        return mobileNumber;
-    }
+    //    public static String validPhoneNumber(String mobileNumber) {
+//        mobileNumber = mobileNumber.replaceAll("[\\s-]+", "");
+//        if(mobileNumber.length()<11)
+//            return mobileNumber;
+//        mobileNumber = mobileNumber.substring(mobileNumber.length() - 11);
+//        mobileNumber = "88" + mobileNumber;
+//
+//        return mobileNumber;
+//    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -46,55 +63,72 @@ public class ContactProfile extends AppCompatActivity {
         backImage = findViewById(R.id.backImage);
         videoCall = findViewById(R.id.videoCall);
         imageView3 = findViewById(R.id.imageView3);
+        chatIcon = findViewById(R.id.chatIcon);
         appAudioCall = findViewById(R.id.imageView7);
 
         userNameTextView.setText(getIntent().getStringExtra("contactName"));
 
         textView9.setText(getIntent().getStringExtra("contactNumber"));
-        String receiverNumber = validPhoneNumber(getIntent().getStringExtra("contactNumber"));
+
+        try {
+            receiverNumber = validPhoneNumber(getIntent().getStringExtra("contactNumber"));
+        } catch (NumberParseException e) {
+            throw new RuntimeException(e);
+        }
+
 
         videoCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if(getIntent().getStringExtra("registered").equals("yes")){
+                if (getIntent().getStringExtra("registered").equals("yes")) {
                     Intent intent = new Intent(getApplicationContext(), AppToAppVideo.class);
-                    intent.putExtra("receiverNumber",receiverNumber);
-                    intent.putExtra("type","video");
+                    intent.putExtra("receiverNumber", receiverNumber);
+                    intent.putExtra("type", "video");
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
-                }
-                else{
+                } else {
                     Toast.makeText(ContactProfile.this, "Number Not Registered", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
+
+        chatIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                User user = ChatSDK.db().fetchUserWithEntityID(receiverNumber + "@localhost");
+
+                dm.add(ChatSDK.thread().createThread("", User.convertIfPossible(Arrays.asList(user))).observeOn(RX.main()).subscribe(thread -> {
+                    ChatSDK.ui().startChatActivityForID(ContactProfile.this, thread.getEntityID());
+                    finish();
+                }, ContactProfile.this));
+            }
+        });
 
         appAudioCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(getIntent().getStringExtra("registered").equals("yes")){
+                if (getIntent().getStringExtra("registered").equals("yes")) {
                     Intent intent = new Intent(getApplicationContext(), AppToAppAudio.class);
-                    intent.putExtra("receiverNumber",receiverNumber);
-                    intent.putExtra("type","audio");
+                    intent.putExtra("receiverNumber", receiverNumber);
+                    intent.putExtra("type", "audio");
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
-                }
-                else{
+                } else {
                     Toast.makeText(ContactProfile.this, "Number Not Registered", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
-
 
 
         imageView3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent =  new Intent(ContactProfile.this, OutgoingCall.class);
-                intent.putExtra("receiverNumber",validPhoneNumber(getIntent().getStringExtra("contactNumber")));
+                Intent intent = new Intent(ContactProfile.this, OutgoingCall.class);
+                intent.putExtra("receiverNumber", receiverNumber);
                 intent.putExtra("activityName", "ContactProfile");
                 startActivity(intent);
             }
@@ -107,5 +141,37 @@ public class ContactProfile extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    public void accept(Throwable t) {
+        onError(t);
+    }
+
+    public void onSubscribe(@NonNull Disposable d) {
+        dm.add(d);
+    }
+
+    /**
+     * Called once the deferred computation completes normally.
+     */
+    public void onComplete() {
+
+    }
+
+    /**
+     * Called once if the deferred computation 'throws' an exception.
+     *
+     * @param e the exception, not null.
+     */
+    public void onError(@NonNull Throwable e) {
+        e.printStackTrace();
+        System.out.println("SHOW TOAST" + e.getLocalizedMessage());
+
+        ToastHelper.show(this, e.getLocalizedMessage());
+    }
+
+    @Override
+    public void addMenuProvider(@androidx.annotation.NonNull MenuProvider provider, @androidx.annotation.NonNull LifecycleOwner owner, @androidx.annotation.NonNull Lifecycle.State state) {
+
     }
 }

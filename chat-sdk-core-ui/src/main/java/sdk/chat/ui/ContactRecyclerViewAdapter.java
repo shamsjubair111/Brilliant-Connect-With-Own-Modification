@@ -1,5 +1,7 @@
 package sdk.chat.ui;
 
+import static sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber;
+
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -32,9 +34,11 @@ import okhttp3.Response;
 
 public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactViewHolder> {
 
+
     Context context;
     List<Contact> list;
     Set<String> registeredUsers;
+
 
     public ContactRecyclerViewAdapter(Context context, List<Contact> items, Set<String> registeredUsers) {
         this.context = context;
@@ -49,80 +53,81 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
         return new ContactViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull ContactViewHolder holder, int position) {
-        Contact currentContact = list.get(position);
+        try {
+            Contact contact = list.get(position);
 
-        Log.d("currentContact.getNumber()", currentContact.getNumber());
 
-        if (registeredUsers.contains(currentContact.getNumber())) {
-            holder.inviteText.setText("");
-        } else {
-            holder.inviteText.setText("Invite");
-        }
+            String contactNumber = contact.getNumber();
+            String validContactNumber = validPhoneNumber(contactNumber);
+            Log.d("currentContact.getNumber()", validContactNumber);
 
-        holder.inviteText.setOnClickListener(v -> {
-            try {
-                sendInvite(validPhoneNumber(currentContact.getNumber()));
-            } catch (NumberParseException e) {
-                throw new RuntimeException(e);
+
+            if (registeredUsers.contains(validContactNumber)) {
+                holder.inviteText.setText("");
+            } else {
+                holder.inviteText.setText("Invite");
             }
-        });
 
-        if (currentContact.getPhoto() != null) {
-            Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, currentContact.getId());
-            Uri photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
-            Cursor cursor = context.getContentResolver().query(photoUri,
-                    new String[]{ContactsContract.Contacts.Photo.PHOTO}, null, null, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                byte[] photoData = cursor.getBlob(0);
-                Bitmap photoBitmap = BitmapFactory.decodeByteArray(photoData, 0, photoData.length);
-                holder.userImage.setImageBitmap(photoBitmap);
-                cursor.close();
-                holder.letterImage.setVisibility(View.GONE);
+
+            holder.inviteText.setOnClickListener(v -> {
+                sendInvite(validContactNumber);
+            });
+
+
+            if (contact.getPhoto() != null) {
+                Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contact.getId());
+                Uri photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
+                Cursor cursor = context.getContentResolver().query(photoUri,
+                        new String[]{ContactsContract.Contacts.Photo.PHOTO}, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    byte[] photoData = cursor.getBlob(0);
+                    Bitmap photoBitmap = BitmapFactory.decodeByteArray(photoData, 0, photoData.length);
+                    holder.userImage.setImageBitmap(photoBitmap);
+                    cursor.close();
+                    holder.letterImage.setVisibility(View.GONE);
+                }
+            } else {
+                holder.letterImage.setVisibility(View.VISIBLE);
+                String[] splitArray = contact.getName().trim().split("[\\s]+");
+                String st = (splitArray.length < 2) ? String.valueOf(splitArray[0].charAt(0)) : splitArray[0].charAt(0) + "" + splitArray[1].charAt(0);
+                holder.letterImage.setText(st.toUpperCase());
+                holder.userImage.setImageResource(R.drawable.profile_circle);
             }
-        } else {
-            holder.letterImage.setVisibility(View.VISIBLE);
-            String[] splittedArray = currentContact.getName().trim().split("[\\s]+");
-            String st = (splittedArray.length < 2) ? String.valueOf(splittedArray[0].charAt(0)) : splittedArray[0].charAt(0) + "" + splittedArray[1].charAt(0);
-            holder.letterImage.setText(st.toUpperCase());
-            holder.userImage.setImageResource(R.drawable.profile_circle);
-        }
 
-        holder.userContactName.setText(currentContact.getName());
-        holder.userContactNumber.setText(currentContact.getNumber());
 
-        holder.constraintLayout.setOnClickListener(v -> {
-            Intent intent = new Intent(context, ContactProfile.class);
-            intent.putExtra("contactName", currentContact.getName());
-            intent.putExtra("contactNumber", currentContact.getNumber());
-            try {
-                if (registeredUsers.contains(validPhoneNumber(currentContact.getNumber()))) {
+            holder.userContactName.setText(contact.getName());
+            holder.userContactNumber.setText(contactNumber);
+
+
+            holder.constraintLayout.setOnClickListener(v -> {
+                Intent intent = new Intent(context, ContactProfile.class);
+                intent.putExtra("contactName", contact.getName());
+                intent.putExtra("contactNumber", contactNumber);
+
+
+                if (registeredUsers.contains(validContactNumber)) {
                     intent.putExtra("registered", "yes");
                 } else {
                     intent.putExtra("registered", "no");
                 }
-            } catch (NumberParseException e) {
-                throw new RuntimeException(e);
-            }
 
-            context.startActivity(intent);
-        });
+
+                context.startActivity(intent);
+            });
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
     @Override
     public int getItemCount() {
         return list.size();
     }
 
-    public static String validPhoneNumber(String mobileNumber) throws NumberParseException {
-        PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
-        Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(mobileNumber, "BD");
-        mobileNumber = phoneNumberUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
-
-        Log.d("mobileNumber", mobileNumber);
-        return mobileNumber;
-    }
 
     public void sendInvite(String to) {
         OkHttpClient client = new OkHttpClient();
@@ -134,7 +139,9 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
                 "    \"Content\": \"" + invitationMsg + "\",\n" +
                 "}";
 
+
         RequestBody body = RequestBody.create(mediaType, json);
+
 
         String url = "https://appsrv.intercloud.com.bd/test/api/VendorOTP/SendOTP"; // Replace with your actual API URL
         Request request = new Request.Builder()
@@ -144,8 +151,10 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
                 .addHeader("password", "IO&3(DF&")
                 .build();
 
+
         try {
             Response response = client.newCall(request).execute();
+
 
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected code " + response);
@@ -154,7 +163,8 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
             }
         } catch (IOException e) {
             e.printStackTrace();
-            // Handle exception
         }
     }
+
 }
+
