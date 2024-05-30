@@ -223,42 +223,60 @@ public class SearchActivity extends BaseActivity {
         users.clear();
         progressBar.setVisibility(View.VISIBLE);
 
-        ChatSDK.search().usersForIndex(searchText)
-                .observeOn(RX.main())
-                .subscribe(new Observer<User>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                        searchDisposable = d;
-                    }
+//        ChatSDK.search().usersForIndex(searchText)
+//                .observeOn(RX.main())
+//                .subscribe(new Observer<User>() {
+//                    @Override
+//                    public void onSubscribe(@NonNull Disposable d) {
+//                        searchDisposable = d;
+//                    }
+//
+//                    @Override
+//                    public void onNext(@NonNull User user) {
+//                        if (!existingContacts.contains(user) && !user.isMe()) {
+//                            users.add(user);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(@NonNull Throwable e) {
+//                        showSnackbar(e.getLocalizedMessage());
+//                        showAddUserButton();
+//                        progressBar.setVisibility(View.INVISIBLE);
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//
+//
+//                        adapter.setUsers(users, true);
+//                        if (users.size() == 0) {
+//                            showSnackbar(R.string.search_activity_no_user_found_toast, Snackbar.LENGTH_LONG);
+//                            if (!searchText.isEmpty()) {
+//                                showAddUserButton();
+//                            }
+//                        } else {
+//                            hideAddUserButton();
+//                        }
+//                        progressBar.setVisibility(View.INVISIBLE);
+//                    }
+//                });
+        for (User u : existingContacts) {
+            if (u.getName() != null && u.getName().toLowerCase().contains(searchText.toLowerCase())) {
+                users.add(u);
+            }
+        }
 
-                    @Override
-                    public void onNext(@NonNull User user) {
-                        if (!existingContacts.contains(user) && !user.isMe()) {
-                            users.add(user);
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        showSnackbar(e.getLocalizedMessage());
-                        showAddUserButton();
-                        progressBar.setVisibility(View.INVISIBLE);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        adapter.setUsers(users, true);
-                        if (users.size() == 0) {
-                            showSnackbar(R.string.search_activity_no_user_found_toast, Snackbar.LENGTH_LONG);
-                            if (!searchText.isEmpty()) {
-                                showAddUserButton();
-                            }
-                        } else {
-                            hideAddUserButton();
-                        }
-                        progressBar.setVisibility(View.INVISIBLE);
-                    }
-                });
+        adapter.setUsers(users, true);
+        if (users.size() == 0) {
+            showSnackbar(R.string.search_activity_no_user_found_toast, Snackbar.LENGTH_LONG);
+            if (!searchText.isEmpty()) {
+                showAddUserButton();
+            }
+        } else {
+            hideAddUserButton();
+        }
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
     public void showAddUserButton() {
@@ -275,22 +293,44 @@ public class SearchActivity extends BaseActivity {
 
     protected void done() {
 
-        ArrayList<Completable> completables = new ArrayList<>();
-
-        for (User u : User.convertIfPossible(adapter.getSelectedUsers())) {
-            if (!u.isMe()) {
-                completables.add(ChatSDK.contact().addContact(u, ConnectionType.Contact));
+//        ArrayList<Completable> completables = new ArrayList<>();
+//
+//        for (User u : User.convertIfPossible(adapter.getSelectedUsers())) {
+//            if (!u.isMe()) {
+//                completables.add(ChatSDK.contact().addContact(u, ConnectionType.Contact));
+//            }
+//        }
+//
+//        dm.add(Completable.merge(completables)
+//                .observeOn(RX.main())
+//                .subscribe(this::finish, this));
+        List<User> users = User.convertIfPossible(adapter.getSelectedUsers());
+        if(users.size() > 1) {
+            ArrayList<String> userEntityIDs = new ArrayList<>();
+            for (UserListItem u : users) {
+                userEntityIDs.add(u.getEntityID());
             }
+//            finish();
+            ChatSDK.ui().startEditThreadActivity(this, null, userEntityIDs);
         }
-
-        dm.add(Completable.merge(completables)
-                .observeOn(RX.main())
-                .subscribe(this::finish, this));
+        else {
+            createAndOpenThread("", users);
+        }
     }
 
     public void refreshDoneButton() {
         fab.setImageDrawable(ChatSDKUI.icons().get(this, ChatSDKUI.icons().check, R.color.white));
         fab.setVisibility(adapter.getSelectedCount() > 0 ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    protected void createAndOpenThread (String name, List<User> users) {
+        dm.add(ChatSDK.thread()
+                .createThread(name, users)
+                .observeOn(RX.main())
+                .subscribe(thread -> {
+                    ChatSDK.ui().startChatActivityForID(this, thread.getEntityID());
+                    finish();
+                }, this));
     }
 
 }

@@ -169,9 +169,4 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
 
         ToastHelper.show(this, e.getLocalizedMessage());
     }
-
-    @Override
-    public void addMenuProvider(@androidx.annotation.NonNull MenuProvider provider, @androidx.annotation.NonNull LifecycleOwner owner, @androidx.annotation.NonNull Lifecycle.State state) {
-
-    }
 }
