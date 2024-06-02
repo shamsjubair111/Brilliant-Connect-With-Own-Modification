@@ -1,11 +1,9 @@
 package com.codewithkael.webrtcprojectforrecord;
 
 
-import static com.codewithkael.webrtcprojectforrecord.RTCClient.TID;
 import static sdk.chat.core.dao.Keys.Type;
 import static sdk.chat.core.push.AbstractPushHandler.Action;
 import static sdk.chat.core.push.AbstractPushHandler.Body;
-import static sdk.chat.core.push.AbstractPushHandler.EncryptedMessage;
 import static sdk.chat.core.push.AbstractPushHandler.SenderId;
 import static sdk.chat.core.push.AbstractPushHandler.SenderName;
 import static sdk.chat.core.push.AbstractPushHandler.ThreadId;
@@ -13,7 +11,7 @@ import static sdk.chat.core.push.AbstractPushHandler.UserIds;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -40,8 +38,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 
-import callHandler.TelcobrightCallMessage;
-import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
 
 public class AppToAppVideo extends AppCompatActivity implements JanusCallHandlerInterface {
@@ -61,7 +57,7 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
     private static boolean isCameraPause = false;
     private RTCAudioManager rtcAudioManager;
     private boolean isSpeakerMode = true;
-
+    SQLiteCallFragmentHelper sqLiteCallFragmentHelper;
     private boolean isVideo = false;
     HashMap<String, Object> newMessage = new HashMap<>();
     private static String type;
@@ -368,6 +364,12 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
                 break;
             case "hangup":
                 rtcClient.stopLocalMedia();
+                sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+                SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
+                long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+                if(rowId >0){
+                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+                }
                 finish();
 //                finishAffinity();
 //                handleHangup(json);
@@ -420,6 +422,14 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
     public void hangup() {
         JanusMessage.Body body = new JanusMessage.Body("hangup");
         JanusMessage message = new JanusMessage("message", body, TID(), sessionId, handleId);
+        sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+        SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
+        long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+        if(rowId >0){
+            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+        }
+
+
         try {
             websocket.sendMessage(message.toJson(message));
         } catch (IOException e) {

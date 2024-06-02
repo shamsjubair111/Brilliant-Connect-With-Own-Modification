@@ -3,6 +3,7 @@ package com.codewithkael.webrtcprojectforrecord;
 
 import android.Manifest;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -53,6 +54,8 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
     private RTCAudioManager rtcAudioManager;
     private boolean isSpeakerMode = false;
     private static String type = "audio";
+
+    SQLiteCallFragmentHelper sqLiteCallFragmentHelper;
 
 
 
@@ -237,6 +240,12 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
     {
         JanusMessage.Body body = new JanusMessage.Body("hangup");
         JanusMessage message = new JanusMessage("message", body, TID(), sessionId, handleId);
+        sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+        SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
+        long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+        if(rowId >0){
+            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+        }
         try {
             websocket.sendMessage(message.toJson(message));
         } catch (IOException e) {
@@ -441,6 +450,12 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 websocket.showToast("hangup");
                 websocket.closeSocket();
                 rtcClient.stopLocalAudio();
+                sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+                SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
+                long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+                if(rowId >0){
+                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+                }
                 finish();
 //                finishAffinity();
 //                handleHangup(json);

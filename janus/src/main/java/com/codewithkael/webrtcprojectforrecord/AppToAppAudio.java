@@ -14,6 +14,7 @@ import static sdk.chat.core.push.AbstractPushHandler.UserIds;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -61,7 +62,7 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
     private boolean isCameraPause = false;
     private RTCAudioManager rtcAudioManager;
     private boolean isSpeakerMode = false;
-
+    SQLiteCallFragmentHelper sqLiteCallFragmentHelper;
     private boolean isVideo = false;
     HashMap<String, Object> newMessage = new HashMap<>();
 
@@ -344,6 +345,12 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                 break;
             case "hangup":
                 rtcClient.stopLocalAudio();
+                sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+                SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
+                long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+                if(rowId >0){
+                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+                }
                 finish();
 //                finishAffinity();
 //                handleHangup(json);
@@ -396,6 +403,12 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
     public void hangup() {
         JanusMessage.Body body = new JanusMessage.Body("hangup");
         JanusMessage message = new JanusMessage("message", body, TID(), sessionId, handleId);
+        sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+        SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
+        long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+        if(rowId >0){
+            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+        }
         try {
             websocket.sendMessage(message.toJson(message));
         } catch (IOException e) {

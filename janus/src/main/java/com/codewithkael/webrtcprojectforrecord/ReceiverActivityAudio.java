@@ -1,6 +1,7 @@
 package com.codewithkael.webrtcprojectforrecord;
 
 
+
 import static sdk.chat.core.dao.Keys.Type;
 import static sdk.chat.core.push.AbstractPushHandler.Action;
 import static sdk.chat.core.push.AbstractPushHandler.Body;
@@ -13,6 +14,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -62,6 +64,8 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
     private boolean isSpeakerMode = false;
 
     private boolean isVideo = false;
+
+    SQLiteCallFragmentHelper sqLiteCallFragmentHelper;
     HashMap<String, Object> newMessage = new HashMap<>();
 
     public static String getType()
@@ -292,12 +296,12 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                     System.out.println("Registered");
 
                     runOnUiThread(() -> {
-    //                        setWhoToCallLayoutGone();
-    //                        setCallLayoutVisible();
+                        //                        setWhoToCallLayoutGone();
+                        //                        setCallLayoutVisible();
 //                        websocket.showToast("Registered Success");
                         websocket.showToast("Connecting");
-    //                        rtcClient.startLocalAudio();
-    //                        rtcClient.call(receiver,handleId,sessionId);
+                        //                        rtcClient.startLocalAudio();
+                        //                        rtcClient.call(receiver,handleId,sessionId);
                     });
 
 
@@ -350,15 +354,15 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                     }
                     //some works to do
                 }
-            else if(JanusResponse.plugin.getData().getResult().getEvent().contains("incomingcall")
-            )
-            {
-                System.out.println("accepted");
-                if(message.getJsep().getSdp()!=null) {
-                    JanusMessage.Jsep = message.getJsep();
-                    SessionDescription session = new SessionDescription(
-                            SessionDescription.Type.OFFER, message.getJsep().getSdp());
-                    rtcClient.onRemoteSessionReceived(session);
+                else if(JanusResponse.plugin.getData().getResult().getEvent().contains("incomingcall")
+                )
+                {
+                    System.out.println("accepted");
+                    if(message.getJsep().getSdp()!=null) {
+                        JanusMessage.Jsep = message.getJsep();
+                        SessionDescription session = new SessionDescription(
+                                SessionDescription.Type.OFFER, message.getJsep().getSdp());
+                        rtcClient.onRemoteSessionReceived(session);
 //                    if(type.equals("audio")){
 //                        rtcClient.startLocalAudio();
 //                    }else {
@@ -378,11 +382,11 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
 //
 //                    }
 
-                    rtcClient.answer(sessionId, handleId);
+                        rtcClient.answer(sessionId, handleId);
 
+                    }
+                    //some works to do
                 }
-                //some works to do
-            }
                 else if (JanusResponse.plugin.getData().getResult().getEvent().contains("updating"))
                 {
                     System.out.println("updating");
@@ -420,6 +424,12 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                 break;
             case "hangup":
                 System.out.println(message.toString());
+                sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+                SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
+                long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+                if(rowId >0){
+                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+                }
                 websocket.stopKeepAliveTimer();
 //                websocket.showToast("hangup");
                 websocket.closeSocket();
@@ -484,6 +494,12 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
     {
         JanusMessage.Body body = new JanusMessage.Body("hangup");
         JanusMessage message = new JanusMessage("message", body, TID(), sessionId, handleId);
+        sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+        SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
+        long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+        if(rowId >0){
+            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+        }
         try {
             websocket.sendMessage(message.toJson(message));
         } catch (IOException e) {
