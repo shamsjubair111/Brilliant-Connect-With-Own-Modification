@@ -86,8 +86,9 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                     intent.putExtra("receiverNumber", receiverNumber);
                     intent.putExtra("type", "video");
                     intent.putExtra("contactName", getIntent().getStringExtra("contactName"));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
+
                 } else {
                     Toast.makeText(ContactProfile.this, "Number Not Registered", Toast.LENGTH_SHORT).show();
                 }

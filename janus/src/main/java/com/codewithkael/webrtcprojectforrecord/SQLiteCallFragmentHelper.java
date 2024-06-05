@@ -15,15 +15,13 @@ import java.util.List;
 public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
 
     private static final String databaseName = "CallDetails.db";
-    private static final String tableName = "callList";
-
-
-
+    private final String tableName = "callList";
     private static final int databaseVersion = 1;
 
-    private  static  final String id = "_id";
-    private  static  final String contactsName = "contactName";
-    private  static  final String contactsNumber = "contactNumber";
+    private final String id = "_id";
+    private final String contactName = "contactName";
+    private final String contactNumber = "contactNumber";
+    private SQLiteDatabase sqliteDatabase;
 
     private Context context;
 
@@ -38,8 +36,8 @@ public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
         try{
             db.execSQL("CREATE TABLE " + tableName + " (" +
                     id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    contactsName + " VARCHAR(255), " +
-                    contactsNumber + " VARCHAR(255));");
+                    contactName + " VARCHAR(255), " +
+                    contactNumber + " VARCHAR(255));");
 
             Toast.makeText(context, "Data Inserted Successfully", Toast.LENGTH_SHORT).show();
         }
@@ -68,11 +66,12 @@ public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
 
     public long insertData (String contactName,  String contactNumber){
 
-        SQLiteDatabase sqliteDatabase = this.getWritableDatabase();
+        sqliteDatabase = this.getWritableDatabase();
         ContentValues contentValues  = new ContentValues();
-        contentValues.put(contactsName,contactName);
-        contentValues.put(contactsNumber,contactNumber);
+        contentValues.put(this.contactName,contactName);
+        contentValues.put(this.contactNumber,contactNumber);
         long rowId = sqliteDatabase.insert(tableName,null,contentValues);
+        sqliteDatabase.close();
         return rowId;
     }
 
@@ -81,27 +80,28 @@ public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
         List<CallRecords> returnList  = new ArrayList<>();
 
         String query = "SELECT * FROM " +   tableName + " ORDER BY " + id + " DESC";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor =  db.rawQuery(query, null);
+        sqliteDatabase = this.getReadableDatabase();
+        Cursor cursor =  sqliteDatabase.rawQuery(query, null);
 
         if(cursor.moveToFirst()){
 
             do{
-                String userId = cursor.getString(0);
-                String userName = cursor.getString(1);
-                String userNumber = cursor.getString(2);
+                int idIndex = cursor.getColumnIndex(id);
+                int nameIndex = cursor.getColumnIndex(contactName);
+                int numberIndex = cursor.getColumnIndex(contactNumber);
 
-                CallRecords callRecords = new CallRecords(userId,userName,userNumber);
+                String contactId = cursor.getString(idIndex);
+                String contactName = cursor.getString(nameIndex);
+                String contactNumber = cursor.getString(numberIndex);
+
+                CallRecords callRecords = new CallRecords(contactId,contactName,contactNumber);
                 returnList.add(callRecords);
 
             }
             while(cursor.moveToNext());
         }
-        else{
-
-        }
-//        cursor.close();
-//        db.close();
+        cursor.close();
+        sqliteDatabase.close();
         return returnList;
     }
 }
