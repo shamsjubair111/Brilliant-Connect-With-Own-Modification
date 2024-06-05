@@ -424,13 +424,13 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                 break;
             case "hangup":
                 System.out.println(message.toString());
-                sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
-                SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
-                long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
-                if(rowId >0){
-                    websocket.showToast("Data Inserted");
-//                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
-                }
+//                sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+//                SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
+//                long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+//                if(rowId >0){
+//                    websocket.showToast("Data Inserted");
+////                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+//                }
                 websocket.stopKeepAliveTimer();
 //                websocket.showToast("hangup");
                 websocket.closeSocket();
@@ -495,13 +495,13 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
     {
         JanusMessage.Body body = new JanusMessage.Body("hangup");
         JanusMessage message = new JanusMessage("message", body, TID(), sessionId, handleId);
-        sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
-        SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
-        long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
-        if(rowId >0){
-            websocket.showToast("Data Inserted");
-//            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
-        }
+//        sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+//        SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
+//        long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+//        if(rowId >0){
+//            websocket.showToast("Data Inserted");
+////            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+//        }
         try {
             websocket.sendMessage(message.toJson(message));
         } catch (IOException e) {
