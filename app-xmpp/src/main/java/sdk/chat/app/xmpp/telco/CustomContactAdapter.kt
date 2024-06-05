@@ -75,12 +75,27 @@ class CustomAdapter(private val context: Context, private var contactData: List<
 //        }
 //        else {
         letterImage.setVisibility(View.VISIBLE)
-        val splittedArray = contact.contactName.trim { it <= ' ' }.split("[\\s]+".toRegex())
-            .dropLastWhile { it.isEmpty() }
-            .toTypedArray()
-        val st =
-            if (splittedArray.size < 2) splittedArray[0][0].toString() else splittedArray[0][0].toString() + "" + splittedArray[1][0]
-        letterImage.setText(st.uppercase(Locale.getDefault()))
+        if (contact.contactName!==null)
+        {
+            val splittedArray = contact.contactName.trim { it <= ' ' }.split("[\\s]+".toRegex())
+                .dropLastWhile { it.isEmpty() }
+                .toTypedArray()
+            val st =
+                if (splittedArray.size < 2) splittedArray[0][0].toString() else splittedArray[0][0].toString() + "" + splittedArray[1][0]
+            letterImage.setText(st.uppercase(Locale.getDefault()))
+        }else
+        {
+            contact.contactName = "Unkown"
+            val splittedArray = contact.contactName.trim { it <= ' ' }.split("[\\s]+".toRegex())
+                .dropLastWhile { it.isEmpty() }
+                .toTypedArray()
+            val st =
+                if (splittedArray.size < 2) splittedArray[0][0].toString() else splittedArray[0][0].toString() + "" + splittedArray[1][0]
+            letterImage.setText(st.uppercase(Locale.getDefault()))
+        }
+
+
+
         userImage.setImageResource(R.drawable.profile_circle)
 //            userImage.setColorFilter(android.R.color.darker_gray);
 //        }

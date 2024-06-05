@@ -428,7 +428,8 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                 SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
                 long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
                 if(rowId >0){
-                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+                    websocket.showToast("Data Inserted");
+//                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
                 }
                 websocket.stopKeepAliveTimer();
 //                websocket.showToast("hangup");
@@ -498,7 +499,8 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
         SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
         long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
         if(rowId >0){
-            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+            websocket.showToast("Data Inserted");
+//            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
         }
         try {
             websocket.sendMessage(message.toJson(message));
