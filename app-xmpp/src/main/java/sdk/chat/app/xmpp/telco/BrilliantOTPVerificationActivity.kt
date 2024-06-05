@@ -102,7 +102,7 @@ class BrilliantOTPVerificationActivity: BaseActivity(), OTPListener {
     }
 
     fun sendOTP() {
-        phoneNumber?.let {
+        phoneNumber?.substring(1).orEmpty().let {
             otpRequested = true
             otpDispoable?.dispose()
             startTimer()
