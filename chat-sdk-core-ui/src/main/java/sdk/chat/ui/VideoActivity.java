@@ -165,10 +165,10 @@ public class VideoActivity extends BaseActivity {
         String receiverNumber = getIntent().getStringExtra("receiverNumber").toString();
 //        updateThread(receiverNumber);
         String roomName = null;
-        roomName = ChatSDK.currentUser().getName();
+        roomName = ChatSDK.auth().getCurrentUserEntityID();
 
         String threadEntityID = receiverNumber + "@localhost";
-        String senderId = ChatSDK.currentUser().getName() + "@localhost";
+        String senderId = ChatSDK.auth().getCurrentUserEntityID() + "@localhost";
         HashMap<String, HashMap<String, String>> userIds = new HashMap<String, HashMap<String, String>>();
         HashMap<String, String> users = new HashMap<String, String>();
         users.put(threadEntityID, receiverNumber);

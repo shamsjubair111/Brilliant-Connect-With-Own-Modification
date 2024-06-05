@@ -99,7 +99,7 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
 
 
     private void init() {
-        userName = ChatSDK.currentUser().getName() + "@localhost";
+        userName = ChatSDK.currentUser().getPhoneNumber() + "@localhost";
         receiver = getIntent().getStringExtra("receiverNumber") + "@localhost";
         websocket = new Websocket(this, AppToAppAudio.this);
         if (userName != null) {
@@ -242,10 +242,10 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
 
                     String receiverNumber = getIntent().getStringExtra("receiverNumber");
                     String roomName = null;
-                    roomName = ChatSDK.currentUser().getName();
+                    roomName = ChatSDK.auth().getCurrentUserEntityID();
 
                     String threadEntityID = receiverNumber + "@localhost";
-                    String senderId = ChatSDK.currentUser().getName() + "@localhost";
+                    String senderId = ChatSDK.auth().getCurrentUserEntityID();
                     HashMap<String, HashMap<String, String>> userIds = new HashMap<String, HashMap<String, String>>();
                     HashMap<String, String> users = new HashMap<String, String>();
                     users.put(threadEntityID, receiverNumber);
@@ -255,7 +255,7 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                     int callType = 100;
                     users.put(ThreadId, senderId);
                     newMessage.put(ThreadId, threadEntityID);
-                    newMessage.put(SenderName, ChatSDK.currentUser().getName());
+                    newMessage.put(SenderName, ChatSDK.auth().getCurrentUserEntityID().split("@")[0]);
                     newMessage.put(SenderId, senderId);
                     newMessage.put(UserIds, users);
                     newMessage.put(Action, action);

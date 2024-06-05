@@ -116,7 +116,7 @@ public abstract class AbstractPushHandler implements PushHandler {
 
         data.put(UserIds, users);
         data.put(Body, body);
-        data.put(SenderName, ChatSDK.currentUser().getName());
+        data.put(SenderName, ChatSDK.auth().getCurrentUserEntityID().split("@")[0]);
         data.put(Type, message.getType());
         data.put(SenderId, message.getSender().getEntityID());
         data.put(ThreadId, message.getThread().getEntityID());

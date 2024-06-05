@@ -109,7 +109,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
         ChatSDK.mediaStop();
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(100001);
-        userName = ChatSDK.currentUser().getName() + "@localhost";
+        userName = ChatSDK.auth().getCurrentUserEntityID();
 
         receiver = getIntent().getStringExtra("senderNumber");
         websocket = new Websocket( this,ReceiverActivityAudio.this);
@@ -272,10 +272,10 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
 
                     String receiverNumber = getIntent().getStringExtra("senderNumber");
                     String roomName = null;
-                    roomName = ChatSDK.currentUser().getName();
+                    roomName = ChatSDK.currentUser().getPhoneNumber();
 
                     String threadEntityID = receiverNumber + "@localhost";
-                    String senderId = ChatSDK.currentUser().getName() + "@localhost";
+                    String senderId = ChatSDK.auth().getCurrentUserEntityID();
                     HashMap<String, HashMap<String, String>> userIds = new HashMap<String, HashMap<String, String>>();
                     HashMap<String, String> users = new HashMap<String, String>();
                     users.put(threadEntityID, receiverNumber);

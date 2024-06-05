@@ -53,7 +53,7 @@ public  class TelcobrightCallMessage {
         HashMap<String, Object> data = new HashMap<>();
         data.put(UserIds, userIds);
         data.put(Body, body);
-        data.put(SenderName, ChatSDK.currentUser().getName());
+        data.put(SenderName, ChatSDK.auth().getCurrentUserEntityID().split("@")[0]);
         data.put(Type, type);
         data.put(SenderId, senderId);
         data.put(ThreadId, senderId);

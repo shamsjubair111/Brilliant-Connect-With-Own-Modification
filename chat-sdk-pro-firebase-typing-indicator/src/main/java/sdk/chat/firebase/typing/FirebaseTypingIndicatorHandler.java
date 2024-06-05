@@ -108,7 +108,7 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
     private Completable startTyping(Thread thread) {
         DatabaseReference ref = FirebasePaths.threadRef(thread.getEntityID())
                 .child(FirebasePaths.TypingPath).child(ChatSDK.currentUser().getEntityID());
-        return FirebaseRX.set(ref, ChatSDK.currentUser().getName(), true);
+        return FirebaseRX.set(ref, ChatSDK.auth().getCurrentUserEntityID().split("@")[0], true);
     }
 
     private Completable stopTyping(Thread thread){

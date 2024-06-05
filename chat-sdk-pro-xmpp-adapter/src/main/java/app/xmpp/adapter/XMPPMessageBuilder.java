@@ -101,7 +101,7 @@ public class XMPPMessageBuilder {
     }
 
     public XMPPMessageBuilder addLeaveGroupExtension(String userJID) {
-        setBody(String.format(ChatSDK.getString(R.string.__left_the_group), ChatSDK.currentUser().getName()));
+        setBody(String.format(ChatSDK.getString(R.string.__left_the_group), ChatSDK.auth().getCurrentUserEntityID().split("@")[0]));
         setType(MessageType.Silent);
         setAction(MessageType.Action.UserLeftGroup);
         addNoRetryExtension();

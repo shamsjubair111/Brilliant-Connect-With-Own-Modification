@@ -83,7 +83,7 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
         ConstraintLayout constraintLayout = convertView.findViewById(R.id.constraintLayout2);
 
 
-        //List<User> user = ChatSDK.currentUser().getContacts();
+        //List<User> user = ChatSDK.auth().getCurrentUserEntityID().getContacts();
 
 
 //        System.out.println("valid phone numbers : " + list.get(position).getNumber() + " " + registeredUsers.contains(list.get(position).getNumber()));
