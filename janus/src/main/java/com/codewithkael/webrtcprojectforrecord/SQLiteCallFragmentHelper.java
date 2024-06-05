@@ -2,16 +2,22 @@ package com.codewithkael.webrtcprojectforrecord;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
 
     private static final String databaseName = "CallDetails.db";
     private static final String tableName = "callList";
+
+
 
     private static final int databaseVersion = 1;
 
@@ -69,4 +75,34 @@ public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
         long rowId = sqliteDatabase.insert(tableName,null,contentValues);
         return rowId;
     }
+
+
+    public List<CallRecords> getAllRecodrs(){
+        List<CallRecords> returnList  = new ArrayList<>();
+
+        String query = "SELECT * FROM " +   tableName + " ORDER BY " + id + " DESC";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor =  db.rawQuery(query, null);
+
+        if(cursor.moveToFirst()){
+
+            do{
+                String userId = cursor.getString(0);
+                String userName = cursor.getString(1);
+                String userNumber = cursor.getString(2);
+
+                CallRecords callRecords = new CallRecords(userId,userName,userNumber);
+                returnList.add(callRecords);
+
+            }
+            while(cursor.moveToNext());
+        }
+        else{
+
+        }
+//        cursor.close();
+//        db.close();
+        return returnList;
+    }
 }
+

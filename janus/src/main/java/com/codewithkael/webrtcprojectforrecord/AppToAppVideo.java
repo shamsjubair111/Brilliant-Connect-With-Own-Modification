@@ -368,7 +368,8 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
                 SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
                 long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
                 if(rowId >0){
-                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+                    websocket.showToast("Data Inserted");
+//                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
                 }
                 finish();
 //                finishAffinity();
@@ -426,7 +427,8 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
         SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
         long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
         if(rowId >0){
-            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+            websocket.showToast("Data Inserted");
+//            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
         }
 
 

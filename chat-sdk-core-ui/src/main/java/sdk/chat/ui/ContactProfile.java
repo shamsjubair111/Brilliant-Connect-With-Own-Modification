@@ -85,6 +85,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                     Intent intent = new Intent(getApplicationContext(), AppToAppVideo.class);
                     intent.putExtra("receiverNumber", receiverNumber);
                     intent.putExtra("type", "video");
+                    intent.putExtra("contactName", getIntent().getStringExtra("contactName"));
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 } else {
@@ -115,6 +116,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                     Intent intent = new Intent(getApplicationContext(), AppToAppAudio.class);
                     intent.putExtra("receiverNumber", receiverNumber);
                     intent.putExtra("type", "audio");
+                    intent.putExtra("contactName", getIntent().getStringExtra("contactName"));
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 } else {
@@ -130,6 +132,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                 Intent intent = new Intent(ContactProfile.this, OutgoingCall.class);
                 intent.putExtra("receiverNumber", receiverNumber);
                 intent.putExtra("activityName", "ContactProfile");
+                intent.putExtra("contactName", getIntent().getStringExtra("contactName"));
                 startActivity(intent);
             }
         });

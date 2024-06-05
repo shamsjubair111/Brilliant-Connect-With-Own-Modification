@@ -114,7 +114,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.activity:activity:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-
+    implementation 'com.googlecode.libphonenumber:libphonenumber:5.5'
 //    implementation files('../chat-sdk-app-telcobright/libs/wcs-android-sdk-1.1.0.61.aa
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 

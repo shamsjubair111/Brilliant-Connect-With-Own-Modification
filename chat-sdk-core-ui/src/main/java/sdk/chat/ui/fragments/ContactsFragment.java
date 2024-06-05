@@ -403,7 +403,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                                         }
                                     }
                                 } catch (NumberParseException e) {
-                                    throw new RuntimeException(e);
+//                                    throw new RuntimeException(e);
                                 }
                             }
                         }

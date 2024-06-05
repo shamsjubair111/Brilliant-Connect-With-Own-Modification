@@ -29,12 +29,18 @@ import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
 import org.webrtc.SessionDescription;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerInterface {
     private Websocket websocket;
@@ -81,14 +87,102 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
         binding.contactName.setText(getIntent().getStringExtra("contactName"));
         binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
     }
+    public static String removePlusIfPresent(String str) {
+        if (str != null && !str.isEmpty() && str.charAt(0) == '+') {
+            return str.substring(1);
+        }
+        return str;
+    }
 
+    private String getPublicIP() throws InterruptedException {
+        String publicIP = "";
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL("https://api.ipify.org?format=text"); // Using ipify service to get public IP
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setConnectTimeout(5000); // Set timeout for connection
+            urlConnection.setReadTimeout(5000); // Set timeout for reading input
+            urlConnection.setDoOutput(false);
+            urlConnection.setDoInput(true);
+
+            int responseCode = urlConnection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+                publicIP = response.toString();
+            } else {
+                // Handle the error response code appropriately
+                Log.e(TAG, "Error: Unable to retrieve public IP. Response code: " + responseCode);
+            }
+        } catch (java.io.FileNotFoundException e) {
+            Log.e(TAG, "FileNotFoundException: URL not found or server not reachable.", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Exception: ", e);
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+        return publicIP;
+    }
+
+
+    private String reformatIP(String ip) {
+        if (ip == null || ip.isEmpty()) {
+            return "";
+        }
+
+        String[] segments = ip.split("\\.");
+        StringBuilder reformattedIP = new StringBuilder();
+
+        for (String segment : segments) {
+            reformattedIP.append(String.format("%03d", Integer.parseInt(segment)));
+        }
+
+        return reformattedIP.toString();
+    }
+    private String publicIP;
     private void init() {
 
 //        userName = "sip:1001@192.168.0.150";
-        userName = "sip:9638000123@103.248.13.73";
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    publicIP = getPublicIP();
+                    publicIP = reformatIP(publicIP);
+                    userName = "sip:9638000123@103.248.13.73";
+                    receiver = removePlusIfPresent(getIntent().getStringExtra("receiverNumber"));
+                    receiver = "sip:"+publicIP+receiver+"@103.248.13.73";
 
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
-        receiver = "sip:"+getIntent().getStringExtra("receiverNumber")+"@103.248.13.73";
+        thread.start();
+
+        try {
+            // Wait for the thread to complete or timeout after 5 seconds
+            thread.join(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+//        if (publicIP == null && publicIP.isEmpty())
+//        {
+//            finish();
+//        }
+
 //        receiver = "sip:1000@192.168.0.150:5080";
 //        receiver = "sip:1002@103.248.13.73";
 //        userName = getIntent().getStringExtra("username");
@@ -244,7 +338,8 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
         SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
         long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
         if(rowId >0){
-            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+            websocket.showToast("Data Inserted");
+//            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
         }
         try {
             websocket.sendMessage(message.toJson(message));
@@ -451,10 +546,10 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 websocket.closeSocket();
                 rtcClient.stopLocalAudio();
                 sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
-                SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
                 long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
                 if(rowId >0){
-                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
+                    websocket.showToast("Data Inserted");
+//                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
                 }
                 finish();
 //                finishAffinity();

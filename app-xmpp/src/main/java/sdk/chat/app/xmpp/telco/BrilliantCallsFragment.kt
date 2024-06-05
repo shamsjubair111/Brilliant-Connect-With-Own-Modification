@@ -3,7 +3,6 @@ package sdk.chat.app.xmpp.telco
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.ConnectivityManager
@@ -22,13 +21,14 @@ import androidx.core.content.ContextCompat
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
+import com.codewithkael.webrtcprojectforrecord.CallRecords
+import com.codewithkael.webrtcprojectforrecord.SQLiteCallFragmentHelper
 import com.lassi.common.utils.Logger
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.api.RegisteredUserService
 import sdk.chat.ui.fragments.BaseFragment
 import sdk.chat.ui.interfaces.SearchSupported
-import sdk.guru.common.RX
 
 data class Contact(
     var id: Long,
@@ -58,13 +58,15 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
         listViewContacts = view.findViewById(R.id.contactListView)
         fab = view.findViewById(R.id.fab)
 
-       
+
         return view
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
 
         val connectivityManager = requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         networkCallback = object : ConnectivityManager.NetworkCallback() {
@@ -80,10 +82,6 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
                 }
             }
 
-            override fun onLost(network: Network) {
-                super.onLost(network)
-                // Network connection lost
-            }
         }
 
         connectivityManager.registerDefaultNetworkCallback(networkCallback)
@@ -117,6 +115,12 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        val sqLiteCallFragmentHelper = SQLiteCallFragmentHelper(context)
+        val list: List<CallRecords> = sqLiteCallFragmentHelper.getAllRecodrs()
+        adapter = context?.let { CustomAdapter(it, list) }!!
+
+        listViewContacts.adapter = adapter
+
         //loaderManager.initLoader(0, null, this)
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS)
             != PackageManager.PERMISSION_GRANTED) {
@@ -124,7 +128,15 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
             //requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), CONTACTS_PERMISSION_CODE)
         } else {
             // Permission already granted, you can initiate loading contacts or any other action
-            loaderManager.initLoader(0, null, this)
+//            loaderManager.initLoader(0, null, this)
+
+
+
+
+
+
+
+
         }
     }
 
@@ -181,8 +193,8 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
                         }
                     }
                     it.close()
-                    adapter = context?.let { CustomAdapter(it, contacts) }!!
-                    listViewContacts.adapter = adapter
+//                    adapter = context?.let { CustomAdapter(it, contacts) }!!
+//                    listViewContacts.adapter = adapter
 
                 }
             }
@@ -193,12 +205,21 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
         adapter.clear()
     }
 
-    fun validPhoneNumber(mobileNumber: String): String? {
+    fun validPhoneNumber(mobileNumber: String): String {
         var mobileNumber = mobileNumber
         mobileNumber = mobileNumber.replace("[\\s-]+".toRegex(), "")
         if (mobileNumber.length < 11) return mobileNumber
         mobileNumber = mobileNumber.substring(mobileNumber.length - 11)
         mobileNumber = "88$mobileNumber"
         return mobileNumber
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val sqLiteCallFragmentHelper = SQLiteCallFragmentHelper(context)
+        val list: List<CallRecords> = sqLiteCallFragmentHelper.getAllRecodrs()
+        adapter = context?.let { CustomAdapter(it, list) }!!
+
+        listViewContacts.adapter = adapter
     }
 }
