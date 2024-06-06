@@ -272,7 +272,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
 
                     String receiverNumber = getIntent().getStringExtra("senderNumber");
                     String roomName = null;
-                    roomName = ChatSDK.currentUser().getPhoneNumber();
+                    roomName = ChatSDK.auth().getCurrentUserEntityID().split("@")[0];
 
                     String threadEntityID = receiverNumber + "@localhost";
                     String senderId = ChatSDK.auth().getCurrentUserEntityID();
