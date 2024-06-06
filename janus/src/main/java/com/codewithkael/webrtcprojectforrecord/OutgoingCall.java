@@ -1,6 +1,8 @@
 package com.codewithkael.webrtcprojectforrecord;
 
 
+import static com.codewithkael.webrtcprojectforrecord.utils.NumberStringFormater.reformatPhoneNumber;
+
 import android.Manifest;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -41,6 +43,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import sdk.chat.core.session.ChatSDK;
 
 public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerInterface {
     private Websocket websocket;
@@ -161,10 +165,19 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                     publicIP = reformatIP(publicIP);
                     userName = "sip:9638000123@103.248.13.73";
                     receiver = removePlusIfPresent(getIntent().getStringExtra("receiverNumber"));
-                    receiver = "sip:"+publicIP+receiver+"@103.248.13.73";
+                    String callerNumber = reformatPhoneNumber(ChatSDK.auth().getCurrentUserEntityID());
+                    if(callerNumber!="")
+                    {
+                        receiver = "sip:"+publicIP+ callerNumber +receiver+"@103.248.13.73";
+                    }
+                    else {
+                        websocket.showToast("Problem with Caller Number");
+                        finish();
+                    }
 
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    websocket.showToast("Error");
+                    finish();
                 }
             }
         });
