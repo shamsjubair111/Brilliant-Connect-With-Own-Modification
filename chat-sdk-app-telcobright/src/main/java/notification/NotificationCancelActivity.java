@@ -55,10 +55,10 @@ public class NotificationCancelActivity extends AppCompatActivity {
         ChatSDK.mediaStop();
 //        Flashphoner.init(this);
         String receiverNumber = getIntent().getStringExtra("senderNumber");
-        roomName = ChatSDK.auth().getCurrentUserEntityID();
+        roomName = ChatSDK.currentUser().getEntityID().split("@")[0];         //ChatSDK.currentUser().getName();
         HashMap<String, Object> newMessage = new HashMap<>();
         String threadEntityID = receiverNumber + "@localhost";
-        String senderId = ChatSDK.auth().getCurrentUserEntityID()+ "@localhost";
+        String senderId = ChatSDK.auth().getCurrentUserEntityID();        //ChatSDK.currentUser().getName() + "@localhost";
         HashMap<String, HashMap<String, String>> userIds = new HashMap<String, HashMap<String, String>>();
         HashMap<String, String> users = new HashMap<String, String>();
         users.put(threadEntityID, receiverNumber);
