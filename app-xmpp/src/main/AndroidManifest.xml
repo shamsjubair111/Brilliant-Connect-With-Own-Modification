@@ -45,18 +45,19 @@
         <activity android:name="sdk.chat.app.xmpp.telco.BrilliantWelcomeActivity"
             android:configChanges="orientation|screenSize|keyboard"/>
         <activity android:name="sdk.chat.app.xmpp.telco.BrilliantTabBarActivity"
-            android:configChanges="orientation|screenSize|keyboard"/>
+            android:windowSoftInputMode="adjustPan"
+            android:configChanges="keyboardHidden|orientation|screenSize|keyboard"/>
 
-        <receiver
-            android:name="sdk.chat.app.xmpp.utils.NetworkChangeReceiver"
-            android:enabled="true"
-            android:exported="true"
-            android:label="NetworkChangeReceiver" >
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
-            </intent-filter>
-        </receiver>
+<!--        <receiver-->
+<!--            android:name="sdk.chat.app.xmpp.utils.NetworkChangeReceiver"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true"-->
+<!--            android:label="NetworkChangeReceiver" >-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />-->
+<!--                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
 
     </application>
 
