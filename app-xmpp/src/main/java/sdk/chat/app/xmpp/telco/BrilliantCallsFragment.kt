@@ -109,7 +109,7 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
 
     override fun filter(text: String?) {
         // TODO: Implement filtering data if needed
-        contactsAdapter.filter.filter(text)
+       // contactsAdapter.filter.filter(text)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

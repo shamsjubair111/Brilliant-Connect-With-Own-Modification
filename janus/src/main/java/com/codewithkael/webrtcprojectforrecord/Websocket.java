@@ -63,9 +63,6 @@ public class Websocket {
 //            webSocket = new WebSocketClient(new URI("wss://192.168.68.122/"),httpHeaders) {
                 @Override
                 public void onOpen(ServerHandshake handshakedata) {
-                    System.out.println("open");
-//                    sendMessage("{\"janus\":\"create\",\"transaction\":\"" + TID() + "\"}");
-
                     try {
                         // Invoke the createSession method of the dynamic class using reflection
                         Method createSessionMethod = dynamicClassInstance.getClass().getMethod("createSession");
@@ -88,13 +85,26 @@ public class Websocket {
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
-                    Log.d(TAG, "onClose: " + reason);
+                    try {
+                        Method finishMethod = dynamicClassInstance.getClass().getMethod("finish");
+                        finishMethod.invoke(dynamicClassInstance);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     stopKeepAliveTimer();
                 }
 
                 @Override
                 public void onError(Exception ex) {
+                    try {
+                        Method finishMethod = dynamicClassInstance.getClass().getMethod("finish");
+                        finishMethod.invoke(dynamicClassInstance);
+                        showToast("Error Please Try again");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     Log.d(TAG, "onError: " + ex);
+
                 }
             };
         } catch (URISyntaxException e) {
@@ -102,24 +112,6 @@ public class Websocket {
         }
         if (webSocket != null) {
             webSocket.connect();
-            // Set a timer task to manage connection timeout
-            TimerTask connectionTimeoutTask = new TimerTask() {
-                @Override
-                public void run() {
-                    if (!webSocket.isOpen()) {
-                        System.out.println("Service Unavailable");
-                        showServiceUnavailableToast();
-                        try {
-                            Method createSessionMethod = dynamicClassInstance.getClass().getMethod("finish");
-                            createSessionMethod.invoke(dynamicClassInstance);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            };
-            Timer connectionTimer = new Timer();
-            connectionTimer.schedule(connectionTimeoutTask, 500); // 2 seconds timeout
         }
     }
 

@@ -489,10 +489,9 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
     }
     @Override
     public void finish() {
-        super.finish();
+        rtcClient.stopLocalVideo();
+        super.finishAndRemoveTask();
         websocket.stopKeepAliveTimer();
-//        websocket.showToast("hangup");
         websocket.closeSocket();
-//        rtcClient.stopLocalAudio();
     }
 }
