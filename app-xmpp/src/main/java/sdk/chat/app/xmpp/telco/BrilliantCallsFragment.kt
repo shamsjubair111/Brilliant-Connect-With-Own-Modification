@@ -21,14 +21,19 @@ import androidx.core.content.ContextCompat
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
+import androidx.recyclerview.widget.RecyclerView
 import com.codewithkael.webrtcprojectforrecord.CallRecords
 import com.codewithkael.webrtcprojectforrecord.SQLiteCallFragmentHelper
 import com.lassi.common.utils.Logger
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
+import sdk.chat.ui.CallRecyclerViewAdapter
 import sdk.chat.ui.api.RegisteredUserService
 import sdk.chat.ui.fragments.BaseFragment
 import sdk.chat.ui.interfaces.SearchSupported
+import java.util.Locale
+import java.util.function.Predicate
+import java.util.stream.Collectors
 
 data class Contact(
     var id: Long,
@@ -38,7 +43,9 @@ data class Contact(
 )
 class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.LoaderCallbacks<Cursor> {
     private lateinit var listViewContacts: ListView
+    var adapter1: CallRecyclerViewAdapter? = null
     private lateinit var contactsAdapter: SimpleCursorAdapter
+    protected var recyclerView: RecyclerView? = null
     private lateinit var fab: ImageView
     private val CONTACTS_PERMISSION_CODE = 101
     var registeredUsers = hashSetOf<String>()
@@ -57,6 +64,7 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
         val view = inflater.inflate(R.layout.fragment_brilliant_calls, container, true)
         listViewContacts = view.findViewById(R.id.contactListView)
         fab = view.findViewById(R.id.fab)
+
 
 
         return view
@@ -110,6 +118,19 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
     override fun filter(text: String?) {
         // TODO: Implement filtering data if needed
        // contactsAdapter.filter.filter(text)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val sqLiteCallFragmentHelper = SQLiteCallFragmentHelper(context)
+            val list: List<CallRecords> = sqLiteCallFragmentHelper.getAllRecodrs()
+            val filteredContacts = list.stream()
+                    .filter(Predicate<CallRecords> { contact: CallRecords -> contact.contactName.lowercase(Locale.getDefault()).startsWith(text!!.lowercase(Locale.getDefault())) })
+                    .collect(Collectors.toList())
+
+            adapter = context?.let { CustomAdapter(it, filteredContacts) }!!
+
+            if (filteredContacts != null) {
+                listViewContacts.adapter = adapter
+            }
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
