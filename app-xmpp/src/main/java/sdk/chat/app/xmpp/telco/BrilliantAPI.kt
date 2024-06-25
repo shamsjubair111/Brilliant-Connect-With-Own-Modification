@@ -1,5 +1,6 @@
 package sdk.chat.app.xmpp.telco
 
+import android.util.Log
 import io.reactivex.Completable
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -17,6 +18,7 @@ class BrilliantAPI {
     var to: String? = null
     var url = "https://appsrv.intercloud.com.bd/test/api/VendorOTP/SendOTP"
     var xmppURL = "http://36.255.71.143:5443/api/register"
+    var freeswitchURL = "http://192.168.0.135:5070/create_xml"
 
     public fun sendOTP(to: String): Completable {
         this.otp = Random.nextInt(1000, 10000).toString()
@@ -79,7 +81,8 @@ class BrilliantAPI {
             val client = OkHttpClient()
 
             val mediaType = "application/json; charset=utf-8".toMediaType()
-            var json = JSONObject(mapOf("user" to user, "host" to "localhost", "password" to password))
+            var json =
+                JSONObject(mapOf("user" to user, "host" to "localhost", "password" to password))
 //            val body = json.toRequestBody(mediaType)
             val body = json.toString().toRequestBody(mediaType)
 
@@ -106,4 +109,40 @@ class BrilliantAPI {
         }
     }
 
+    fun registerToFreeswitch(user_id: String): Completable {
+        return Completable.create {
+
+            val client = OkHttpClient()
+
+            val mediaType = "application/json; charset=utf-8".toMediaType()
+            var json = JSONObject(mapOf("user_id" to user_id))
+//            val body = json.toRequestBody(mediaType)
+            val body = json.toString().toRequestBody(mediaType)
+
+            val request = Request.Builder()
+//                .header("Content-Type", "application/json")
+                .url(freeswitchURL)
+                .post(body)
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string()
+                val jsonResponse = JSONObject(responseBody)
+
+                val status = jsonResponse.optString("status")
+                val did = jsonResponse.optString("did")
+                if (responseBody != null) {
+                    Log.i("registerToFreeswitch: ", responseBody)
+                }
+                if (!response.isSuccessful && response.code != 10090 && response.code != 409) {
+                    it.onError(IOException("Unexpected code $response"))
+                } else if (status == "success") {
+                    ChatSDK.shared().keyStorage.put("fs_user_id", did)
+                    it.onComplete()
+                } else {
+                    it.onError(IOException("Unexpected code $response"))
+                }
+            }
+        }
+    }
 }

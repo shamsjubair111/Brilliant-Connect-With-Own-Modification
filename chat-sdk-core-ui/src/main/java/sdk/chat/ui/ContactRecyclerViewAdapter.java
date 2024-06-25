@@ -18,10 +18,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -76,14 +72,14 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
                 sendInvite(validContactNumber);
             });
 
-
+            byte[] photoData = new byte[0];
             if (contact.getPhoto() != null) {
                 Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contact.getId());
                 Uri photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
                 Cursor cursor = context.getContentResolver().query(photoUri,
                         new String[]{ContactsContract.Contacts.Photo.PHOTO}, null, null, null);
                 if (cursor != null && cursor.moveToFirst()) {
-                    byte[] photoData = cursor.getBlob(0);
+                    photoData = cursor.getBlob(0);
                     Bitmap photoBitmap = BitmapFactory.decodeByteArray(photoData, 0, photoData.length);
                     holder.userImage.setImageBitmap(photoBitmap);
                     cursor.close();
@@ -102,10 +98,12 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
             holder.userContactNumber.setText(contactNumber);
 
 
+            byte[] finalPhotoData = photoData;
             holder.constraintLayout.setOnClickListener(v -> {
                 Intent intent = new Intent(context, ContactProfile.class);
                 intent.putExtra("contactName", contact.getName());
                 intent.putExtra("contactNumber", contactNumber);
+                intent.putExtra("contactImage", finalPhotoData);
 
 
                 if (registeredUsers.contains(validContactNumber)) {

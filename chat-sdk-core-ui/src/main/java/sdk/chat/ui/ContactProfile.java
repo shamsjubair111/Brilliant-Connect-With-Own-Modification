@@ -3,6 +3,8 @@ package sdk.chat.ui;
 import static sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,9 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.MenuProvider;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
 
 import com.codewithkael.webrtcprojectforrecord.AppToAppAudio;
 import com.codewithkael.webrtcprojectforrecord.AppToAppVideo;
@@ -37,6 +36,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
     private TextView userNameTextView;
     private TextView textView9;
     private ImageView backImage;
+    private ImageView userPicture;
     private ImageView videoCall;
     private ImageView imageView3;
     private ImageView chatIcon;
@@ -69,6 +69,13 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
         userNameTextView.setText(getIntent().getStringExtra("contactName"));
 
         textView9.setText(getIntent().getStringExtra("contactNumber"));
+        byte[] byteArray = getIntent().getByteArrayExtra("contactImage");
+
+        if (byteArray.length != 0) {
+            Bitmap photoBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+            userPicture = findViewById(R.id.userPicture);
+            userPicture.setImageBitmap(photoBitmap);
+        }
 
         try {
             receiverNumber = validPhoneNumber(getIntent().getStringExtra("contactNumber"));
