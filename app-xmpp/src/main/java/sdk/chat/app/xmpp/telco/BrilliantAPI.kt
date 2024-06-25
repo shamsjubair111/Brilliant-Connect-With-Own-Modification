@@ -134,7 +134,7 @@ class BrilliantAPI {
                 if (responseBody != null) {
                     Log.i("registerToFreeswitch: ", responseBody)
                 }
-                if (!response.isSuccessful && response.code != 10090 && response.code != 409) {
+                if (!response.isSuccessful && response.code != 302 && response.code != 201) {
                     it.onError(IOException("Unexpected code $response"))
                 } else if (status == "success") {
                     ChatSDK.shared().keyStorage.put("fs_user_id", did)
