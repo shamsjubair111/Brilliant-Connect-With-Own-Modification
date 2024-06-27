@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -19,6 +21,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +38,19 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
     Context context;
     List<Contact> list;
     Set<String> registeredUsers;
+
+    ArrayList<String> colors = new ArrayList<>(Arrays.asList(
+            "#A1DD70",
+            "#EE4E4E",
+            "#E49BFF",
+            "#3ABEF9",
+            "#ffffff",
+            "#FF7F3E"
+
+
+    ));
+
+
 
 
     public ContactRecyclerViewAdapter(Context context, List<Contact> items, Set<String> registeredUsers) {
@@ -81,7 +98,7 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
                 if (cursor != null && cursor.moveToFirst()) {
                     photoData = cursor.getBlob(0);
                     Bitmap photoBitmap = BitmapFactory.decodeByteArray(photoData, 0, photoData.length);
-                    holder.userImage.setImageBitmap(photoBitmap);
+//                    holder.userImage.setImageBitmap(photoBitmap);
                     cursor.close();
                     holder.letterImage.setVisibility(View.GONE);
                 }
@@ -90,7 +107,10 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
                 String[] splitArray = contact.getName().trim().split("[\\s]+");
                 String st = (splitArray.length < 2) ? String.valueOf(splitArray[0].charAt(0)) : splitArray[0].charAt(0) + "" + splitArray[1].charAt(0);
                 holder.letterImage.setText(st.toUpperCase());
-                holder.userImage.setImageResource(R.drawable.profile_circle);
+                holder.letterImage.setTextColor(Color.parseColor(colors.get(position % colors.size())));
+                holder.letterImage.setTypeface(null, Typeface.BOLD);
+
+//                holder.userImage.setImageResource(R.drawable.profile_circle);
             }
 
 

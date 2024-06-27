@@ -5,6 +5,8 @@
 <!--    <color name="colorAccent">#03DAC5</color>-->
 
     <color name="accent">#1A3A54</color>
+    <color name="title">#111A21</color>
+    <color name="text">#636C75</color>
     <color name="textPrimary">#1A3A54</color>
 <!--    <color name="textOrange">#673AB7</color>-->
     <color name="textOrange">#FB7066</color>

@@ -3,6 +3,8 @@ package sdk.chat.app.xmpp.telco
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +20,17 @@ import java.util.Locale
 
 //class CustomAdapter(private val context: Context, private val contactData: List<Map<String, String>>) : BaseAdapter() {
 class CustomAdapter(private val context: Context, private var contactData: List<CallRecords>) : BaseAdapter() {
+
+    var colors: ArrayList<String> = ArrayList(mutableListOf(
+            "#A1DD70",
+            "#EE4E4E",
+            "#E49BFF",
+            "#3ABEF9",
+            "#ffffff",
+            "#FF7F3E"
+
+
+    ))
 
     fun clear() {
 //        contactData = emptyList()
@@ -41,7 +54,7 @@ class CustomAdapter(private val context: Context, private var contactData: List<
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.call_item, parent, false)
 
-        val userImage: ImageView = view.findViewById(R.id.userImage)
+//        val userImage: ImageView = view.findViewById(R.id.userImage)
         val letterImage:TextView = view.findViewById(R.id.letterImage);
         val displayNameTextView: TextView = view.findViewById(R.id.userContactName)
         val phoneNumberTextView: TextView = view.findViewById(R.id.userContactNumber)
@@ -82,10 +95,12 @@ class CustomAdapter(private val context: Context, private var contactData: List<
         val st =
             if (splittedArray.size < 2) splittedArray[0][0].toString() else splittedArray[0][0].toString() + "" + splittedArray[1][0]
         letterImage.setText(st.uppercase(Locale.getDefault()))
+        letterImage.setTextColor(Color.parseColor(colors.get(position % colors.size)))
+        letterImage.setTypeface(null, Typeface.BOLD);
 
 
 
-        userImage.setImageResource(R.drawable.profile_circle)
+//        userImage.setImageResource(R.drawable.profile_circle)
 //            userImage.setColorFilter(android.R.color.darker_gray);
 //        }
         displayNameTextView.text = contact.contactName
