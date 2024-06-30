@@ -163,7 +163,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 try {
                     publicIP = getPublicIP();
                     publicIP = reformatIP(publicIP);
-                    userName = "sip:9638000123@103.248.13.73";
+                    userName = "sip:"+ ChatSDK.shared().getKeyStorage().get("fs_user_id")+"@103.248.13.73";
                     receiver = removePlusIfPresent(getIntent().getStringExtra("receiverNumber"));
                     String callerNumber = reformatPhoneNumber(ChatSDK.auth().getCurrentUserEntityID());
                     if(callerNumber!="")
@@ -431,7 +431,8 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                     JanusResponse.Data = message.getData();
                     handleId = JanusResponse.Data.getId();
 //                    registerToSIP(userName, "1001", "1001", "1001", "sip:192.168.0.150:5080");
-                    registerToSIP(userName, "9638000123", "9638000123", "telcobright$9638000123", "sip:103.248.13.73");
+//                    registerToSIP(userName, "9638000123", "9638000123", "telcobright$9638000123", "sip:103.248.13.73");
+                    registerToSIP(userName, userName, userName, userName, "sip:103.248.13.73");
                     websocket.startKeepAliveTimer();
                 }
                 System.out.println("Session Running... ");

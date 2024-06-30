@@ -18,10 +18,11 @@ class BrilliantAPI {
     var to: String? = null
     var url = "https://appsrv.intercloud.com.bd/test/api/VendorOTP/SendOTP"
     var xmppURL = "http://36.255.71.143:5443/api/register"
-    var freeswitchURL = "http://192.168.0.135:5070/create_xml"
+    var freeswitchURL = "http://103.248.13.73:5070/createXmlUserProfile"
 
     public fun sendOTP(to: String): Completable {
         this.otp = Random.nextInt(1000, 10000).toString()
+        Log.d( "sendOTP: ", this.otp!!)
         this.to = to
         return resendOTP()
     }
@@ -138,6 +139,8 @@ class BrilliantAPI {
                     it.onError(IOException("Unexpected code $response"))
                 } else if (status == "success") {
                     ChatSDK.shared().keyStorage.put("fs_user_id", did)
+
+                    val get = ChatSDK.shared().getKeyStorage().get("fs_user_id")
                     it.onComplete()
                 } else {
                     it.onError(IOException("Unexpected code $response"))

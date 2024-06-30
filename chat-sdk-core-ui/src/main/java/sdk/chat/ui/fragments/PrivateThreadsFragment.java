@@ -61,6 +61,7 @@ public class PrivateThreadsFragment extends ThreadsFragment {
     protected Single<List<Thread>> getThreads() {
         return Single.defer(() -> {
 
+
             List<Thread> threads = ChatSDK.thread().getThreads(ThreadType.Private);
 
             if (ChatSDK.config().privateChatRoomLifetimeMinutes == 0) {
