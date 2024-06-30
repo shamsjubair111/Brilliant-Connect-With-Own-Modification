@@ -11,23 +11,30 @@ import androidx.annotation.StringRes
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.fragments.BaseFragment
 
-class BrilliantIntroFragment: BaseFragment {
+class BrilliantIntroFragment : BaseFragment() {
 
-    var title: Int
-    var subtitle: Int
-    var desc: Int
-    var image: Int
+    companion object {
+        private const val ARG_TITLE = "title"
+        private const val ARG_SUBTITLE = "subtitle"
+        private const val ARG_DESC = "desc"
+        private const val ARG_IMAGE = "image"
 
-    constructor(@StringRes title: Int, @StringRes subtitle: Int, @StringRes desc: Int, @DrawableRes image: Int): super() {
-        this.title = title
-        this.subtitle = subtitle
-        this.desc = desc
-        this.image = image
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
+        fun newInstance(
+            @StringRes title: Int,
+            @StringRes subtitle: Int,
+            @StringRes desc: Int,
+            @DrawableRes image: Int
+        ): BrilliantIntroFragment {
+            val fragment = BrilliantIntroFragment()
+            val args = Bundle().apply {
+                putInt(ARG_TITLE, title)
+                putInt(ARG_SUBTITLE, subtitle)
+                putInt(ARG_DESC, desc)
+                putInt(ARG_IMAGE, image)
+            }
+            fragment.arguments = args
+            return fragment
+        }
     }
 
     override fun onCreateView(
@@ -35,21 +42,19 @@ class BrilliantIntroFragment: BaseFragment {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = super.onCreateView(inflater, container, savedInstanceState)
+        val view = inflater.inflate(R.layout.fragment_brilliant_intro, container, false)
 
-        view?.findViewById<ImageView>(R.id.imageView)?.let {
-            it.setImageResource(image)
-        }
-        view?.findViewById<TextView>(R.id.tvTitle)?.let {
-            it.text = getString(title)
-        }
-        view?.findViewById<TextView>(R.id.tvSubtitle)?.let {
-            it.text = getString(subtitle)
-        }
-        view?.findViewById<TextView>(R.id.tvDesc)?.let {
-            it.text = getString(desc)
-        }
+        arguments?.let {
+            val title = it.getInt(ARG_TITLE)
+            val subtitle = it.getInt(ARG_SUBTITLE)
+            val desc = it.getInt(ARG_DESC)
+            val imageRes = it.getInt(ARG_IMAGE)
 
+            view.findViewById<ImageView>(R.id.imageView)?.setImageResource(imageRes)
+            view.findViewById<TextView>(R.id.tvTitle)?.setText(title)
+            view.findViewById<TextView>(R.id.tvSubtitle)?.setText(subtitle)
+            view.findViewById<TextView>(R.id.tvDesc)?.setText(desc)
+        }
 
         return view
     }
@@ -59,12 +64,14 @@ class BrilliantIntroFragment: BaseFragment {
     }
 
     override fun initViews() {
+        // Initialize any specific views here
     }
 
     override fun clearData() {
+        // Clear any data here if needed
     }
 
     override fun reloadData() {
+        // Reload any data here if needed
     }
-
 }
