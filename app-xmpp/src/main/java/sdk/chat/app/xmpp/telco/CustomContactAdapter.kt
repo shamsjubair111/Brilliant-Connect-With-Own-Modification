@@ -16,6 +16,7 @@ import com.codewithkael.webrtcprojectforrecord.AppToAppVideo
 import com.codewithkael.webrtcprojectforrecord.CallRecords
 import com.codewithkael.webrtcprojectforrecord.OutgoingCall
 import sdk.chat.demo.xmpp.R
+import java.util.Arrays
 import java.util.Locale
 
 //class CustomAdapter(private val context: Context, private val contactData: List<Map<String, String>>) : BaseAdapter() {
@@ -29,6 +30,19 @@ class CustomAdapter(private val context: Context, private var contactData: List<
             "#ffffff",
             "#FF7F3E"
 
+
+    ))
+
+    var imageList: java.util.ArrayList<Int> = java.util.ArrayList(Arrays.asList(
+            sdk.chat.ui.R.drawable.ragnar,
+            sdk.chat.ui.R.drawable.sazid_vai,
+            sdk.chat.ui.R.drawable.suchi_apu,
+            sdk.chat.ui.R.drawable.maruf_vai,
+            sdk.chat.ui.R.drawable.angela_merkel,
+            sdk.chat.ui.R.drawable.joe_biden,
+            sdk.chat.ui.R.drawable.donald_trump,
+            sdk.chat.ui.R.drawable.messi,
+            sdk.chat.ui.R.drawable.ronaldo
 
     ))
 
@@ -54,7 +68,7 @@ class CustomAdapter(private val context: Context, private var contactData: List<
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.call_item, parent, false)
 
-//        val userImage: ImageView = view.findViewById(R.id.userImage)
+        val userImage: ImageView = view.findViewById(R.id.userImage)
         val letterImage:TextView = view.findViewById(R.id.letterImage);
         val displayNameTextView: TextView = view.findViewById(R.id.userContactName)
         val phoneNumberTextView: TextView = view.findViewById(R.id.userContactNumber)
@@ -87,16 +101,16 @@ class CustomAdapter(private val context: Context, private var contactData: List<
 //            letterImage.setVisibility(View.GONE)
 //        }
 //        else {
-        letterImage.setVisibility(View.VISIBLE)
+//        letterImage.setVisibility(View.VISIBLE)
 
         val splittedArray = contact.contactName.trim { it <= ' ' }.split("[\\s]+".toRegex())
             .dropLastWhile { it.isEmpty() }
             .toTypedArray()
         val st =
             if (splittedArray.size < 2) splittedArray[0][0].toString() else splittedArray[0][0].toString() + "" + splittedArray[1][0]
-        letterImage.setText(st.uppercase(Locale.getDefault()))
-        letterImage.setTextColor(Color.parseColor(colors.get(position % colors.size)))
-        letterImage.setTypeface(null, Typeface.BOLD);
+//        letterImage.setText(st.uppercase(Locale.getDefault()))
+//        letterImage.setTextColor(Color.parseColor(colors.get(position % colors.size)))
+//        letterImage.setTypeface(null, Typeface.BOLD);
 
 
 
@@ -105,6 +119,16 @@ class CustomAdapter(private val context: Context, private var contactData: List<
 //        }
         displayNameTextView.text = contact.contactName
         phoneNumberTextView.text = phoneNumber
+
+        if (position % 2 == 0) {
+            userImage.setImageResource(imageList[position % imageList.size])
+            letterImage.setVisibility(View.GONE)
+        } else {
+            letterImage.setText(st.uppercase(Locale.getDefault()))
+            letterImage.setTextColor(Color.parseColor(colors[position % colors.size]))
+            letterImage.setTypeface(null, Typeface.BOLD)
+            letterImage.setVisibility(View.VISIBLE)
+        }
 
         // Set OnClickListener for each button based on the phoneNumber
         imageViewAppToSip.setOnClickListener {
