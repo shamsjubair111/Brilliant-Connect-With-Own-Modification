@@ -6,13 +6,15 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.ExtendServices
+import sdk.chat.ui.utils.ToastHelper
+import sdk.guru.common.RX
 
 class SettingsAdapter(private val context: Context, private val settingsData: List<SettingsItem>) :
     RecyclerView.Adapter<SettingsAdapter.SettingsViewHolder>() {
@@ -59,11 +61,21 @@ class SettingsAdapter(private val context: Context, private val settingsData: Li
         // Implement onClick method
         override fun onClick(view: View?) {
 
-            if(currentItem.settingsMenu.equals("Extended Services")){
+            when (currentItem.settingsMenu) {
+                "Extended Services" -> {
+                    val intent = Intent(context, ExtendServices::class.java)
+                    context.startActivity(intent)
+                }
+                "My Balance" -> {
+                    checkBalance()
+                }
+                "Add Balance" -> {
+                    addBalance()
+                }
+                // Add more cases as needed
+                else -> {
 
-                val intent = Intent(context, ExtendServices::class.java)
-                context.startActivity(intent)
-
+                }
             }
         }
 
@@ -71,6 +83,33 @@ class SettingsAdapter(private val context: Context, private val settingsData: Li
             currentItem = settings // Store the current item for later reference
             menuIcon.setImageResource(settings.settingsIcon)
             menuName.text = settings.settingsMenu
+        }
+
+        fun addBalance() {
+            val phoneNumber = ChatSDK.auth().getCurrentUserEntityID().split("@")[0]
+            val amount = 20.0;
+            phoneNumber?.let {
+                Brilliant.shared().api.addBalance(it, amount)
+                    .observeOn(RX.main())
+                    .subscribe({
+                        Toast.makeText(context, "Balance added: $amount", Toast.LENGTH_SHORT).show()
+                    }, { error ->
+                        Toast.makeText(context, "Error on adding balance: ${error.message}", Toast.LENGTH_SHORT).show()
+                    })
+            }
+        }
+
+        fun checkBalance() {
+            val phoneNumber = ChatSDK.auth().getCurrentUserEntityID().split("@")[0]
+            phoneNumber?.let {
+                Brilliant.shared().api.checkBalance(it)
+                    .observeOn(RX.main())
+                    .subscribe({ response ->
+                        Toast.makeText(context, "Your current balance: $response", Toast.LENGTH_SHORT).show()
+                    }, { error ->
+                        Toast.makeText(context, "Error on checking balance: ${error.message}", Toast.LENGTH_SHORT).show()
+                    })
+            }
         }
     }
 }

@@ -24,6 +24,7 @@ class BrilliantSettingsFragment: BaseFragment() {
 
         items.add(SettingsItem("Help", R.drawable.icon_help))
         items.add(SettingsItem("My Balance", R.drawable.icon_my_balance))
+        items.add(SettingsItem("Add Balance", R.drawable.icon_my_balance))
         items.add(SettingsItem("Paid Calls and Credit history", R.drawable.icon_paid_calls))
         items.add(SettingsItem("Personal Messages", R.drawable.icon_personal_message))
         items.add(SettingsItem("Extended Services", R.drawable.icon_extended_services))
