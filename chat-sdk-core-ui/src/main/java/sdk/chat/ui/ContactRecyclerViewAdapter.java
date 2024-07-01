@@ -50,6 +50,19 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
 
     ));
 
+    ArrayList<Integer> imageList = new ArrayList<>(Arrays.asList(
+        R.drawable.ragnar,
+            R.drawable.sazid_vai,
+            R.drawable.suchi_apu,
+            R.drawable.maruf_vai,
+            R.drawable.angela_merkel,
+            R.drawable.joe_biden,
+            R.drawable.donald_trump,
+            R.drawable.messi,
+            R.drawable.ronaldo
+
+    ));
+
 
 
 
@@ -103,14 +116,22 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
                     holder.letterImage.setVisibility(View.GONE);
                 }
             } else {
-                holder.letterImage.setVisibility(View.VISIBLE);
+//                holder.letterImage.setVisibility(View.VISIBLE);
                 String[] splitArray = contact.getName().trim().split("[\\s]+");
                 String st = (splitArray.length < 2) ? String.valueOf(splitArray[0].charAt(0)) : splitArray[0].charAt(0) + "" + splitArray[1].charAt(0);
-                holder.letterImage.setText(st.toUpperCase());
-                holder.letterImage.setTextColor(Color.parseColor(colors.get(position % colors.size())));
-                holder.letterImage.setTypeface(null, Typeface.BOLD);
 
-//                holder.userImage.setImageResource(R.drawable.profile_circle);
+
+               if(position % 2 ==0){
+                   holder.userImage.setImageResource(imageList.get(position % imageList.size()));
+                   holder.letterImage.setVisibility(View.GONE);
+               }
+               else{
+                   holder.letterImage.setText(st.toUpperCase());
+                   holder.letterImage.setTextColor(Color.parseColor(colors.get(position % colors.size())));
+                   holder.letterImage.setTypeface(null, Typeface.BOLD);
+                   holder.letterImage.setVisibility(View.VISIBLE);
+               }
+
             }
 
 
@@ -124,6 +145,7 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
                 intent.putExtra("contactName", contact.getName());
                 intent.putExtra("contactNumber", contactNumber);
                 intent.putExtra("contactImage", finalPhotoData);
+                intent.putExtra("imageResId", imageList.get(position));
 
 
                 if (registeredUsers.contains(validContactNumber)) {
