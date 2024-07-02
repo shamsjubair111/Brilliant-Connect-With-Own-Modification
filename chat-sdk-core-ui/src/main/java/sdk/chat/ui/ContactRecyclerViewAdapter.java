@@ -145,7 +145,7 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
                 intent.putExtra("contactName", contact.getName());
                 intent.putExtra("contactNumber", contactNumber);
                 intent.putExtra("contactImage", finalPhotoData);
-                intent.putExtra("imageResId", imageList.get(position));
+                intent.putExtra("imageResId", imageList.get(position % imageList.size()));
 
 
                 if (registeredUsers.contains(validContactNumber)) {
