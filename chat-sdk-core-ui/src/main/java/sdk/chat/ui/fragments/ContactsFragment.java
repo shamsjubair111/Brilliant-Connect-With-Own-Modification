@@ -25,8 +25,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -51,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -84,7 +81,7 @@ import sdk.guru.common.RX;
 public class ContactsFragment extends BaseFragment implements SearchSupported, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int REQUEST_READ_CONTACTS = 123;
-    public ContactRecyclerViewAdapter adapter1;
+    private ContactRecyclerViewAdapter adapter1; //public
     protected UsersListAdapter adapter;
     protected PublishRelay<User> onClickRelay = PublishRelay.create();
     protected PublishRelay<User> onLongClickRelay = PublishRelay.create();
@@ -97,7 +94,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     protected Map<Long, List<String>> phones = new HashMap<>();
     protected List<Contact> contacts = new ArrayList<>();
     protected Set<Contact> registeredContacts = new HashSet<>();
-    Set<String> registeredUsers = new HashSet<>();
+    protected Set<String> registeredUsers = new HashSet<>(); // default
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -138,14 +135,25 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     public void onStop() {
         super.onStop();
 
-        dm.dispose();
+        if (dm != null) {
+            dm.dispose();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        saveRecyclerViewState();
+    }
 
-        // Save the scroll position of the RecyclerView
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadData(true);
+        restoreRecyclerViewState();
+    }
+
+    private void saveRecyclerViewState() {
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         if (layoutManager != null) {
             int index = layoutManager.findFirstVisibleItemPosition();
@@ -157,6 +165,21 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
             editor.putInt("index", index);
             editor.putInt("top", top);
             editor.apply();
+        }
+    }
+
+    private void restoreRecyclerViewState() {
+        SharedPreferences prefs = getActivity().getSharedPreferences("ContactsPrefs", Context.MODE_PRIVATE);
+        int index = prefs.getInt("index", -1);
+        int top = prefs.getInt("top", 0);
+
+        if (index != -1) {
+            recyclerView.post(() -> {
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager != null) {
+                    layoutManager.scrollToPositionWithOffset(index, top);
+                }
+            });
         }
     }
 
@@ -276,25 +299,6 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        loadData(true);
-
-        // Restore the scroll position of the RecyclerView
-        SharedPreferences prefs = getActivity().getSharedPreferences("ContactsPrefs", Context.MODE_PRIVATE);
-        int index = prefs.getInt("index", -1);
-        int top = prefs.getInt("top", 0);
-
-        if (index != -1) {
-            recyclerView.post(() -> {
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if (layoutManager != null) {
-                    layoutManager.scrollToPositionWithOffset(index, top);
-                }
-            });
-        }
-    }
 
     @Override
     public void reloadData() {
@@ -323,8 +327,10 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
             adapter1 = new ContactRecyclerViewAdapter(getActivity(), filteredContacts, registeredUsers);
 
 
-            if (filteredContacts != null) {
+            if (recyclerView != null) {
                 recyclerView.setAdapter(adapter1);
+            } else {
+                Log.e("ContactsFragment", "RecyclerView is null");
             }
         }
 
@@ -445,8 +451,10 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     protected void loadAdapter() {
         adapter1 = new ContactRecyclerViewAdapter(getContext(), contacts, registeredUsers);
 
-        if (contacts != null) {
+        if (recyclerView != null) {
             recyclerView.setAdapter(adapter1);
+        } else {
+            Log.e("ContactsFragment", "RecyclerView is null");
         }
     }
 

@@ -1,7 +1,5 @@
 package sdk.chat.ui.utils;
 
-import android.util.Log;
-
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
@@ -13,7 +11,7 @@ public class ValidPhoneNumberUtil {
         mobileNumber = phoneNumberUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
 
 
-        Log.d("mobileNumber", mobileNumber);
+//        Log.d("mobileNumber", mobileNumber);
         return mobileNumber;
     }
 }

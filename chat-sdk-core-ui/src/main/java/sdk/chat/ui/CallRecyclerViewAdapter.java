@@ -1,18 +1,10 @@
 package sdk.chat.ui;
 
 
-
 import static sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber;
 
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.codewithkael.webrtcprojectforrecord.CallRecords;
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.io.IOException;
 import java.util.List;
@@ -65,7 +54,7 @@ public class CallRecyclerViewAdapter extends RecyclerView.Adapter<ContactViewHol
 
             String contactNumber = contact.getContactNumber();
             String validContactNumber = validPhoneNumber(contactNumber);
-            Log.d("currentContact.getNumber()", validContactNumber);
+//            Log.d("currentContact.getNumber()", validContactNumber);
 
 
             if (registeredUsers.contains(validContactNumber)) {

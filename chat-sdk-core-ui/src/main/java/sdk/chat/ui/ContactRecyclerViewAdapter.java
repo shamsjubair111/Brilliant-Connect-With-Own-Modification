@@ -12,7 +12,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,7 +87,7 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
 
             String contactNumber = contact.getNumber();
             String validContactNumber = validPhoneNumber(contactNumber);
-            Log.d("currentContact.getNumber()", validContactNumber);
+//            Log.d("currentContact.getNumber()", validContactNumber);
 
 
             if (registeredUsers.contains(validContactNumber)) {
