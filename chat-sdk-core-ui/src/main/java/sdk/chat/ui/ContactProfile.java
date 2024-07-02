@@ -97,7 +97,6 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
 //        }
 
         userPicture = findViewById(R.id.userPicture);
-//        userPicture.setImageResource(imageResId);
 
         Glide.with(this)
                 .load(imageList.get(imageResId % imageList.size()))
