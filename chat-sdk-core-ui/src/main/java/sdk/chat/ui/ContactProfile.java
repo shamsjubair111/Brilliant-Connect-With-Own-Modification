@@ -21,6 +21,7 @@ import com.codewithkael.webrtcprojectforrecord.AppToAppVideo;
 import com.codewithkael.webrtcprojectforrecord.OutgoingCall;
 import com.google.i18n.phonenumbers.NumberParseException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import io.reactivex.CompletableObserver;
@@ -45,6 +46,20 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
     private ImageView chatIcon;
     private ImageView appAudioCall;
     private String receiverNumber;
+
+
+    public ArrayList<Integer> imageList = new ArrayList<>(Arrays.asList(
+            R.drawable.ragnar,
+            R.drawable.sazid_vai,
+            R.drawable.suchi_apu,
+            R.drawable.maruf_vai,
+            R.drawable.angela_merkel,
+            R.drawable.joe_biden,
+            R.drawable.donald_trump,
+            R.drawable.messi,
+            R.drawable.ronaldo
+
+    ));
 
     //    public static String validPhoneNumber(String mobileNumber) {
 //        mobileNumber = mobileNumber.replaceAll("[\\s-]+", "");
@@ -72,6 +87,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
         userNameTextView.setText(getIntent().getStringExtra("contactName"));
         int imageResId = getIntent().getIntExtra("imageResId", -1);
 
+
         textView9.setText(getIntent().getStringExtra("contactNumber"));
         byte[] byteArray = getIntent().getByteArrayExtra("contactImage");
 
@@ -84,7 +100,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
 //        userPicture.setImageResource(imageResId);
 
         Glide.with(this)
-                .load(imageResId)
+                .load(imageList.get(imageResId % imageList.size()))
                 .apply(RequestOptions.circleCropTransform())
                 .into(userPicture);
 

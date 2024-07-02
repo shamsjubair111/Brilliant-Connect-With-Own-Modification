@@ -50,7 +50,7 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
 
     ));
 
-    ArrayList<Integer> imageList = new ArrayList<>(Arrays.asList(
+     public ArrayList<Integer> imageList = new ArrayList<>(Arrays.asList(
         R.drawable.ragnar,
             R.drawable.sazid_vai,
             R.drawable.suchi_apu,
@@ -129,7 +129,7 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
                    holder.letterImage.setText(st.toUpperCase());
                    holder.letterImage.setTextColor(Color.parseColor(colors.get(position % colors.size())));
                    holder.letterImage.setTypeface(null, Typeface.BOLD);
-                   holder.letterImage.setVisibility(View.VISIBLE);
+//                   holder.letterImage.setVisibility(View.VISIBLE);
                }
 
             }
@@ -145,7 +145,7 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactView
                 intent.putExtra("contactName", contact.getName());
                 intent.putExtra("contactNumber", contactNumber);
                 intent.putExtra("contactImage", finalPhotoData);
-                intent.putExtra("imageResId", imageList.get(position % imageList.size()));
+                intent.putExtra("imageResId", position);
 
 
                 if (registeredUsers.contains(validContactNumber)) {
