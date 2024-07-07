@@ -29,8 +29,6 @@ class CustomAdapter(private val context: Context, private var contactData: List<
             "#3ABEF9",
             "#ffffff",
             "#FF7F3E"
-
-
     ))
 
     var imageList: java.util.ArrayList<Int> = java.util.ArrayList(Arrays.asList(
@@ -43,7 +41,6 @@ class CustomAdapter(private val context: Context, private var contactData: List<
             sdk.chat.ui.R.drawable.donald_trump,
             sdk.chat.ui.R.drawable.messi,
             sdk.chat.ui.R.drawable.ronaldo
-
     ))
 
     fun clear() {
