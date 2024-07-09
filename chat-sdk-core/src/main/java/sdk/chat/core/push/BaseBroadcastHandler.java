@@ -97,17 +97,17 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         // This will be the case if the app
         // If the app is in the background
         Intent appIntent = null;
-//        if (ChatSDK.auth() == null || !ChatSDK.auth().isAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
-//            appIntent = new Intent(context, ChatSDK.ui().getSplashScreenActivity());
-//
+        if (ChatSDK.auth() == null || !ChatSDK.auth().isAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
+            appIntent = new Intent(context, ChatSDK.ui().getSplashScreenActivity());
+
         Map<String, String> data = new HashMap<>();
         data.put(Keys.IntentKeyThreadEntityID, threadEntityID);
         ChatSDK.pushQueue().add(new PushQueueAction(PushQueueAction.Type.openThread, data));
-//
-//        }
-//        else if (ChatSDK.appBackgroundMonitor().inBackground() && ChatSDK.auth().isAuthenticatedThisSession()) {
+
+        }
+        else if (ChatSDK.appBackgroundMonitor().inBackground() && ChatSDK.auth().isAuthenticatedThisSession()) {
         appIntent = new Intent(context, ChatSDK.ui().getChatActivity());
-//        }
+        }
         if (appIntent != null) {
             appIntent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
             appIntent.setAction(threadEntityID);
