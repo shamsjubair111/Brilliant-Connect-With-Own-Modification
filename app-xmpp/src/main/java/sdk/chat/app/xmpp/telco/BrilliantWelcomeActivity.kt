@@ -17,8 +17,9 @@ class BrilliantWelcomeActivity: BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        findViewById<Button>(R.id.btnAgree)?.let {
-            it.setOnClickListener {
+        findViewById<Button>(R.id.btnAgree)?.let {btnAgree->
+            btnAgree.setOnClickListener {
+                btnAgree.isEnabled = false
                 acceptTerms()
             }
         }

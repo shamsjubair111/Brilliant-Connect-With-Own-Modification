@@ -37,6 +37,7 @@ class BrilliantOTPLoginActivity: BaseActivity() {
         }
 
         continueButton?.setOnClickListener {
+            continueButton?.isEnabled = false
             next()
         }
 
