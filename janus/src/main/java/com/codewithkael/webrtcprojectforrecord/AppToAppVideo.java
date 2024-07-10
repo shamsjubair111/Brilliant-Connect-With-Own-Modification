@@ -91,6 +91,7 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
 //            rtcClient.toggleCamera(isCameraPause);
 //        });
 //        binding.switchCameraButton.setOnClickListener(v -> rtcClient.switchCamera());
+        startTime = System.currentTimeMillis();
 
     }
 
@@ -367,7 +368,7 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
                 }
                 break;
             case "webrtcup":
-                startTime = System.currentTimeMillis();
+
                 startTimer();
                 System.out.println("webrtcup");
                 websocket.showToast("webrtcup");
