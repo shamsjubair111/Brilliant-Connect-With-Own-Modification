@@ -61,15 +61,6 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
 
     ));
 
-    //    public static String validPhoneNumber(String mobileNumber) {
-//        mobileNumber = mobileNumber.replaceAll("[\\s-]+", "");
-//        if(mobileNumber.length()<11)
-//            return mobileNumber;
-//        mobileNumber = mobileNumber.substring(mobileNumber.length() - 11);
-//        mobileNumber = "88" + mobileNumber;
-//
-//        return mobileNumber;
-//    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -91,17 +82,16 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
         textView9.setText(getIntent().getStringExtra("contactNumber"));
         byte[] byteArray = getIntent().getByteArrayExtra("contactImage");
 
-//        if (byteArray.length != 0) {
-//            Bitmap photoBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-//
-//        }
+        if (byteArray.length != 0) {
+            Bitmap photoBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+            userPicture = findViewById(R.id.userPicture);
+            userPicture.setImageBitmap(photoBitmap);
+        }
 
-        userPicture = findViewById(R.id.userPicture);
-
-        Glide.with(this)
-                .load(imageList.get(imageResId % imageList.size()))
-                .apply(RequestOptions.circleCropTransform())
-                .into(userPicture);
+//        Glide.with(this)
+//                .load(imageList.get(imageResId % imageList.size()))
+//                .apply(RequestOptions.circleCropTransform())
+//                .into(userPicture);
 
 
         receiverNumber = validPhoneNumber(getIntent().getStringExtra("contactNumber"));

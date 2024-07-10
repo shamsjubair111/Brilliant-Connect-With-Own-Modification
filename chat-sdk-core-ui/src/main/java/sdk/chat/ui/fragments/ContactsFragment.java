@@ -7,14 +7,11 @@
 
 package sdk.chat.ui.fragments;
 
-import static sdk.chat.ui.ContactUtils.contactArrayList;
 import static sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -30,14 +27,12 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.i18n.phonenumbers.NumberParseException;
 import com.jakewharton.rxrelay2.PublishRelay;
 
 import org.pmw.tinylog.Logger;
@@ -48,7 +43,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -64,7 +58,6 @@ import sdk.chat.core.types.SearchActivityType;
 import sdk.chat.core.utils.UserListItemConverter;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.Contact;
-import sdk.chat.ui.ContactRecyclerViewAdapter;
 import sdk.chat.ui.ContactsAdapter;
 import sdk.chat.ui.R;
 import sdk.chat.ui.adapters.UsersListAdapter;
@@ -81,7 +74,6 @@ import sdk.guru.common.RX;
 public class ContactsFragment extends BaseFragment implements SearchSupported, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int REQUEST_READ_CONTACTS = 123;
-    private ContactsAdapter adapter1; //public
     protected UsersListAdapter adapter;
     protected PublishRelay<User> onClickRelay = PublishRelay.create();
     protected PublishRelay<User> onLongClickRelay = PublishRelay.create();
@@ -95,6 +87,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     protected List<Contact> contacts = new ArrayList<>();
     protected Set<Contact> registeredContacts = new HashSet<>();
     protected Set<String> registeredUsers = new HashSet<>(); // default
+    private ContactsAdapter adapter1;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -109,13 +102,8 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         root = view.findViewById(R.id.root);
 
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            //ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        } else {
-            if (contactArrayList == null) {
-                LoaderManager.getInstance(this).initLoader(0, null, this);
-            }
-        }
+        LoaderManager.getInstance(this).initLoader(0, null, this);
+
         initViews();
 
         //loadData(true);
@@ -128,7 +116,6 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         super.onStart();
 
         addListeners();
-
     }
 
     @Override
@@ -317,25 +304,21 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     @Override
 
     public void filter(String text) {
-        filter = text;
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            List<Contact> filteredContacts = contacts.stream()
-                    .filter(contact -> contact.getName().toLowerCase().startsWith(text.toLowerCase()))
-                    .collect(Collectors.toList());
-
-            //adapter1 = new ContactRecyclerViewAdapter(getActivity(), filteredContacts, registeredUsers);
-            adapter1 = new ContactsAdapter(filteredContacts);
-
-
-            if (recyclerView != null) {
-                recyclerView.setAdapter(adapter1);
-            } else {
-                Log.e("ContactsFragment", "RecyclerView is null");
+        List<Contact> filteredContacts = new ArrayList<>();
+        for (Contact contact : contacts) {
+            if (contact.getName().toLowerCase().contains(text.toLowerCase())) {
+                filteredContacts.add(contact);
             }
         }
 
+        //adapter1 = new ContactRecyclerViewAdapter(getActivity(), filteredContacts, registeredUsers);
+        adapter1 = new ContactsAdapter(getActivity(), filteredContacts, registeredUsers);
 
+        if (recyclerView != null) {
+            recyclerView.setAdapter(adapter1);
+        } else {
+            Log.e("ContactsFragment", "RecyclerView is null");
+        }
 
 //        loadData(false);
     }
@@ -358,18 +341,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-        return new CursorLoader(
-                getActivity(),
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                new String[]{
-                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                        ContactsContract.CommonDataKinds.Phone.NUMBER,
-                        ContactsContract.CommonDataKinds.Phone.PHOTO_URI
-                },
-                null,
-                null,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
-        );
+        return new CursorLoader(getActivity(), ContactsContract.CommonDataKinds.Phone.CONTENT_URI, new String[]{ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.PHOTO_URI}, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
     }
 
     @Override
@@ -382,47 +354,39 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                 String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 String photoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
 
-                if(!addedContacts.contains(validPhoneNumber(phoneNumber))){
-                    Contact e = new Contact(name, phoneNumber, photoUri);
-                    contacts.add(e);
-                    addedContacts.add(validPhoneNumber(phoneNumber));
+                String validPhoneNumber = validPhoneNumber(phoneNumber);
+
+                if (!addedContacts.contains(validPhoneNumber)) {
+                    Contact contact = new Contact(name, phoneNumber, photoUri);
+                    contacts.add(contact);
+                    addedContacts.add(validPhoneNumber);
                 }
             } while (cursor.moveToNext());
-            cursor.close();
         }
 
         loadAdapter();
         loadAddContactList();
     }
 
-    private String normalizePhoneNumber(String phoneNumber) {
-        return phoneNumber.replaceAll("[^\\d]", "");
-    }
     private void loadAddContactList() {
         for (Contact contact : registeredContacts) {
-            dm.add(ChatSDK.core()
-                    .getUserForEntityID(validPhoneNumber(contact.getNumber()))
-                    .flatMapCompletable(user -> {
-                        user.setAvatarURL(contact.getPhoto());
-                        String name = contact.getName();
-                        user.setName(name);
-                        user.setPhoneNumber(contact.getNumber());
+            dm.add(ChatSDK.core().getUserForEntityID(validPhoneNumber(contact.getNumber())).flatMapCompletable(user -> {
+                user.setAvatarURL(contact.getPhoto());
+                String name = contact.getName();
+                user.setName(name);
+                user.setPhoneNumber(contact.getNumber());
 
-
-                        return ChatSDK.contact().addContact(user, ConnectionType.Contact);
-                    })
-                    .subscribe(() -> {
-                        Logger.debug("Success");
-                    }, error -> {
-                        Logger.debug("Error: " + error.getMessage());
-                    }));
+                return ChatSDK.contact().addContact(user, ConnectionType.Contact);
+            }).subscribe(() -> {
+                Logger.debug("Success");
+            }, error -> {
+                Logger.debug("Error: " + error.getMessage());
+            }));
         }
-
-
     }
 
     protected void loadAdapter() {
-        adapter1 = new ContactsAdapter(contacts);
+        adapter1 = new ContactsAdapter(getActivity(), contacts, registeredUsers);
 
         if (recyclerView != null) {
             recyclerView.setAdapter(adapter1);
