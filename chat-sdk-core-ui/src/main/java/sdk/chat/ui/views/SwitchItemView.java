@@ -45,7 +45,7 @@ public class SwitchItemView extends LinearLayout {
         LayoutInflater.from(getContext()).inflate(R.layout.view_switch_item, this, true);
 
         imageView = findViewById(R.id.imageView);
-        textView = findViewById(R.id.textView);
+        textView = findViewById(R.id.callDuration);
         switchMaterial = findViewById(R.id.switchMaterial);
         root = findViewById(R.id.root);
     }

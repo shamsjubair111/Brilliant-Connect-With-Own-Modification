@@ -41,10 +41,17 @@ import org.webrtc.SessionDescription;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.TimerTask;
 
 import sdk.chat.core.session.ChatSDK;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class ReceiverActivityAudio extends AppCompatActivity implements JanusCallHandlerInterface {
+
+    private static Timer timer;
+    private static long startTime;
     private Websocket websocket;
     public static long sessionId = 0;
     public long handleId = 0;
@@ -76,6 +83,11 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        timer = new Timer();
+
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true);
             setTurnScreenOn(true);
@@ -415,6 +427,8 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                 }
                 break;
             case "webrtcup":
+                startTime = System.currentTimeMillis();
+                startTimer();
                 System.out.println("webrtcup");
                 websocket.showToast("webrtcup");
                 break;
@@ -431,6 +445,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
 //                    websocket.showToast("Data Inserted");
 ////                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
 //                }
+                stopTimer();
                 websocket.stopKeepAliveTimer();
 //                websocket.showToast("hangup");
                 websocket.closeSocket();
@@ -502,6 +517,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
 //            websocket.showToast("Data Inserted");
 ////            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
 //        }
+        stopTimer();
         try {
             websocket.sendMessage(message.toJson(message));
         } catch (IOException e) {
@@ -557,6 +573,34 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
         // super.onBackPressed(); // Comment this super call to avoid calling finish() or fragmentmanager's backstack pop operation.
     }
 
+    public  void startTimer() {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                long duration = System.currentTimeMillis() - startTime;
+                System.out.println("Call duration: " + duration / 1000 + " seconds");
+
+
+                String formattedDuration = formatDuration(duration / 1000);
+                runOnUiThread(() -> binding.callDuration.setText(formattedDuration));
+
+            }
+        }, 1000, 1000); // Start updating every second
+    }
+
+    public  void stopTimer() {
+        timer.cancel();
+        long duration = System.currentTimeMillis() - startTime;
+
+    }
+
+
+    private String formatDuration(long durationInSeconds) {
+        long hours = durationInSeconds / 3600;
+        long minutes = (durationInSeconds % 3600) / 60;
+        long seconds = durationInSeconds % 60;
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
 
 
 }

@@ -46,7 +46,14 @@ import java.util.concurrent.TimeUnit;
 
 import sdk.chat.core.session.ChatSDK;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerInterface {
+
+
+    private static Timer timer;
+    private static long startTime;
     private Websocket websocket;
     public static long sessionId = 0;
     public long handleId = 0;
@@ -73,6 +80,10 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+        timer = new Timer();
+
+
         binding = ActivityCallBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setCallLayoutVisible();
@@ -90,6 +101,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
         binding.videoButton.setVisibility(View.GONE);
         binding.contactName.setText(getIntent().getStringExtra("contactName"));
         binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
+
     }
     public static String removePlusIfPresent(String str) {
         if (str != null && !str.isEmpty() && str.charAt(0) == '+') {
@@ -359,6 +371,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
             websocket.showToast("Data Inserted");
 //            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
         }
+        stopTimer();
         try {
             websocket.sendMessage(message.toJson(message));
         } catch (IOException e) {
@@ -505,6 +518,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
 
                     if(message.getJsep().getSdp()!=null) {
                         System.out.println("Got answer SDP");
+
                         JanusMessage.Jsep = message.getJsep();
                         SessionDescription session = new SessionDescription(
                                 SessionDescription.Type.ANSWER, message.getJsep().getSdp());
@@ -551,8 +565,11 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 }
                 break;
             case "webrtcup":
+                startTime = System.currentTimeMillis();
+                startTimer();
                 System.out.println("webrtcup");
                 websocket.showToast("webrtcup");
+
                 break;
             case "media":
 
@@ -570,6 +587,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                     websocket.showToast("Data Inserted");
 //                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
                 }
+                stopTimer();
                 finish();
 //                finishAffinity();
 //                handleHangup(json);
@@ -595,6 +613,35 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 System.out.println("Unknown message/event  '" + janusType + "' on session " + sessionId);
                 System.out.println(message.toString());
         }
+    }
+
+    public  void startTimer() {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                long duration = System.currentTimeMillis() - startTime;
+                System.out.println("Call duration: " + duration / 1000 + " seconds");
+
+
+                String formattedDuration = formatDuration(duration / 1000);
+                runOnUiThread(() -> binding.callDuration.setText(formattedDuration));
+
+            }
+        }, 1000, 1000); // Start updating every second
+    }
+
+    public  void stopTimer() {
+        timer.cancel();
+        long duration = System.currentTimeMillis() - startTime;
+
+    }
+
+
+    private String formatDuration(long durationInSeconds) {
+        long hours = durationInSeconds / 3600;
+        long minutes = (durationInSeconds % 3600) / 60;
+        long seconds = durationInSeconds % 60;
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
 }

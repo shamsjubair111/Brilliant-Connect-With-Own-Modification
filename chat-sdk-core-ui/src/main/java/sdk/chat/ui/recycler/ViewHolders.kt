@@ -86,7 +86,7 @@ class ToggleViewModel(val title: String, var enabled: StartingValue, val onChang
 open class RadioViewHolder(parentView: ViewGroup) :
         SmartViewHolder<RadioViewModel>(parentView, R.layout.recycler_view_holder_radio) {
 
-    open var textView:TextView  = itemView.findViewById(R.id.textView)
+    open var textView:TextView  = itemView.findViewById(R.id.callDuration)
     open var radioButton: RadioButton = itemView.findViewById(R.id.radioButton)
 
     override fun bind(item: RadioViewModel) {
@@ -98,7 +98,7 @@ open class RadioViewHolder(parentView: ViewGroup) :
 open class SectionViewHolder(parentView: ViewGroup) :
         SmartViewHolder<SectionViewModel>(parentView, R.layout.recycler_view_holder_section) {
 
-    open var textView:TextView  = itemView.findViewById(R.id.textView)
+    open var textView:TextView  = itemView.findViewById(R.id.callDuration)
     open var topBorder: View = itemView.findViewById(R.id.topBorder)
     open var bottomBorder: View = itemView.findViewById(R.id.bottomBorder)
 
@@ -126,7 +126,7 @@ open class SectionViewHolder(parentView: ViewGroup) :
 open class NavigationViewHolder(parentView: ViewGroup) :
         SmartViewHolder<NavigationViewModel>(parentView, R.layout.recycler_view_holder_navigation) {
 
-    open var textView:TextView  = itemView.findViewById(R.id.textView)
+    open var textView:TextView  = itemView.findViewById(R.id.callDuration)
     open var imageView:ImageView  = itemView.findViewById(R.id.imageView)
 
     init {
@@ -145,7 +145,7 @@ open class NavigationViewHolder(parentView: ViewGroup) :
 open class ButtonViewHolder(parentView: ViewGroup) :
         SmartViewHolder<ButtonViewModel>(parentView, R.layout.recycler_view_holder_button) {
 
-    open var textView:TextView  = itemView.findViewById(R.id.textView)
+    open var textView:TextView  = itemView.findViewById(R.id.callDuration)
 
     override fun bind(item: ButtonViewModel) {
         textView.text = item.title
@@ -166,7 +166,7 @@ open class ToggleViewHolder(parentView: ViewGroup) :
     protected var model: ToggleViewModel? = null
 //    protected var checked = false
 
-    open var textView:TextView  = itemView.findViewById(R.id.textView)
+    open var textView:TextView  = itemView.findViewById(R.id.callDuration)
     open var switchMaterial:SwitchMaterial  = itemView.findViewById(R.id.switchMaterial)
 
     init {

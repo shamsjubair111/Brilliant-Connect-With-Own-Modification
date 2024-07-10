@@ -146,6 +146,17 @@
         app:layout_constraintStart_toStartOf="@+id/contactName"
         app:layout_constraintTop_toBottomOf="@+id/contactName" />
 
+    <TextView
+        android:id="@+id/callDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/contactNumber"
+        app:layout_constraintStart_toStartOf="@+id/contactNumber"
+        app:layout_constraintTop_toBottomOf="@+id/contactNumber" />
+
     <ImageView
         android:id="@+id/end_call_button"
         android:layout_width="56dp"
@@ -159,6 +170,7 @@
         app:srcCompat="@drawable/cancel" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="140dp"
         android:layout_marginLeft="63dp"
@@ -209,29 +221,29 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:layout_weight="0.3"
                 android:id="@+id/hold_button"
                 android:layout_width="23dp"
                 android:layout_height="53dp"
+                android:layout_weight="0.3"
                 android:clickable="true"
                 android:focusable="true"
                 app:srcCompat="@drawable/holdbutton" />
 
 
             <ImageView
-                android:layout_weight="0.3"
                 android:id="@+id/minimize_button"
                 android:layout_width="45dp"
                 android:layout_height="55dp"
+                android:layout_weight="0.3"
                 android:clickable="true"
                 android:focusable="true"
                 app:srcCompat="@drawable/minimizebutton" />
 
             <ImageView
-                android:layout_weight="0.3"
                 android:id="@+id/keypad_button"
                 android:layout_width="38dp"
                 android:layout_height="57dp"
+                android:layout_weight="0.3"
                 android:clickable="true"
                 android:focusable="true"
                 app:srcCompat="@drawable/keypadbutton" />

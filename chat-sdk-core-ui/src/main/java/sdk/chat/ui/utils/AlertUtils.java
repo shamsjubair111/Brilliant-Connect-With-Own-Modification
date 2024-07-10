@@ -27,7 +27,7 @@ public class AlertUtils implements Consumer<Throwable> {
             builder.setCancelable(false); // if you want user to wait for some process to finish,
             LayoutInflater inflater = LayoutInflater.from(provider.getContext());
             View view = inflater.inflate(R.layout.dialog_progress, null);
-            textView = view.findViewById(R.id.textView);
+            textView = view.findViewById(R.id.callDuration);
             builder.setView(view);
             dialog = builder.create();
         }
