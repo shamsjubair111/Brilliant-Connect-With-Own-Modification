@@ -104,11 +104,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                 .into(userPicture);
 
 
-        try {
-            receiverNumber = validPhoneNumber(getIntent().getStringExtra("contactNumber"));
-        } catch (NumberParseException e) {
-            throw new RuntimeException(e);
-        }
+        receiverNumber = validPhoneNumber(getIntent().getStringExtra("contactNumber"));
 
 
         videoCall.setOnClickListener(new View.OnClickListener() {

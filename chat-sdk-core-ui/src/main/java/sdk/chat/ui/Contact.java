@@ -6,6 +6,11 @@ public class Contact {
     private String number;
     private String photo;
 
+    public Contact(String name, String number, String photo) {
+        this.name = name;
+        this.number = number;
+        this.photo = photo;
+    }
     public Contact(long id, String name, String number, String photo) {
         this.id = id;
         this.name = name;

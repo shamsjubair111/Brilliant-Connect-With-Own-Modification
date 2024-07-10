@@ -6,30 +6,24 @@ import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import org.pmw.tinylog.Logger;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,16 +32,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import sdk.chat.core.dao.User;
-import sdk.chat.core.dao.Thread;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.ConnectionType;
-import sdk.chat.ui.api.RegisteredUserService;
-import sdk.chat.ui.fragments.ChatFragment;
 import sdk.guru.common.DisposableMap;
-import android.database.Cursor;
-
-import com.google.i18n.phonenumbers.NumberParseException;
 
 public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
 
@@ -99,11 +84,7 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
        inviteText.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View v) {
-               try {
-                   sendInvite(validPhoneNumber(list.get(position).getNumber()));
-               } catch (NumberParseException e) {
-                   throw new RuntimeException(e);
-               }
+               sendInvite(validPhoneNumber(list.get(position).getNumber()));
            }
        });
 
@@ -137,15 +118,11 @@ public class ContactListViewAdapter extends ArrayAdapter<Contact>  {
                 Intent intent = new Intent(getContext(), ContactProfile.class);
                 intent.putExtra("contactName",list.get(position).getName());
                 intent.putExtra("contactNumber",list.get(position).getNumber());
-                try {
-                    if(registeredUsers.contains(validPhoneNumber(list.get(position).getNumber()))){
-                        intent.putExtra("registered","yes");
-                    }
-                    else{
-                        intent.putExtra("registered","no");
-                    }
-                } catch (NumberParseException e) {
-                    throw new RuntimeException(e);
+                if(registeredUsers.contains(validPhoneNumber(list.get(position).getNumber()))){
+                    intent.putExtra("registered","yes");
+                }
+                else{
+                    intent.putExtra("registered","no");
                 }
 
                 getContext().startActivity(intent);

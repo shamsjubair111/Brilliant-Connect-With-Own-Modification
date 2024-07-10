@@ -63,9 +63,9 @@ import sdk.chat.core.types.ConnectionType;
 import sdk.chat.core.types.SearchActivityType;
 import sdk.chat.core.utils.UserListItemConverter;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.Constants;
 import sdk.chat.ui.Contact;
 import sdk.chat.ui.ContactRecyclerViewAdapter;
+import sdk.chat.ui.ContactsAdapter;
 import sdk.chat.ui.R;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.api.RegisteredUserService;
@@ -81,7 +81,7 @@ import sdk.guru.common.RX;
 public class ContactsFragment extends BaseFragment implements SearchSupported, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int REQUEST_READ_CONTACTS = 123;
-    private ContactRecyclerViewAdapter adapter1; //public
+    private ContactsAdapter adapter1; //public
     protected UsersListAdapter adapter;
     protected PublishRelay<User> onClickRelay = PublishRelay.create();
     protected PublishRelay<User> onLongClickRelay = PublishRelay.create();
@@ -324,7 +324,8 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                     .filter(contact -> contact.getName().toLowerCase().startsWith(text.toLowerCase()))
                     .collect(Collectors.toList());
 
-            adapter1 = new ContactRecyclerViewAdapter(getActivity(), filteredContacts, registeredUsers);
+            //adapter1 = new ContactRecyclerViewAdapter(getActivity(), filteredContacts, registeredUsers);
+            adapter1 = new ContactsAdapter(filteredContacts);
 
 
             if (recyclerView != null) {
@@ -357,74 +358,49 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-        switch (id) {
-            case 0:
-                return new CursorLoader(getActivity(), ContactsContract.CommonDataKinds.Phone.CONTENT_URI, Constants.PROJECTION_NUMBERS, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " ASC");
-            default:
-                return new CursorLoader(getActivity(), ContactsContract.Contacts.CONTENT_URI, Constants.PROJECTION_DETAILS, null, null, ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " ASC");
-        }
+        return new CursorLoader(
+                getActivity(),
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                new String[]{
+                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                        ContactsContract.CommonDataKinds.Phone.NUMBER,
+                        ContactsContract.CommonDataKinds.Phone.PHOTO_URI
+                },
+                null,
+                null,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
+        );
     }
 
     @Override
-    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        switch (loader.getId()) {
-            case 0:
-                phones = new HashMap<>();
-                if (data != null) {
-                    while (!data.isClosed() && data.moveToNext()) {
-                        long contactId = data.getLong(0);
-                        String phone = data.getString(1);
-                        List<String> list;
-                        if (phones.containsKey(contactId)) {
-                            list = phones.get(contactId);
-                        } else {
-                            list = new ArrayList<>();
-                            phones.put(contactId, list);
-                        }
-                        list.add(phone);
-                    }
-                    data.close();
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+        Set<String> addedContacts = new HashSet<>();
+        registeredUsers = RegisteredUserService.listRegisteredUsers();
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                String photoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
+
+                if(!addedContacts.contains(validPhoneNumber(phoneNumber))){
+                    Contact e = new Contact(name, phoneNumber, photoUri);
+                    contacts.add(e);
+                    addedContacts.add(validPhoneNumber(phoneNumber));
                 }
-                LoaderManager.getInstance(this).initLoader(1, null, this);
-                break;
-            case 1:
-                if (data != null) {
-                    registeredUsers = RegisteredUserService.listRegisteredUsers();
-                    Set<String> addedContactIds = new HashSet<>();
-                    while (!data.isClosed() && data.moveToNext()) {
-                        long contactId = data.getLong(0);
-                        String name = data.getString(1);
-                        String photo = data.getString(2);
-                        List<String> contactPhones = phones.get(contactId);
-                        if (contactPhones != null) {
-                            for (String phone : contactPhones) {
-                                try {
-                                    String validPhoneNumber = validPhoneNumber(phone);
-                                    if (phone != null && !addedContactIds.contains(validPhoneNumber)) {
-                                        Contact e = new Contact(contactId, name, phone, photo);
-                                        contacts.add(e);
-                                        addedContactIds.add(validPhoneNumber);
-                                        if (registeredUsers.contains(validPhoneNumber)) {
-                                            registeredContacts.add(e);
-                                        }
-                                    }
-                                } catch (NumberParseException e) {
-//                                    throw new RuntimeException(e);
-                                }
-                            }
-                        }
-                    }
-                    data.close();
-                    loadAdapter();
-                    loadAddContactList();
-                }
+            } while (cursor.moveToNext());
+            cursor.close();
         }
+
+        loadAdapter();
+        loadAddContactList();
     }
 
+    private String normalizePhoneNumber(String phoneNumber) {
+        return phoneNumber.replaceAll("[^\\d]", "");
+    }
     private void loadAddContactList() {
-        try {
-            for (Contact contact : registeredContacts) {
-                dm.add(ChatSDK.core()
+        for (Contact contact : registeredContacts) {
+            dm.add(ChatSDK.core()
                     .getUserForEntityID(validPhoneNumber(contact.getNumber()))
                     .flatMapCompletable(user -> {
                         user.setAvatarURL(contact.getPhoto());
@@ -440,16 +416,13 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                     }, error -> {
                         Logger.debug("Error: " + error.getMessage());
                     }));
-            }
-        } catch (NumberParseException e) {
-            throw new RuntimeException(e);
         }
 
 
     }
 
     protected void loadAdapter() {
-        adapter1 = new ContactRecyclerViewAdapter(getContext(), contacts, registeredUsers);
+        adapter1 = new ContactsAdapter(contacts);
 
         if (recyclerView != null) {
             recyclerView.setAdapter(adapter1);
