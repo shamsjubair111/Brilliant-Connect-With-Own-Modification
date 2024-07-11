@@ -18,7 +18,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="0dp"
-        android:fontFamily="?incomingUserNameTextFont"
+        android:fontFamily="@font/helvetica"
         android:textColor="?incomingUserNameTextColor"
         android:textSize="?incomingUserNameTextSize"
         app:layout_constraintEnd_toEndOf="@id/image"

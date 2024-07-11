@@ -39,7 +39,7 @@ public class IconItemView extends LinearLayout {
         LayoutInflater.from(getContext()).inflate(R.layout.view_icon_item, this, true);
 
         imageView = findViewById(R.id.imageView);
-        textView = findViewById(R.id.textView);
+        textView = findViewById(R.id.callDuration);
         root = findViewById(R.id.root);
 
         

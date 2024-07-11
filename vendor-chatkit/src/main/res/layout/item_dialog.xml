@@ -76,7 +76,7 @@
             android:layout_marginTop="-5dp"
             android:background="@drawable/bubble_circle"
             android:ellipsize="end"
-            android:fontFamily="@string/font_fontFamily_medium"
+            android:fontFamily="@font/helvetica"
             android:gravity="center"
             android:lines="1"/>
 

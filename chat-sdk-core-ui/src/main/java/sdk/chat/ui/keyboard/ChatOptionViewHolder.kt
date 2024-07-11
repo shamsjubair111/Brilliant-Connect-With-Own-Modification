@@ -13,7 +13,7 @@ import smartadapter.viewholder.SmartViewHolder
 class ChatOptionViewHolder(parentView: ViewGroup):
     SmartViewHolder<ChatOptionModel>(parentView, R.layout.recycler_view_holder_chat_option) {
 
-    open var textView: TextView = itemView.findViewById(R.id.textView)
+    open var textView: TextView = itemView.findViewById(R.id.callDuration)
     open var imageView: ImageView = itemView.findViewById(R.id.imageView)
 
     override fun bind(item: ChatOptionModel) {
