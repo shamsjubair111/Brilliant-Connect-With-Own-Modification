@@ -42,6 +42,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
     private ImageView chatIcon;
     private ImageView appAudioCall;
     private String receiverNumber;
+    private String receiverName;
 
 
     public ArrayList<Integer> imageList = new ArrayList<>(Arrays.asList(
@@ -71,7 +72,8 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
         chatIcon = findViewById(R.id.chatIcon);
         appAudioCall = findViewById(R.id.imageView7);
 
-        userNameTextView.setText(getIntent().getStringExtra("contactName"));
+        receiverName = getIntent().getStringExtra("contactName");
+        userNameTextView.setText(receiverName);
         int imageResId = getIntent().getIntExtra("imageResId", -1);
 
 
@@ -102,7 +104,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                     Intent intent = new Intent(getApplicationContext(), AppToAppVideo.class);
                     intent.putExtra("receiverNumber", receiverNumber);
                     intent.putExtra("type", "video");
-                    intent.putExtra("contactName", getIntent().getStringExtra("contactName"));
+                    intent.putExtra("contactName", receiverName);
                     //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
 
@@ -134,7 +136,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                     Intent intent = new Intent(getApplicationContext(), AppToAppAudio.class);
                     intent.putExtra("receiverNumber", receiverNumber);
                     intent.putExtra("type", "audio");
-                    intent.putExtra("contactName", getIntent().getStringExtra("contactName"));
+                    intent.putExtra("contactName", receiverName);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 } else {
@@ -150,7 +152,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                 Intent intent = new Intent(ContactProfile.this, OutgoingCall.class);
                 intent.putExtra("receiverNumber", receiverNumber);
                 intent.putExtra("activityName", "ContactProfile");
-                intent.putExtra("contactName", getIntent().getStringExtra("contactName"));
+                intent.putExtra("contactName", receiverName);
                 startActivity(intent);
             }
         });
