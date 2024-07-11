@@ -48,6 +48,7 @@
                         android:id="@+id/callDuration"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/helvetica"
                         android:text="Abelson"
                         android:textSize="20dp"
                         android:textColor="#000000"/>
@@ -56,6 +57,7 @@
                         android:id="@+id/textView2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/helvetica"
                         android:text="+8801912335544"
                         android:textSize="14dp"
                         android:textColor="#BCBCBC"

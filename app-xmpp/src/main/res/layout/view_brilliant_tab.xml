@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:textSize="@dimen/_15sdp"
-        android:fontFamily="@font/inter_regular"
+        android:fontFamily="@font/helvetica"
         android:textColor="@color/textOrange"
         android:text="@string/calls"
         android:gravity="center_vertical"

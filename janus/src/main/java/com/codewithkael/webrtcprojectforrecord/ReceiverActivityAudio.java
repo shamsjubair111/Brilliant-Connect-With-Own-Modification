@@ -84,7 +84,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        timer = new Timer();
 
 
 
@@ -428,14 +428,13 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                 break;
             case "webrtcup":
 
-
+                startTimer();
                 System.out.println("webrtcup");
+
                 websocket.showToast("webrtcup");
                 break;
             case "media":
-                timer = new Timer();
                 startTime = System.currentTimeMillis();
-                startTimer();
                 System.out.println("media received");
                 break;
             case "hangup":

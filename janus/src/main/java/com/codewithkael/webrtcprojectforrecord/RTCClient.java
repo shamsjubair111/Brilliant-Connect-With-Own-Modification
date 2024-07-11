@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class RTCClient {
 
@@ -300,16 +298,6 @@ public class RTCClient {
         return transactionID;
     }
 
-    public static String modifySdp(String sdp) {
-        // Pattern to match the exact fmtp line for Opus
-        String opusFmtpPattern = "a=fmtp:111 minptime=10;useinbandfec=1";
-        String newFmtp = "a=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=16000";
-
-        // Replace the old fmtp line with the new one
-        String modifiedSdp = sdp.replace(opusFmtpPattern, newFmtp);
-
-        return modifiedSdp;
-    }
 
     public void call(String target, long handleId, long sessionId, String type) {
         MediaConstraints constraints = new MediaConstraints();
@@ -335,6 +323,7 @@ public class RTCClient {
                         String sdp = sessionDescription.description;
                         String type = sessionDescription.type.toString().toLowerCase();
                         JanusMessage.Body body;
+
 //                        sdp = sdp.replace("opus/48000/2", "opus/16000/2");
                         if (websocket.dynamicClassInstance instanceof OutgoingCall) {
                             sdp = sdp.replaceAll("(\\r)", "");
@@ -343,7 +332,6 @@ public class RTCClient {
                         } else if (websocket.dynamicClassInstance instanceof AppToAppAudio) {
                             sdp = sdp.replaceAll("(\\r)", "");
                             sdp = SDPParser.filterCodecs(sdp);
-                            sdp = modifySdp(sdp);
                             body = new JanusMessage.Body("call", target);
                         } else {
                             body = new JanusMessage.Body("call", target);

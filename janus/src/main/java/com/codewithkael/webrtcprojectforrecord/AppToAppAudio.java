@@ -77,7 +77,6 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
     public static void onReceived() {
         rtcClient.startLocalAudio();
         rtcClient.call(receiver, handleId, sessionId, type);
-        startTime = System.currentTimeMillis();
     }
 
     @Override
@@ -353,7 +352,6 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                 websocket.showToast("webrtcup");
                 break;
             case "media":
-                timer = new Timer();
                 startTime = System.currentTimeMillis();
                 System.out.println("media received");
                 break;

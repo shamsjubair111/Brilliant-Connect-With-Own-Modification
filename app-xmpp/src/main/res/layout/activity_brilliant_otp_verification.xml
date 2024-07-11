@@ -16,7 +16,7 @@
         />
     <TextView
         android:id="@+id/backText"
-        android:fontFamily="@font/inter_regular"
+        android:fontFamily="@font/helvetica"
         android:layout_width="wrap_content"
         android:layout_height="25dp"
         android:textColor="@color/textPrimary"
@@ -30,6 +30,7 @@
     <TextView
         android:id="@+id/tvLogin"
         android:layout_width="wrap_content"
+        android:fontFamily="@font/helvetica"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="@string/enter_otp"
@@ -46,6 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         style="@style/BodyTextViewStyle"
+        android:fontFamily="@font/helvetica"
         android:layout_marginTop="30dp"
         android:paddingHorizontal="30dp"
         android:text="@string/code_has_been_sent__"
@@ -83,6 +85,7 @@
         android:layout_gravity="center_horizontal"
         style="@style/BodyTextViewStyle"
         android:layout_marginTop="30dp"
+        android:fontFamily="@font/helvetica"
         android:paddingHorizontal="30dp"
         android:text="@string/resend__"
         android:textSize="17sp"
@@ -108,6 +111,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:fontFamily="@font/helvetica"
         style="@style/BodyTextViewStyle"
         android:layout_marginTop="30dp"
         android:paddingHorizontal="30dp"
@@ -125,6 +129,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         style="@style/BodyTextViewStyle"
+        android:fontFamily="@font/helvetica"
         android:layout_marginTop="30dp"
         android:paddingHorizontal="30dp"
         android:text="@string/failure"

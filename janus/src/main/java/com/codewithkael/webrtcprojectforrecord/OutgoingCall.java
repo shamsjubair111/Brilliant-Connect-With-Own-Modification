@@ -565,14 +565,15 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 }
                 break;
             case "webrtcup":
-                startTime = System.currentTimeMillis();
+
                 startTimer();
                 System.out.println("webrtcup");
                 websocket.showToast("webrtcup");
 
                 break;
-            case "media":
 
+            case "media":
+                startTime = System.currentTimeMillis();
                 System.out.println("media received");
                 break;
             case "hangup":
