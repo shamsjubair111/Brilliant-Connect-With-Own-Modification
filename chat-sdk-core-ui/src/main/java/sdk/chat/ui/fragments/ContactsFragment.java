@@ -9,9 +9,11 @@ package sdk.chat.ui.fragments;
 
 import static sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -27,6 +29,8 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -83,8 +87,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     protected List<User> sourceUsers = new ArrayList<>();
     protected RecyclerView recyclerView;
     protected ConstraintLayout root;
-    protected Map<Long, List<String>> phones = new HashMap<>();
-    protected List<Contact> contacts = new ArrayList<>();
+    protected List<Contact> contacts;
     protected Set<Contact> registeredContacts = new HashSet<>();
     protected Set<String> registeredUsers = new HashSet<>(); // default
     private ContactsAdapter adapter1;
@@ -101,12 +104,18 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         root = view.findViewById(R.id.root);
-
-        LoaderManager.getInstance(this).initLoader(0, null, this);
+        registeredUsers = RegisteredUserService.listRegisteredUsers();
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS);
+        } else {
+            if (contacts == null) {
+                LoaderManager.getInstance(this).initLoader(0, null, this);
+            }
+        }
 
         initViews();
 
-        //loadData(true);
+        loadData(true);
 
         return view;
     }
@@ -311,7 +320,6 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
             }
         }
 
-        //adapter1 = new ContactRecyclerViewAdapter(getActivity(), filteredContacts, registeredUsers);
         adapter1 = new ContactsAdapter(getActivity(), filteredContacts, registeredUsers);
 
         if (recyclerView != null) {
@@ -320,7 +328,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
             Log.e("ContactsFragment", "RecyclerView is null");
         }
 
-//        loadData(false);
+        loadData(false);
     }
 
 
@@ -346,9 +354,9 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
-        Set<String> addedContacts = new HashSet<>();
-        registeredUsers = RegisteredUserService.listRegisteredUsers();
-        if (cursor != null && cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst() && contacts == null) {
+            Set<String> addedContacts = new HashSet<>();
+            contacts = new ArrayList<>();
             do {
                 String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                 String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
@@ -360,6 +368,9 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
                     Contact contact = new Contact(name, phoneNumber, photoUri);
                     contacts.add(contact);
                     addedContacts.add(validPhoneNumber);
+                    if (registeredUsers.contains(validPhoneNumber)) {
+                        registeredContacts.add(contact);
+                    }
                 }
             } while (cursor.moveToNext());
         }
@@ -397,6 +408,6 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-
+        contacts.clear();
     }
 }

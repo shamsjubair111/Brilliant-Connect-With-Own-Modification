@@ -3,10 +3,8 @@ package sdk.chat.ui;
 import static sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,15 +12,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.codewithkael.webrtcprojectforrecord.AppToAppAudio;
 import com.codewithkael.webrtcprojectforrecord.AppToAppVideo;
 import com.codewithkael.webrtcprojectforrecord.OutgoingCall;
-import com.google.i18n.phonenumbers.NumberParseException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 import io.reactivex.CompletableObserver;
 import io.reactivex.annotations.NonNull;
@@ -80,12 +76,13 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
 
 
         textView9.setText(getIntent().getStringExtra("contactNumber"));
-        byte[] byteArray = getIntent().getByteArrayExtra("contactImage");
 
-        if (byteArray.length != 0) {
-            Bitmap photoBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-            userPicture = findViewById(R.id.userPicture);
-            userPicture.setImageBitmap(photoBitmap);
+
+        userPicture = findViewById(R.id.userPicture);
+        String contactImage = getIntent().getStringExtra("contactImage");
+        if(!Objects.equals(contactImage, "")){
+            Uri contactImageUri = Uri.parse(contactImage);
+            userPicture.setImageURI(contactImageUri);
         }
 
 //        Glide.with(this)

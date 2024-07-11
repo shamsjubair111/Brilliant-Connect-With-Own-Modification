@@ -35,7 +35,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
 
     private final Context context;
     private final Set<String> registeredUsers;
-    private final LayoutInflater inflater;
     private final List<String> colors = Arrays.asList("#A1DD70", "#EE4E4E", "#E49BFF", "#3ABEF9", "#ffffff", "#FF7F3E");
     private List<Contact> contacts;
 
@@ -43,7 +42,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         this.context = context;
         this.contacts = contacts;
         this.registeredUsers = registeredUsers;
-        this.inflater = LayoutInflater.from(context);
     }
 
     public void setContacts(List<Contact> contacts) {
@@ -101,10 +99,9 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
             intent.putExtra("contactNumber", contactNumber);
 
             if (contactPhoto != null) {
-                byte[] photoData = contactPhoto.getBytes();
-                intent.putExtra("contactImage", photoData);
+                intent.putExtra("contactImage", contactPhoto);
             } else{
-                intent.putExtra("contactImage", new byte[0]);
+                intent.putExtra("contactImage", "");
             }
 
             if (registeredUsers.contains(validContactNumber)) {
