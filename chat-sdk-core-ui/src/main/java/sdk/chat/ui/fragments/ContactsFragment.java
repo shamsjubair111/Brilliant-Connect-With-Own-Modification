@@ -311,11 +311,15 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
     }
 
     @Override
-
     public void filter(String text) {
+        if (contacts == null) {
+            Log.e("ContactsFragment", "Contacts list is null");
+            return;
+        }
+
         List<Contact> filteredContacts = new ArrayList<>();
         for (Contact contact : contacts) {
-            if (contact.getName().toLowerCase().contains(text.toLowerCase())) {
+            if (contact.getName() != null && contact.getName().toLowerCase().contains(text.toLowerCase())) {
                 filteredContacts.add(contact);
             }
         }
@@ -375,8 +379,10 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
             } while (cursor.moveToNext());
         }
 
-        loadAdapter();
-        loadAddContactList();
+        if (contacts != null) {
+            loadAdapter();
+            loadAddContactList();
+        }
     }
 
     private void loadAddContactList() {

@@ -16,22 +16,22 @@ import com.codewithkael.webrtcprojectforrecord.AppToAppVideo
 import com.codewithkael.webrtcprojectforrecord.CallRecords
 import com.codewithkael.webrtcprojectforrecord.OutgoingCall
 import sdk.chat.demo.xmpp.R
+import sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber
 import java.util.Arrays
 import java.util.Locale
 
 //class CustomAdapter(private val context: Context, private val contactData: List<Map<String, String>>) : BaseAdapter() {
-class CustomAdapter(private val context: Context, private var contactData: List<CallRecords>) : BaseAdapter() {
+class CustomAdapter(private val context: Context, private var contactData: List<CallRecords>) :
+    BaseAdapter() {
 
-    var colors: ArrayList<String> = ArrayList(mutableListOf(
-            "#A1DD70",
-            "#EE4E4E",
-            "#E49BFF",
-            "#3ABEF9",
-            "#ffffff",
-            "#FF7F3E"
-    ))
+    var colors: ArrayList<String> = ArrayList(
+        mutableListOf(
+            "#A1DD70", "#EE4E4E", "#E49BFF", "#3ABEF9", "#ffffff", "#FF7F3E"
+        )
+    )
 
-    var imageList: java.util.ArrayList<Int> = java.util.ArrayList(Arrays.asList(
+    var imageList: java.util.ArrayList<Int> = java.util.ArrayList(
+        Arrays.asList(
             sdk.chat.ui.R.drawable.ragnar,
             sdk.chat.ui.R.drawable.sazid_vai,
             sdk.chat.ui.R.drawable.suchi_apu,
@@ -41,7 +41,8 @@ class CustomAdapter(private val context: Context, private var contactData: List<
             sdk.chat.ui.R.drawable.donald_trump,
             sdk.chat.ui.R.drawable.messi,
             sdk.chat.ui.R.drawable.ronaldo
-    ))
+        )
+    )
 
     fun clear() {
 //        contactData = emptyList()
@@ -66,7 +67,7 @@ class CustomAdapter(private val context: Context, private var contactData: List<
         val view = inflater.inflate(R.layout.call_item, parent, false)
 
         val userImage: ImageView = view.findViewById(R.id.userImage)
-        val letterImage:TextView = view.findViewById(R.id.letterImage);
+        val letterImage: TextView = view.findViewById(R.id.letterImage)
         val displayNameTextView: TextView = view.findViewById(R.id.userContactName)
         val phoneNumberTextView: TextView = view.findViewById(R.id.userContactNumber)
         val imageViewAppToSip: ImageView = view.findViewById(R.id.imageViewAppToSip)
@@ -101,14 +102,12 @@ class CustomAdapter(private val context: Context, private var contactData: List<
 //        letterImage.setVisibility(View.VISIBLE)
 
         val splittedArray = contact.contactName.trim { it <= ' ' }.split("[\\s]+".toRegex())
-            .dropLastWhile { it.isEmpty() }
-            .toTypedArray()
+            .dropLastWhile { it.isEmpty() }.toTypedArray()
         val st =
             if (splittedArray.size < 2) splittedArray[0][0].toString() else splittedArray[0][0].toString() + "" + splittedArray[1][0]
 //        letterImage.setText(st.uppercase(Locale.getDefault()))
 //        letterImage.setTextColor(Color.parseColor(colors.get(position % colors.size)))
 //        letterImage.setTypeface(null, Typeface.BOLD);
-
 
 
 //        userImage.setImageResource(R.drawable.profile_circle)
@@ -119,12 +118,12 @@ class CustomAdapter(private val context: Context, private var contactData: List<
 
         if (position % 2 == 0) {
             userImage.setImageResource(imageList[position % imageList.size])
-            letterImage.setVisibility(View.GONE)
+            letterImage.visibility = View.GONE
         } else {
-            letterImage.setText(st.uppercase(Locale.getDefault()))
+            letterImage.text = st.uppercase(Locale.getDefault())
             letterImage.setTextColor(Color.parseColor(colors[position % colors.size]))
             letterImage.setTypeface(null, Typeface.BOLD)
-            letterImage.setVisibility(View.VISIBLE)
+            letterImage.visibility = View.VISIBLE
         }
 
         // Set OnClickListener for each button based on the phoneNumber
@@ -133,42 +132,33 @@ class CustomAdapter(private val context: Context, private var contactData: List<
 
             val intent = Intent(context, OutgoingCall::class.java)
             intent.putExtra("receiverNumber", phoneNumber?.let { it1 -> validPhoneNumber(it1) })
-            intent.putExtra("contactName",contact.contactName);
+            intent.putExtra("contactName", contact.contactName)
             context.startActivity(intent)
         }
 
         imageViewVideo.setOnClickListener {
-            imageViewVideo.animate();
+            imageViewVideo.animate()
             // Perform action for button2 based on phoneNumber
 //            val intent = Intent(context, VideoActivity::class.java)
             val intent = Intent(context, AppToAppVideo::class.java)
             intent.putExtra("type", "video")
-            intent.putExtra("receiverNumber",phoneNumber);
-            intent.putExtra("contactName",contact.contactName);
+            intent.putExtra("receiverNumber", phoneNumber)
+            intent.putExtra("contactName", contact.contactName)
             context.startActivity(intent)
 
         }
 
         imageViewAppToApp.setOnClickListener {
-            imageViewAppToApp.animate();
+            imageViewAppToApp.animate()
             // Perform action for button3 based on phoneNumber
 //            val intent = Intent(context, VideoActivity::class.java)
             val intent = Intent(context, AppToAppAudio::class.java)
             intent.putExtra("type", "audio")
-            intent.putExtra("receiverNumber",phoneNumber);
-            intent.putExtra("contactName",contact.contactName);
+            intent.putExtra("receiverNumber", phoneNumber)
+            intent.putExtra("contactName", contact.contactName)
             context.startActivity(intent)
         }
 
         return view
-    }
-
-    fun validPhoneNumber(mobileNumber: String): String? {
-        var mobileNumber = mobileNumber
-        if (mobileNumber.length < 11) return mobileNumber
-        mobileNumber = mobileNumber.replace("[\\s-]+".toRegex(), "")
-        mobileNumber = mobileNumber.substring(mobileNumber.length - 11)
-        mobileNumber = "88$mobileNumber"
-        return mobileNumber
     }
 }

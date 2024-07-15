@@ -1,71 +1,45 @@
 package sdk.chat.app.xmpp.telco
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
-import android.database.Cursor
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Build
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ListView
-import android.widget.SimpleCursorAdapter
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.CursorLoader
-import androidx.loader.content.Loader
-import androidx.recyclerview.widget.RecyclerView
 import com.codewithkael.webrtcprojectforrecord.CallRecords
 import com.codewithkael.webrtcprojectforrecord.SQLiteCallFragmentHelper
 import com.lassi.common.utils.Logger
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
-import sdk.chat.ui.CallRecyclerViewAdapter
-import sdk.chat.ui.api.RegisteredUserService
 import sdk.chat.ui.fragments.BaseFragment
 import sdk.chat.ui.interfaces.SearchSupported
 import java.util.Locale
-import java.util.function.Predicate
-import java.util.stream.Collectors
 
-data class Contact(
-    var id: Long,
-    var name: String,
-    var number: String,
-    var photo: String?
-)
-class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.LoaderCallbacks<Cursor> {
+class BrilliantCallsFragment : BaseFragment(), SearchSupported {
     private lateinit var listViewContacts: ListView
-    var adapter1: CallRecyclerViewAdapter? = null
-    private lateinit var contactsAdapter: SimpleCursorAdapter
-    protected var recyclerView: RecyclerView? = null
     private lateinit var fab: ImageView
-    private val CONTACTS_PERMISSION_CODE = 101
-    var registeredUsers = hashSetOf<String>()
     private lateinit var adapter: CustomAdapter
-    private var phones: HashMap<Long, MutableList<String>> = hashMapOf()
-    protected val contacts: MutableList<Contact> = ArrayList()
 
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+    private var allRecords: List<CallRecords> = mutableListOf()
+    private var filteredContacts: MutableList<CallRecords> = mutableListOf()
+
     override fun getLayout(): Int {
         return R.layout.fragment_brilliant_calls
     }
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_brilliant_calls, container, true)
         listViewContacts = view.findViewById(R.id.contactListView)
         fab = view.findViewById(R.id.fab)
-
-
 
         return view
     }
@@ -74,37 +48,36 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
-        val connectivityManager = requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         networkCallback = object : ConnectivityManager.NetworkCallback() {
             @SuppressLint("CheckResult")
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                if(ChatSDK.auth().cachedCredentialsAvailable()) {
+                if (ChatSDK.auth().cachedCredentialsAvailable()) {
                     ChatSDK.auth().authenticate().subscribe({
-                        Logger.d("Re Authentication","Authentication succeeded")
+                        Logger.d("Re Authentication", "Authentication succeeded")
                     }, { error ->
-                        Logger.d("Re Authentication","Authentication failed")
+                        Logger.d("Re Authentication", "Authentication failed")
                     })
                 }
             }
-
         }
-
         connectivityManager.registerDefaultNetworkCallback(networkCallback)
+
+        loadDataFromDatabase()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        val connectivityManager = requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
-
     @SuppressLint("Range")
     override fun initViews() {
-
+        Logger.d("reloading", "Text is null or empty")
     }
 
     override fun clearData() {
@@ -116,131 +89,39 @@ class BrilliantCallsFragment: BaseFragment(), SearchSupported, LoaderManager.Loa
     }
 
     override fun filter(text: String?) {
-        // TODO: Implement filtering data if needed
-       // contactsAdapter.filter.filter(text)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val sqLiteCallFragmentHelper = SQLiteCallFragmentHelper(context)
-            val list: List<CallRecords> = sqLiteCallFragmentHelper.getAllRecodrs()
-            val filteredContacts = list.stream()
-                    .filter(Predicate<CallRecords> { contact: CallRecords -> contact.contactName.lowercase(Locale.getDefault()).startsWith(text!!.lowercase(Locale.getDefault())) })
-                    .collect(Collectors.toList())
-
-            adapter = context?.let { CustomAdapter(it, filteredContacts) }!!
-
-            if (filteredContacts != null) {
-                listViewContacts.adapter = adapter
-            }
+        if (text != null) {
+            filteredContacts = allRecords.filter { contact ->
+                contact.contactName.lowercase(Locale.getDefault())
+                    .contains(text.lowercase(Locale.getDefault()))
+            }.toMutableList()
+            updateAdapter(filteredContacts)
         }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        val sqLiteCallFragmentHelper = SQLiteCallFragmentHelper(context)
-        val list: List<CallRecords> = sqLiteCallFragmentHelper.getAllRecodrs()
-        adapter = context?.let { CustomAdapter(it, list) }!!
-
-        listViewContacts.adapter = adapter
-
-        //loaderManager.initLoader(0, null, this)
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS)
-            != PackageManager.PERMISSION_GRANTED) {
-            // Request the permission
-            //requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), CONTACTS_PERMISSION_CODE)
-        } else {
-            // Permission already granted, you can initiate loading contacts or any other action
-//            loaderManager.initLoader(0, null, this)
-
-
-
-
-
-
-
-
-        }
-    }
-
-    override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-
-        return when (id) {
-            0 -> CursorLoader(
-                requireActivity(),
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                Constants.PROJECTION_NUMBERS,
-                null,
-                null,
-                null
-            )
-            else -> CursorLoader(
-                requireActivity(),
-                ContactsContract.Contacts.CONTENT_URI,
-                Constants.PROJECTION_DETAILS,
-                null,
-                null,
-                null
-            )
-        }
-    }
-
-    override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
-        // Process the loaded data and update UI
-        when (loader.id) {
-            0 -> {
-                data?.let {
-                    while (!it.isClosed && it.moveToNext()) {
-                        val contactId = it.getLong(0)
-                        val phone = it.getString(1)
-                        val list = phones.getOrPut(contactId) { mutableListOf() }
-                        list.add(phone)
-                    }
-                    it.close()
-                }
-                loaderManager.initLoader(1, null, this)
-            }
-            1 -> {
-                registeredUsers = RegisteredUserService.listRegisteredUsers() as HashSet<String>
-                data?.let {
-                    while (!it.isClosed && it.moveToNext()) {
-                        val contactId = it.getLong(0)
-                        val name = it.getString(1)
-                        val photo = it.getString(2)
-                        var contactPhones = phones[contactId]
-                        contactPhones?.forEach { phone ->
-                            var validPhoneNumber = validPhoneNumber(phone)
-                            if(validPhoneNumber != null && registeredUsers.contains(validPhoneNumber) && !contacts.contains(Contact(contactId, name, validPhoneNumber, photo))){
-                                contacts.add(Contact(contactId, name, validPhoneNumber, photo))
-                            }
-                        }
-                    }
-                    it.close()
-//                    adapter = context?.let { CustomAdapter(it, contacts) }!!
-//                    listViewContacts.adapter = adapter
-
-                }
-            }
-        }
-    }
-
-    override fun onLoaderReset(loader: Loader<Cursor>) {
-        adapter.clear()
-    }
-
-    fun validPhoneNumber(mobileNumber: String): String {
-        var mobileNumber = mobileNumber
-        mobileNumber = mobileNumber.replace("[\\s-]+".toRegex(), "")
-        if (mobileNumber.length < 11) return mobileNumber
-        mobileNumber = mobileNumber.substring(mobileNumber.length - 11)
-        mobileNumber = "88$mobileNumber"
-        return mobileNumber
+        updateAdapter(allRecords)
     }
 
     override fun onResume() {
         super.onResume()
-        val sqLiteCallFragmentHelper = SQLiteCallFragmentHelper(context)
-        val list: List<CallRecords> = sqLiteCallFragmentHelper.getAllRecodrs()
-        adapter = context?.let { CustomAdapter(it, list) }!!
+        updateAdapter(allRecords)
+    }
 
-        listViewContacts.adapter = adapter
+    private fun loadDataFromDatabase() {
+        val sqLiteCallFragmentHelper = context?.let { SQLiteCallFragmentHelper(it) }
+        if (sqLiteCallFragmentHelper != null) {
+            allRecords = sqLiteCallFragmentHelper.allRecords
+        } else {
+            Logger.d("LoadData", "SQLiteCallFragmentHelper is null")
+        }
+        updateAdapter(allRecords)
+    }
+
+    private fun updateAdapter(records: List<CallRecords>) {
+        context?.let {
+            adapter = CustomAdapter(it, records)
+            listViewContacts.adapter = adapter
+        }
     }
 }
