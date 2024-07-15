@@ -86,29 +86,31 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
         timer = new Timer();
 
 
-        binding = ActivityCallBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        setCallLayoutVisible();
+
+
         PermissionX.init(AppToAppAudio.this)
                 .permissions(
                         Manifest.permission.RECORD_AUDIO
                 ).request((allGranted, grantedList, deniedList) -> {
                     if (allGranted) {
+                        binding = ActivityCallBinding.inflate(getLayoutInflater());
+                        setContentView(binding.getRoot());
+                        setCallLayoutVisible();
                         init();
                         ChatSDK.callActivities.put("AppToAppAudio",this);
                     } else {
                         Toast.makeText(AppToAppAudio.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
                     }
                 });
+    }
+
+
+    private void init() {
         type = getIntent().getStringExtra("type");
 //        binding.switchCameraButton.setVisibility(View.GONE);
         binding.videoButton.setVisibility(View.GONE);
         binding.contactName.setText(getIntent().getStringExtra("contactName"));
         binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
-    }
-
-
-    private void init() {
         userName = ChatSDK.auth().getCurrentUserEntityID();       //ChatSDK.currentUser().getName() + "@localhost";
         receiver = getIntent().getStringExtra("receiverNumber") + "@localhost";
         websocket = new Websocket(this, AppToAppAudio.this);

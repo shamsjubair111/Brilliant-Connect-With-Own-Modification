@@ -85,22 +85,19 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
         super.onCreate(savedInstanceState);
 
         timer = new Timer();
-
-
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true);
             setTurnScreenOn(true);
         }
-        binding = ActivityCallBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        setCallLayoutVisible();
         PermissionX.init(ReceiverActivityAudio.this)
                 .permissions(
                         Manifest.permission.RECORD_AUDIO,
                         Manifest.permission.CAMERA
                 ).request((allGranted, grantedList, deniedList) -> {
                     if (allGranted) {
+                        binding = ActivityCallBinding.inflate(getLayoutInflater());
+                        setContentView(binding.getRoot());
+                        setCallLayoutVisible();
                         init();
                         ChatSDK.callActivities.put("ReceiverActivityAudio",this);
                     } else {

@@ -100,30 +100,31 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
 
         timer = new Timer();
 
-
-
         PermissionX.init(AppToAppVideo.this)
                 .permissions(
                         Manifest.permission.RECORD_AUDIO,
                         Manifest.permission.CAMERA
                 ).request((allGranted, grantedList, deniedList) -> {
                     if (allGranted) {
-                        init();
+                        binding = ActivityCallBinding.inflate(getLayoutInflater());
                         ChatSDK.callActivities.put("AppToAppVideo",this);
+                        setContentView(binding.getRoot());
+                        setCallLayoutVisible();
+                        init();
                     } else {
-                        Toast.makeText(AppToAppVideo.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
+                        Toast.makeText(AppToAppVideo.this, "You should accept camera and audio permissions", Toast.LENGTH_LONG).show();
+                        super.finish();
                     }
                 });
-        type = getIntent().getStringExtra("type");
-        binding.contactName.setText(getIntent().getStringExtra("contactName"));
-        binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
+
     }
 
 
     private void init() {
-        binding = ActivityCallBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        setCallLayoutVisible();
+        type = getIntent().getStringExtra("type");
+        binding.contactName.setText(getIntent().getStringExtra("contactName"));
+        binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
+
         userName = ChatSDK.auth().getCurrentUserEntityID();
         receiver = getIntent().getStringExtra("receiverNumber") + "@localhost";
         websocket = new Websocket(this, AppToAppVideo.this);
@@ -506,9 +507,9 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
     @Override
     public void finish() {
         rtcClient.stopLocalVideo();
-        super.finishAndRemoveTask();
         websocket.stopKeepAliveTimer();
         websocket.closeSocket();
+        super.finishAndRemoveTask();
     }
 
 
