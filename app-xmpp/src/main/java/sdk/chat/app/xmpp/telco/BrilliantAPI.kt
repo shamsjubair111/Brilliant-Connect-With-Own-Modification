@@ -1,7 +1,6 @@
 package sdk.chat.app.xmpp.telco
 
 import android.util.Log
-import android.widget.Toast
 import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MediaType.Companion.toMediaType
@@ -150,52 +149,58 @@ class BrilliantAPI {
             }
         }
     }
-    fun addBalance(user_id: String, amount:Double): Completable {
-        return Completable.create {
+    fun addBalance(userId: String, amount: Double): Completable {
+        return Completable.create { emitter ->
 
             val client = OkHttpClient()
 
             val mediaType = "application/json; charset=utf-8".toMediaType()
-            var json = JSONObject(mapOf("userId" to user_id, "amount" to amount))
+            val json = JSONObject(mapOf("userId" to userId, "amount" to amount))
             val body = json.toString().toRequestBody(mediaType)
 
             val request = Request.Builder()
-                .url(freeswitchURL + "/topup")
-                .post(body)
-                .build()
-
-            client.newCall(request).execute().use { response ->
-                val responseBody = response.body?.string()
-                if (response.isSuccessful) {
-                    it.onComplete()
-                } else {
-                    it.onError(IOException("Unexpected code $responseBody"))
-                }
-            }
-        }
-    }
-
-    fun checkBalance(user_id: String): Single<String> {
-        return Single.create { emitter ->
-
-            val client = OkHttpClient()
-
-            val mediaType = "application/json; charset=utf-8".toMediaType()
-            val json = JSONObject(mapOf("userId" to user_id))
-            val body = json.toString().toRequestBody(mediaType)
-
-            val request = Request.Builder()
-                .url(freeswitchURL + "/check-balance")
+                .url("$freeswitchURL/topup")
                 .post(body)
                 .build()
 
             try {
                 client.newCall(request).execute().use { response ->
                     val responseBody = response.body?.string()
-                    if (response.isSuccessful) {
-                        emitter.onSuccess(responseBody ?: "")
+                    if (response.isSuccessful && responseBody != null) {
+                        emitter.onComplete()
                     } else {
-                        emitter.onError(IOException("Unexpected code $responseBody"))
+                        val errorBody = responseBody ?: "Unknown error"
+                        emitter.onError(IOException("Unexpected code: ${response.code}, body: $errorBody"))
+                    }
+                }
+            } catch (e: Exception) {
+                emitter.onError(e)
+            }
+        }
+    }
+
+    fun checkBalance(userId: String): Single<String> {
+        return Single.create { emitter ->
+
+            val client = OkHttpClient()
+
+            val mediaType = "application/json; charset=utf-8".toMediaType()
+            val json = JSONObject(mapOf("userId" to userId))
+            val body = json.toString().toRequestBody(mediaType)
+
+            val request = Request.Builder()
+                .url("$freeswitchURL/check-balance")
+                .post(body)
+                .build()
+
+            try {
+                client.newCall(request).execute().use { response ->
+                    val responseBody = response.body?.string()
+                    if (response.isSuccessful && responseBody != null) {
+                        emitter.onSuccess(responseBody)
+                    } else {
+                        val errorBody = responseBody ?: "Unknown error"
+                        emitter.onError(IOException("Unexpected code: $response.code, body: $errorBody"))
                     }
                 }
             } catch (e: Exception) {

@@ -1,4 +1,3 @@
-
 package sdk.chat.app.xmpp.telco
 
 import android.content.Context
@@ -10,26 +9,27 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import sdk.chat.core.dao.Keys
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.ExtendServices
-import sdk.chat.ui.utils.ToastHelper
 import sdk.guru.common.RX
 
 class SettingsAdapter(private val context: Context, private val settingsData: List<SettingsItem>) :
     RecyclerView.Adapter<SettingsAdapter.SettingsViewHolder>() {
 
+    private val compositeDisposable = CompositeDisposable()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettingsViewHolder {
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.settings_item, parent, false)
-        //println("settings count" + getItemCount())
         return SettingsViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: SettingsViewHolder, position: Int) {
-        println("position" + position)
         val settings = settingsData[position]
-        println("settings.settingsMenu" + settings.settingsMenu)
         holder.bind(settings)
     }
 
@@ -37,30 +37,27 @@ class SettingsAdapter(private val context: Context, private val settingsData: Li
         return settingsData.size
     }
 
-//    inner class SettingsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-//        private val menuIcon: ImageView = itemView.findViewById(R.id.menuIcon)
-//        private val menuName: TextView = itemView.findViewById(R.id.menuName)
-//
-//        fun bind(tr: SettingsItem) {
-//            //println("settings" + settings.settingsIcon)
-//            menuIcon.setImageResource(tr.settingsIcon)
-//            menuName.text = tr.settingsMenu
-//        }
-//    }
+    override fun onViewRecycled(holder: SettingsViewHolder) {
+        super.onViewRecycled(holder)
+        holder.clearDisposables()
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        compositeDisposable.clear()
+    }
 
     inner class SettingsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private val menuIcon: ImageView = itemView.findViewById(R.id.menuIcon)
         private val menuName: TextView = itemView.findViewById(R.id.menuName)
         private lateinit var currentItem: SettingsItem
+        private val viewHolderDisposables = CompositeDisposable()
 
         init {
-            // Set click listener on the itemView
             itemView.setOnClickListener(this)
         }
 
-        // Implement onClick method
         override fun onClick(view: View?) {
-
             when (currentItem.settingsMenu) {
                 "Extended Services" -> {
                     val intent = Intent(context, ExtendServices::class.java)
@@ -72,44 +69,59 @@ class SettingsAdapter(private val context: Context, private val settingsData: Li
                 "Add Balance" -> {
                     addBalance()
                 }
-                // Add more cases as needed
                 else -> {
-
+                    // Handle other cases if needed
                 }
             }
         }
 
         fun bind(settings: SettingsItem) {
-            currentItem = settings // Store the current item for later reference
+            currentItem = settings
             menuIcon.setImageResource(settings.settingsIcon)
             menuName.text = settings.settingsMenu
         }
 
         fun addBalance() {
-            val phoneNumber = ChatSDK.auth().getCurrentUserEntityID().split("@")[0]
-            val amount = 20.0;
-            phoneNumber?.let {
-                Brilliant.shared().api.addBalance(it, amount)
+            val userEntityId = ChatSDK.shared().keyStorage.get(Keys.CurrentUserID);
+            val phoneNumber = userEntityId?.split("@")?.get(0)
+            val amount = 20.0
+
+            viewHolderDisposables.clear()
+            if (phoneNumber != null) {
+                val disposable: Disposable = Brilliant.shared().api.addBalance(phoneNumber, amount)
                     .observeOn(RX.main())
                     .subscribe({
                         Toast.makeText(context, "Balance added: $amount", Toast.LENGTH_SHORT).show()
                     }, { error ->
-                        Toast.makeText(context, "Error on adding balance: ${error.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Error adding balance: ${error.message}", Toast.LENGTH_SHORT).show()
                     })
+                viewHolderDisposables.add(disposable)
+            } else {
+                Toast.makeText(context, "Invalid phone number", Toast.LENGTH_SHORT).show()
             }
         }
 
         fun checkBalance() {
-            val phoneNumber = ChatSDK.auth().getCurrentUserEntityID().split("@")[0]
-            phoneNumber?.let {
-                Brilliant.shared().api.checkBalance(it)
+            val userEntityId = ChatSDK.shared().keyStorage.get(Keys.CurrentUserID);// ChatSDK.auth().getCurrentUserEntityID()
+            val phoneNumber = userEntityId?.split("@")?.get(0)
+
+            viewHolderDisposables.clear()
+            if (phoneNumber != null) {
+                val disposable: Disposable = Brilliant.shared().api.checkBalance(phoneNumber)
                     .observeOn(RX.main())
                     .subscribe({ response ->
                         Toast.makeText(context, "Your current balance: $response", Toast.LENGTH_SHORT).show()
                     }, { error ->
-                        Toast.makeText(context, "Error on checking balance: ${error.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Error checking balance: ${error.message}", Toast.LENGTH_SHORT).show()
                     })
+                viewHolderDisposables.add(disposable)
+            } else {
+                Toast.makeText(context, "Invalid phone number", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        fun clearDisposables() {
+            viewHolderDisposables.clear()
         }
     }
 }

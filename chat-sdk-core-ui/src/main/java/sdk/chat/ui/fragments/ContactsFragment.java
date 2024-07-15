@@ -408,6 +408,6 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-        contacts.clear();
+
     }
 }
