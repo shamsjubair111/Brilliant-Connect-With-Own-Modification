@@ -21,4 +21,28 @@ public class NumberStringFormater {
             return "";
         }
     }
+
+
+    public static String normalizePhoneNumber(String input) {
+        // Remove any non-numeric characters except '+'
+        String cleaned = input.replaceAll("[^0-9+]", "");
+
+        // Check if the number starts with +880
+        if (cleaned.startsWith("+880")) {
+            return cleaned;
+        }
+
+        // If the number starts with 880 but doesn't have a '+', add it
+        if (cleaned.startsWith("880")) {
+            return "+" + cleaned;
+        }
+
+        // If the number starts with 0, replace it with +880
+        if (cleaned.startsWith("0")) {
+            return "+880" + cleaned.substring(1);
+        }
+
+        // If none of the above, return as it is or handle invalid number case
+        return cleaned;
+    }
 }

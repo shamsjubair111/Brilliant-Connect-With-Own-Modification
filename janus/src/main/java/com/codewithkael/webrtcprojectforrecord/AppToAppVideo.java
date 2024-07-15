@@ -23,6 +23,7 @@ import com.codewithkael.webrtcprojectforrecord.databinding.ActivityCallBinding;
 import com.codewithkael.webrtcprojectforrecord.models.JanusCallHandlerInterface;
 import com.codewithkael.webrtcprojectforrecord.models.JanusMessage;
 import com.codewithkael.webrtcprojectforrecord.models.JanusResponse;
+import com.codewithkael.webrtcprojectforrecord.utils.NumberStringFormater;
 import com.codewithkael.webrtcprojectforrecord.utils.PeerConnectionObserver;
 import com.codewithkael.webrtcprojectforrecord.utils.RTCAudioManager;
 import com.google.gson.Gson;
@@ -272,7 +273,8 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
 
                 if (JanusResponse.plugin.getData().getErrorCode() == 476 || JanusResponse.plugin.getData().getResult().getEvent().contains("registered")) {
 
-                    String receiverNumber = getIntent().getStringExtra("receiverNumber");
+                    String receiverNumber = NumberStringFormater.normalizePhoneNumber(getIntent().getStringExtra("receiverNumber"));
+
                     String roomName = null;
                     roomName = ChatSDK.auth().getCurrentUserEntityID().split("@")[0];   //ChatSDK.currentUser().getName();
 

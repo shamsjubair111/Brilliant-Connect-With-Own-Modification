@@ -26,6 +26,7 @@ import com.codewithkael.webrtcprojectforrecord.databinding.ActivityCallBinding;
 import com.codewithkael.webrtcprojectforrecord.models.JanusCallHandlerInterface;
 import com.codewithkael.webrtcprojectforrecord.models.JanusMessage;
 import com.codewithkael.webrtcprojectforrecord.models.JanusResponse;
+import com.codewithkael.webrtcprojectforrecord.utils.NumberStringFormater;
 import com.codewithkael.webrtcprojectforrecord.utils.PeerConnectionObserver;
 import com.codewithkael.webrtcprojectforrecord.utils.RTCAudioManager;
 import com.google.gson.Gson;
@@ -112,7 +113,7 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
         binding.contactName.setText(getIntent().getStringExtra("contactName"));
         binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
         userName = ChatSDK.auth().getCurrentUserEntityID();       //ChatSDK.currentUser().getName() + "@localhost";
-        receiver = getIntent().getStringExtra("receiverNumber") + "@localhost";
+        receiver = NumberStringFormater.normalizePhoneNumber(getIntent().getStringExtra("receiverNumber")) + "@localhost";
         websocket = new Websocket(this, AppToAppAudio.this);
         if (userName != null) {
             websocket.initSocket(userName);
@@ -252,12 +253,12 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
 
                 if (JanusResponse.plugin.getData().getErrorCode() == 476 || JanusResponse.plugin.getData().getResult().getEvent().contains("registered")) {
 
-                    String receiverNumber = getIntent().getStringExtra("receiverNumber");
+                    String receiverNumber = NumberStringFormater.normalizePhoneNumber(getIntent().getStringExtra("receiverNumber"));
                     String roomName = null;
                     roomName = ChatSDK.auth().getCurrentUserEntityID().split("@")[0];   //ChatSDK.currentUser().getName();
 
                     String threadEntityID = receiverNumber + "@localhost";
-                    String senderId = ChatSDK.auth().getCurrentUserEntityID();      //ChatSDK.currentUser().getName() + "@localhost";
+                    String userThreadId = ChatSDK.auth().getCurrentUserEntityID();      //ChatSDK.currentUser().getName() + "@localhost";
                     HashMap<String, HashMap<String, String>> userIds = new HashMap<String, HashMap<String, String>>();
                     HashMap<String, String> users = new HashMap<String, String>();
                     users.put(threadEntityID, receiverNumber);
@@ -265,10 +266,10 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                     String action = "co.chatsdk.QuickReply";
                     String body = "video call";
                     int callType = 100;
-                    users.put(ThreadId, senderId);
+                    users.put(ThreadId, userThreadId);
                     newMessage.put(ThreadId, threadEntityID);
                     newMessage.put(SenderName, ChatSDK.auth().getCurrentUserEntityID().split("@")[0]);
-                    newMessage.put(SenderId, senderId);
+                    newMessage.put(SenderId, userThreadId);
                     newMessage.put(UserIds, users);
                     newMessage.put(Action, action);
                     newMessage.put(Body, body);
