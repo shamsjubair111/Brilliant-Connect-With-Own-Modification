@@ -14,11 +14,11 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,9 +46,8 @@ import java.util.TimerTask;
 import sdk.chat.core.session.ChatSDK;
 
 import java.util.Timer;
-import java.util.TimerTask;
 
-public class ReceiverActivityAudio extends AppCompatActivity implements JanusCallHandlerInterface {
+public class ReceiverActivity extends AppCompatActivity implements JanusCallHandlerInterface {
 
     private static Timer timer;
     private static long startTime;
@@ -89,7 +88,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
             setShowWhenLocked(true);
             setTurnScreenOn(true);
         }
-        PermissionX.init(ReceiverActivityAudio.this)
+        PermissionX.init(ReceiverActivity.this)
                 .permissions(
                         Manifest.permission.RECORD_AUDIO,
                         Manifest.permission.CAMERA
@@ -101,7 +100,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
                         init();
                         ChatSDK.callActivities.put("ReceiverActivityAudio",this);
                     } else {
-                        Toast.makeText(ReceiverActivityAudio.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ReceiverActivity.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
                     }
                 });
         type = getIntent().getStringExtra("type");
@@ -121,7 +120,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
         userName = ChatSDK.auth().getCurrentUserEntityID();
 
         receiver = getIntent().getStringExtra("senderNumber");
-        websocket = new Websocket( this,ReceiverActivityAudio.this);
+        websocket = new Websocket( this, ReceiverActivity.this);
         if (userName != null) {
             websocket.initSocket(userName);
         }
@@ -566,7 +565,7 @@ public class ReceiverActivityAudio extends AppCompatActivity implements JanusCal
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        Toast.makeText(ReceiverActivityAudio.this, "Call in progress", Toast.LENGTH_SHORT).show();
+        Toast.makeText(ReceiverActivity.this, "Call in progress", Toast.LENGTH_SHORT).show();
 
         // super.onBackPressed(); // Comment this super call to avoid calling finish() or fragmentmanager's backstack pop operation.
     }

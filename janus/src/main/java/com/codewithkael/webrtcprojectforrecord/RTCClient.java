@@ -3,7 +3,6 @@ package com.codewithkael.webrtcprojectforrecord;
 import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
 
 import com.codewithkael.webrtcprojectforrecord.models.JanusMessage;
 import com.codewithkael.webrtcprojectforrecord.utils.SDPParser;
@@ -406,7 +405,7 @@ public class RTCClient {
     public void answer(long sessionId, long handleId) {
 
         MediaConstraints constraints = new MediaConstraints();
-        this.type = ReceiverActivityAudio.getType();
+        this.type = ReceiverActivity.getType();
         if (type.equals("audio")) {
             constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false"));
         } else {

@@ -10,7 +10,7 @@ import android.util.Log;
 
 import com.codewithkael.webrtcprojectforrecord.AppToAppAudio;
 import com.codewithkael.webrtcprojectforrecord.AppToAppVideo;
-import com.codewithkael.webrtcprojectforrecord.ReceiverActivityAudio;
+import com.codewithkael.webrtcprojectforrecord.ReceiverActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -86,7 +86,7 @@ public class DefaultMessagingService extends FirebaseMessagingService {
             }
 
 
-            Intent answerIntent = new Intent(this, ReceiverActivityAudio.class);
+            Intent answerIntent = new Intent(this, ReceiverActivity.class);
             answerIntent.putExtra("senderNumber", senderNumber);
             answerIntent.putExtra("type", messageType);
 
@@ -123,7 +123,7 @@ public class DefaultMessagingService extends FirebaseMessagingService {
             IncomingCallActivity incomingCallActivity = (IncomingCallActivity) ChatSDK.callActivities.get("incomingCallActivity");
             AppToAppAudio appToAppAudioActivity = (AppToAppAudio) ChatSDK.callActivities.get("AppToAppAudio");
             AppToAppVideo appToAppVideoActivity = (AppToAppVideo) ChatSDK.callActivities.get("AppToAppVideo");
-            ReceiverActivityAudio receiverActivityAudio = (ReceiverActivityAudio) ChatSDK.callActivities.get("ReceiverActivityAudio");
+            ReceiverActivity receiverActivity = (ReceiverActivity) ChatSDK.callActivities.get("ReceiverActivityAudio");
             if (incomingCallActivity != null) {
                 incomingCallActivity.finishAndRemoveTask();
             }
@@ -133,8 +133,8 @@ public class DefaultMessagingService extends FirebaseMessagingService {
             if (appToAppVideoActivity != null) {
                 appToAppVideoActivity.finish();
             }
-            if (receiverActivityAudio != null) {
-                receiverActivityAudio.finishAndRemoveTask();
+            if (receiverActivity != null) {
+                receiverActivity.finishAndRemoveTask();
             }
 //            }
 

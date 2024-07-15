@@ -13,14 +13,22 @@ import static sdk.chat.core.push.AbstractPushHandler.UserIds;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
 import com.codewithkael.webrtcprojectforrecord.databinding.ActivityCallBinding;
 import com.codewithkael.webrtcprojectforrecord.models.JanusCallHandlerInterface;
@@ -97,6 +105,7 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                         binding = ActivityCallBinding.inflate(getLayoutInflater());
                         setContentView(binding.getRoot());
                         setCallLayoutVisible();
+//                        createNotificationChannel();
                         init();
                         ChatSDK.callActivities.put("AppToAppAudio",this);
                     } else {
@@ -107,6 +116,10 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
 
 
     private void init() {
+        // Set the flags to show the activity on the lock screen and turn the screen on
+
+
+//        setContentView(R.layout.activity_call);
         type = getIntent().getStringExtra("type");
 //        binding.switchCameraButton.setVisibility(View.GONE);
         binding.videoButton.setVisibility(View.GONE);
@@ -522,5 +535,51 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
+    public void startAudioService() {
+        Intent serviceIntent = new Intent(this, AudioService.class);
+        startService(serviceIntent);
+    }
+
+    // Function to stop the audio recording service
+    public void stopAudioService() {
+        Intent serviceIntent = new Intent(this, AudioService.class);
+        stopService(serviceIntent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        websocket.showToast("Audio is paused");
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Audio Service Channel";
+            String description = "Channel for Audio Service notifications";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("10000", name, importance);
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void showNotification() {
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "10000")
+                .setSmallIcon(R.drawable.minimizebutton)
+                .setContentTitle("Audio Service")
+                .setContentText("Tap to return to the app")
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(10000, builder.build());
+    }
 
 }

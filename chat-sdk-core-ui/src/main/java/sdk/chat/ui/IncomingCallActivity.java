@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.codewithkael.webrtcprojectforrecord.ReceiverActivityAudio;
+import com.codewithkael.webrtcprojectforrecord.ReceiverActivity;
 
 import notification.NotificationCancelActivity;
 import sdk.chat.core.session.ChatSDK;
@@ -70,7 +70,7 @@ public class IncomingCallActivity extends AppCompatActivity   {
                 finish();
                 ChatSDK.mediaStop();
                 String senderNumber = getIntent().getStringExtra("senderNumber");
-                Intent intent = new Intent(getApplicationContext(), ReceiverActivityAudio.class);
+                Intent intent = new Intent(getApplicationContext(), ReceiverActivity.class);
                 intent.putExtra("senderNumber", senderNumber);
                 String callType = getIntent().getStringExtra("type");
                 intent.putExtra("type", callType);
