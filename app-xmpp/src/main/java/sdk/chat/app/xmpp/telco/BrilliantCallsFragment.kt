@@ -100,7 +100,7 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        updateAdapter(allRecords)
+        loadDataFromDatabase();
     }
 
     override fun onResume() {

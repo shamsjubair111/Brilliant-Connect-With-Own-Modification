@@ -7,14 +7,17 @@ import android.widget.Button
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.textfield.TextInputEditText
 import com.hbb20.CountryCodePicker
+import kotlinx.coroutines.*
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.activities.BaseActivity
 
 class BrilliantOTPLoginActivity: BaseActivity() {
 
-    var ccp: CountryCodePicker? = null
-    var continueButton: Button? = null
+    private var ccp: CountryCodePicker? = null
+    private var continueButton: Button? = null
+    private val scope = CoroutineScope(Dispatchers.Main)
+
     override fun getLayout(): Int {
         return R.layout.activity_brilliant_opt_login
     }
@@ -40,27 +43,34 @@ class BrilliantOTPLoginActivity: BaseActivity() {
             continueButton?.isEnabled = false
             next()
         }
-
-
     }
 
-    fun validate(valid: Boolean) {
+    private fun validate(valid: Boolean) {
         continueButton?.let {
-            if(Brilliant.shared().debug) {
+            if (Brilliant.shared().debug) {
                 it.isEnabled = true
                 it.alpha = 1.0f
             } else {
                 it.isEnabled = valid
-                it.alpha = if(valid) 1.0f else 0.5f
+                it.alpha = if (valid) 1.0f else 0.5f
             }
         }
     }
 
-    public fun next() {
-        val intent = Intent(this, BrilliantOTPVerificationActivity::class.java)
-        ccp?.let {
-            intent.putExtra("phone-number", it.fullNumberWithPlus)
-            ChatSDK.ui().startActivity(this, intent)
+    private fun next() {
+        scope.launch {
+            val intent = Intent(this@BrilliantOTPLoginActivity, BrilliantOTPVerificationActivity::class.java)
+            ccp?.let {
+                intent.putExtra("phone-number", it.fullNumberWithPlus)
+                withContext(Dispatchers.Main) {
+                    ChatSDK.ui().startActivity(this@BrilliantOTPLoginActivity, intent)
+                }
+            }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
     }
 }
