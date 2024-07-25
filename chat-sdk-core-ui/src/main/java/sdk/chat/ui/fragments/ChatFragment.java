@@ -424,7 +424,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     public void reloadData() {
-//        chatView.notifyDataSetChanged();
+        chatView.notifyDataSetChanged(); // previously commented
     }
 
     @Override

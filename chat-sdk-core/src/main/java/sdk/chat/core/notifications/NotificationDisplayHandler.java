@@ -54,8 +54,8 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
 
         // We are not connected... so we can't mark read or reply
         NotificationBuilder builder = new NotificationBuilder(context);
-        builder.disableMarkRead();
-        builder.disableReply();
+//        builder.disableMarkRead();
+//        builder.disableReply();
         builder = builder.useDefault()
                     .setIntent(resultIntent)
                     .addIconForUserEntityID(userEntityID)
@@ -75,8 +75,8 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
 
         // We are not connected... so we can't mark read or reply
         NotificationBuilder builder = new NotificationBuilder(context);
-//        builder.disableMarkRead();
-//        builder.disableReply();
+        builder.disableMarkRead();
+        builder.disableReply();
 
         boolean connectedToAuto = connectedToAuto(context);
 

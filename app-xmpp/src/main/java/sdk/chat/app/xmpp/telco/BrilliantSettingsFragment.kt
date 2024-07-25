@@ -9,7 +9,8 @@ import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.fragments.BaseFragment
 data class SettingsItem(val settingsMenu: String, val settingsIcon: Int)
 class BrilliantSettingsFragment: BaseFragment() {
-    private lateinit var listViewSettings: RecyclerView
+    private lateinit var recyclerViewSettings: RecyclerView
+    private lateinit var adapter: SettingsAdapter
     override fun getLayout(): Int {
         return R.layout.fragment_brilliant_settings
     }
@@ -42,16 +43,11 @@ class BrilliantSettingsFragment: BaseFragment() {
         items.add(SettingsItem("Version 2.4.6", R.drawable.icon_version))
 
 
-        val recyclerViewSettings: RecyclerView = requireView().findViewById(R.id.recyclerView)
-        val adapter = context?.let { SettingsAdapter(it, items) }
+        recyclerViewSettings = requireView().findViewById(R.id.recyclerView)
+        adapter = SettingsAdapter(requireContext(), items)
         recyclerViewSettings.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        //recyclerViewSettings.layoutManager = LinearLayoutManager(requireContext())
 
         recyclerViewSettings.adapter = adapter
-
-
-        //val adapter = SettingsAdapter(this, items)
-        //recyclerView.adapter = adapter
     }
 
     override fun clearData() {
