@@ -75,7 +75,7 @@ public class NearbyUsersFragment extends BaseFragment {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
         recyclerView = view.findViewById(R.id.recyclerView);
-        textView = view.findViewById(R.id.textView);
+        textView = view.findViewById(R.id.textView2);
         adapter = new UsersListAdapter();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));

@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +45,12 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
     private String receiverNumber;
     private String receiverName;
 
+    private LinearLayout directCall;
+    private LinearLayout apptoappVideoCall;
+    private LinearLayout apptoappMessage;
+    private LinearLayout apptonumberSms;
+    private LinearLayout apptoappAudioCall;
+
 
     public ArrayList<Integer> imageList = new ArrayList<>(Arrays.asList(
             R.drawable.ragnar,
@@ -67,10 +74,11 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
         userNameTextView = findViewById(R.id.userNameTextView);
         textView9 = findViewById(R.id.textView9);
         backImage = findViewById(R.id.backImage);
-        videoCall = findViewById(R.id.videoCall);
-        imageView3 = findViewById(R.id.imageView3);
-        chatIcon = findViewById(R.id.chatIcon);
-        appAudioCall = findViewById(R.id.imageView7);
+        directCall = findViewById(R.id.directCall);
+        apptoappAudioCall = findViewById(R.id.apptoappAudioCall);
+        apptoappVideoCall = findViewById(R.id.apptoappVideoCall);
+        apptoappMessage = findViewById(R.id.apptoappMessage);
+        apptonumberSms = findViewById(R.id.apptonumberSms);
 
         receiverName = getIntent().getStringExtra("contactName");
         userNameTextView.setText(receiverName);
@@ -96,7 +104,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
         receiverNumber = validPhoneNumber(getIntent().getStringExtra("contactNumber"));
 
 
-        videoCall.setOnClickListener(new View.OnClickListener() {
+        apptoappVideoCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -115,7 +123,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
         });
 
 
-        chatIcon.setOnClickListener(new View.OnClickListener() {
+        apptoappMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -129,7 +137,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
             }
         });
 
-        appAudioCall.setOnClickListener(new View.OnClickListener() {
+        apptoappAudioCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (getIntent().getStringExtra("registered").equals("yes")) {
@@ -146,7 +154,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
         });
 
 
-        imageView3.setOnClickListener(new View.OnClickListener() {
+        directCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ContactProfile.this, OutgoingCall.class);
