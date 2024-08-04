@@ -2,6 +2,9 @@ package com.codewithkael.webrtcprojectforrecord.utils;
 
 public class NumberStringFormater {
     public static String reformatPhoneNumber(String input) {
+        if (input == null || input.isEmpty()) {
+            return "";
+        }
         String[] parts = input.split("@");
         // Consider only the part before the "@" for digit extraction
         String phonePart = parts[0];
@@ -24,6 +27,9 @@ public class NumberStringFormater {
 
 
     public static String normalizePhoneNumber(String input) {
+        if (input == null || input.isEmpty()) {
+            return "";
+        }
         // Remove any non-numeric characters except '+'
         String cleaned = input.replaceAll("[^0-9+]", "");
 
