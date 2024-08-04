@@ -1,23 +1,38 @@
 package sdk.chat.app.xmpp.telco
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.ListView
+import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.fragments.BaseFragment
+import android.util.Log
+
 data class SettingsItem(val settingsMenu: String, val settingsIcon: Int)
+
 class BrilliantSettingsFragment: BaseFragment() {
     private lateinit var recyclerViewSettings: RecyclerView
     private lateinit var adapter: SettingsAdapter
+
     override fun getLayout(): Int {
         return R.layout.fragment_brilliant_settings
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_brilliant_settings, container, false)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initViews()
+        try {
+            initViews()
+        } catch (e: Exception) {
+            Log.e("BrilliantSettingsFragment", "Error initializing views", e)
+        }
     }
 
     override fun initViews() {
@@ -42,19 +57,17 @@ class BrilliantSettingsFragment: BaseFragment() {
         items.add(SettingsItem("Why Brilliant Connect?", R.drawable.icon_why_brilliant))
         items.add(SettingsItem("Version 2.4.6", R.drawable.icon_version))
 
-
         recyclerViewSettings = requireView().findViewById(R.id.recyclerView)
         adapter = SettingsAdapter(requireContext(), items)
         recyclerViewSettings.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-
         recyclerViewSettings.adapter = adapter
     }
 
     override fun clearData() {
-
+        // Implement if needed
     }
 
     override fun reloadData() {
-
+        // Implement if needed
     }
 }

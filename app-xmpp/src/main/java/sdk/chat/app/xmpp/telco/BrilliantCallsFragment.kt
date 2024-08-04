@@ -20,6 +20,9 @@ import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.fragments.BaseFragment
 import sdk.chat.ui.interfaces.SearchSupported
 import java.util.Locale
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class BrilliantCallsFragment : BaseFragment(), SearchSupported {
     private lateinit var listViewContacts: ListView
@@ -37,10 +40,9 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_brilliant_calls, container, true)
+        val view = inflater.inflate(R.layout.fragment_brilliant_calls, container, false)
         listViewContacts = view.findViewById(R.id.contactListView)
         fab = view.findViewById(R.id.fab)
-
         return view
     }
 
@@ -91,8 +93,8 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
     override fun filter(text: String?) {
         if (text != null) {
             filteredContacts = allRecords.filter { contact ->
-                contact.contactName.lowercase(Locale.getDefault())
-                    .contains(text.lowercase(Locale.getDefault()))
+                contact.contactName?.lowercase(Locale.getDefault())
+                    ?.contains(text.lowercase(Locale.getDefault())) == true
             }.toMutableList()
             updateAdapter(filteredContacts)
         }
@@ -100,7 +102,7 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        loadDataFromDatabase();
+        loadDataFromDatabase()
     }
 
     override fun onResume() {
@@ -109,19 +111,26 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
     }
 
     private fun loadDataFromDatabase() {
-        val sqLiteCallFragmentHelper = context?.let { SQLiteCallFragmentHelper(it) }
-        if (sqLiteCallFragmentHelper != null) {
-            allRecords = sqLiteCallFragmentHelper.allRecords
-        } else {
-            Logger.d("LoadData", "SQLiteCallFragmentHelper is null")
+        CoroutineScope(Dispatchers.IO).launch {
+            val sqLiteCallFragmentHelper = context?.let { SQLiteCallFragmentHelper(it) }
+            if (sqLiteCallFragmentHelper != null) {
+                allRecords = sqLiteCallFragmentHelper.allRecords
+                Logger.d("LoadData", "Fetched ${allRecords.size} records")
+                CoroutineScope(Dispatchers.Main).launch {
+                    updateAdapter(allRecords)
+                }
+            } else {
+                Logger.d("LoadData", "SQLiteCallFragmentHelper is null")
+            }
         }
-        updateAdapter(allRecords)
     }
 
     private fun updateAdapter(records: List<CallRecords>) {
+        Logger.d("UpdateAdapter", "Updating adapter with ${records.size} records")
         context?.let {
             adapter = CustomAdapter(it, records)
             listViewContacts.adapter = adapter
+            adapter.notifyDataSetChanged()
         }
     }
 }

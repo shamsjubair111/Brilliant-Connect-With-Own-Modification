@@ -1,5 +1,8 @@
 package sdk.chat.core.base;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
@@ -15,6 +18,9 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
 
     protected String currentUserID = null;
     protected boolean isAuthenticatedThisSession = false;
+
+    private static final String PREFS_NAME = "CurrentUserIDPrefs";
+    private static final String PREF_KEY_CURRENT_USER_ID = "CurrentUserID";
 
     protected Completable authenticating;
     protected Completable loggingOut;
@@ -42,6 +48,12 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
 
         isAuthenticatedThisSession = true;
         ChatSDK.shared().getKeyStorage().put(Keys.CurrentUserID, currentUserID);
+
+        Context context = ChatSDK.shared().context();
+        SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PREF_KEY_CURRENT_USER_ID, currentUserID);
+        editor.apply();
     }
 
     public void clearCurrentUserEntityID() {
@@ -49,6 +61,12 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
         currentUserID = null;
         isAuthenticatedThisSession = false;
         ChatSDK.shared().getKeyStorage().remove(Keys.CurrentUserID);
+
+        Context context = ChatSDK.shared().context();
+        SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(PREF_KEY_CURRENT_USER_ID);
+        editor.apply();
     }
 
     /**
@@ -58,6 +76,12 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     public String getCurrentUserEntityID() {
         if (currentUserID == null || !isAuthenticated()) {
             currentUserID = ChatSDK.shared().getKeyStorage().get(Keys.CurrentUserID);
+
+            if (currentUserID == null) {
+                Context context = ChatSDK.shared().context();
+                SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                currentUserID = sharedPreferences.getString(PREF_KEY_CURRENT_USER_ID, null);
+            }
         }
         return currentUserID;
     }

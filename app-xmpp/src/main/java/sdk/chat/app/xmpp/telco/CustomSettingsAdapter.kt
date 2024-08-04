@@ -47,8 +47,7 @@ class SettingsAdapter(private val context: Context, private val settingsData: Li
         compositeDisposable.clear()
     }
 
-    inner class SettingsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
-        View.OnClickListener {
+    inner class SettingsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private val menuIcon: ImageView = itemView.findViewById(R.id.menuIcon)
         private val menuName: TextView = itemView.findViewById(R.id.menuName)
         private lateinit var currentItem: SettingsItem
@@ -74,7 +73,7 @@ class SettingsAdapter(private val context: Context, private val settingsData: Li
                 }
 
                 else -> {
-                    // Handle other cases if needed
+                    Toast.makeText(context, "Selected: ${currentItem.settingsMenu}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -86,24 +85,19 @@ class SettingsAdapter(private val context: Context, private val settingsData: Li
         }
 
         fun addBalance() {
-            val userEntityId = ChatSDK.shared().keyStorage.get(Keys.CurrentUserID)
+            val userEntityId = ChatSDK.auth().currentUserEntityID
             val phoneNumber = userEntityId?.split("@")?.get(0)
             val amount = 20.0
 
             viewHolderDisposables.clear()
             if (phoneNumber != null) {
-                val disposable: Disposable =
-                    Brilliant.shared().api.addBalance(phoneNumber, amount).observeOn(RX.main())
-                        .subscribe({
-                            Toast.makeText(context, "Balance added: $amount", Toast.LENGTH_SHORT)
-                                .show()
-                        }, { error ->
-                            Toast.makeText(
-                                context,
-                                "Error adding balance: ${error.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        })
+                val disposable: Disposable = Brilliant.shared().api.addBalance(phoneNumber, amount)
+                    .observeOn(RX.main())
+                    .subscribe({
+                        Toast.makeText(context, "Balance added: $amount", Toast.LENGTH_SHORT).show()
+                    }, { error ->
+                        Toast.makeText(context, "Error adding balance: ${error.message}", Toast.LENGTH_SHORT).show()
+                    })
                 viewHolderDisposables.add(disposable)
             } else {
                 Toast.makeText(context, "Invalid phone number", Toast.LENGTH_SHORT).show()
@@ -111,27 +105,18 @@ class SettingsAdapter(private val context: Context, private val settingsData: Li
         }
 
         fun checkBalance() {
-            val userEntityId =
-                ChatSDK.shared().keyStorage.get(Keys.CurrentUserID)// ChatSDK.auth().getCurrentUserEntityID()
+            val userEntityId = ChatSDK.auth().currentUserEntityID
             val phoneNumber = userEntityId?.split("@")?.get(0)
 
             viewHolderDisposables.clear()
             if (phoneNumber != null) {
-                val disposable: Disposable =
-                    Brilliant.shared().api.checkBalance(phoneNumber).observeOn(RX.main())
-                        .subscribe({ response ->
-                            Toast.makeText(
-                                context,
-                                "Your current balance: $response",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }, { error ->
-                            Toast.makeText(
-                                context,
-                                "Error checking balance: ${error.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        })
+                val disposable: Disposable = Brilliant.shared().api.checkBalance(phoneNumber)
+                    .observeOn(RX.main())
+                    .subscribe({ response ->
+                        Toast.makeText(context, "Your current balance: $response", Toast.LENGTH_SHORT).show()
+                    }, { error ->
+                        Toast.makeText(context, "Error checking balance: ${error.message}", Toast.LENGTH_SHORT).show()
+                    })
                 viewHolderDisposables.add(disposable)
             } else {
                 Toast.makeText(context, "Invalid phone number", Toast.LENGTH_SHORT).show()

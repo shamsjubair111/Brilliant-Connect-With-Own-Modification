@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -44,10 +46,10 @@ public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
                     id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     contactName + " VARCHAR(255), " +
                     contactNumber + " VARCHAR(255));");
-            Toast.makeText(context, "Table Created Successfully", Toast.LENGTH_SHORT).show();
+            showToast("Table Created Successfully");
         } catch (SQLException e) {
             Log.e("SQLiteCallFragmentHelper", "Error creating table", e);
-            Toast.makeText(context, "Exception Caught: " + e, Toast.LENGTH_SHORT).show();
+            showToast("Exception Caught: " + e);
         }
     }
 
@@ -58,9 +60,7 @@ public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
             // onCreate(db);
         } catch (SQLException e) {
             Log.e("SQLiteCallFragmentHelper", "Error upgrading table", e);
-            if (context != null) {
-                Toast.makeText(context, "Exception Caught onUpgrade", Toast.LENGTH_SHORT).show();
-            }
+            showToast("Exception Caught onUpgrade");
         }
     }
 
@@ -74,9 +74,7 @@ public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
             rowId = sqliteDatabase.insert(tableName, null, contentValues);
         } catch (SQLException e) {
             Log.e("SQLiteCallFragmentHelper", "Error inserting data", e);
-            if (context != null) {
-                Toast.makeText(context, "Error inserting data: " + e, Toast.LENGTH_SHORT).show();
-            }
+            showToast("Error inserting data: " + e);
         } finally {
             if (sqliteDatabase != null && sqliteDatabase.isOpen()) {
                 sqliteDatabase.close();
@@ -110,9 +108,7 @@ public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
             }
         } catch (SQLException e) {
             Log.e("SQLiteCallFragmentHelper", "Error reading data", e);
-            if (context != null) {
-                Toast.makeText(context, "Error reading data: " + e, Toast.LENGTH_SHORT).show();
-            }
+            showToast("Error reading data: " + e);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -123,5 +119,13 @@ public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
         }
 
         return returnList;
+    }
+
+    private void showToast(String message) {
+        if (context != null) {
+            new Handler(Looper.getMainLooper()).post(() ->
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            );
+        }
     }
 }

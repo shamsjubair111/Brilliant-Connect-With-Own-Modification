@@ -15,6 +15,7 @@ import com.codewithkael.webrtcprojectforrecord.AppToAppAudio
 import com.codewithkael.webrtcprojectforrecord.AppToAppVideo
 import com.codewithkael.webrtcprojectforrecord.CallRecords
 import com.codewithkael.webrtcprojectforrecord.OutgoingCall
+import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.utils.ValidPhoneNumberUtil.validPhoneNumber
 import java.util.Arrays
@@ -129,34 +130,38 @@ class CustomAdapter(private val context: Context, private var contactData: List<
         // Set OnClickListener for each button based on the phoneNumber
         imageViewAppToSip.setOnClickListener {
             // Perform action for button1 based on phoneNumber
-
-            val intent = Intent(context, OutgoingCall::class.java)
-            intent.putExtra("receiverNumber", phoneNumber?.let { it1 -> validPhoneNumber(it1) })
-            intent.putExtra("contactName", contact.contactName)
-            context.startActivity(intent)
+            if(ChatSDK.auth().currentUserEntityID!=null){
+                val intent = Intent(context, OutgoingCall::class.java)
+                intent.putExtra("receiverNumber", phoneNumber?.let { it1 -> validPhoneNumber(it1) })
+                intent.putExtra("contactName", contact.contactName)
+                context.startActivity(intent)
+            }
         }
 
         imageViewVideo.setOnClickListener {
             imageViewVideo.animate()
             // Perform action for button2 based on phoneNumber
-//            val intent = Intent(context, VideoActivity::class.java)
-            val intent = Intent(context, AppToAppVideo::class.java)
-            intent.putExtra("type", "video")
-            intent.putExtra("receiverNumber", phoneNumber)
-            intent.putExtra("contactName", contact.contactName)
-            context.startActivity(intent)
-
+            if(ChatSDK.auth().currentUserEntityID!=null){
+                //            val intent = Intent(context, VideoActivity::class.java)
+                val intent = Intent(context, AppToAppVideo::class.java)
+                intent.putExtra("type", "video")
+                intent.putExtra("receiverNumber", phoneNumber)
+                intent.putExtra("contactName", contact.contactName)
+                context.startActivity(intent)
+            }
         }
 
         imageViewAppToApp.setOnClickListener {
             imageViewAppToApp.animate()
             // Perform action for button3 based on phoneNumber
-//            val intent = Intent(context, VideoActivity::class.java)
-            val intent = Intent(context, AppToAppAudio::class.java)
-            intent.putExtra("type", "audio")
-            intent.putExtra("receiverNumber", phoneNumber)
-            intent.putExtra("contactName", contact.contactName)
-            context.startActivity(intent)
+            if(ChatSDK.auth().currentUserEntityID!=null){
+                //            val intent = Intent(context, VideoActivity::class.java)
+                val intent = Intent(context, AppToAppAudio::class.java)
+                intent.putExtra("type", "audio")
+                intent.putExtra("receiverNumber", phoneNumber)
+                intent.putExtra("contactName", contact.contactName)
+                context.startActivity(intent)
+            }
         }
 
         return view
