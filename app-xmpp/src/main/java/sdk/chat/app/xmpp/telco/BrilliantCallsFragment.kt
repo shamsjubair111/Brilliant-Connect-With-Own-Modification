@@ -88,6 +88,7 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
 
     override fun reloadData() {
         // TODO: Implement reloading data if needed
+        loadDataFromDatabase()
     }
 
     override fun filter(text: String?) {
