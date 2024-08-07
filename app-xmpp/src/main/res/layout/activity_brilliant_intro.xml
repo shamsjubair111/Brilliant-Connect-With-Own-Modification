@@ -54,7 +54,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="33dp"
-        android:fontFamily="@font/helvetica"
+        android:fontFamily="@font/roboto_medium"
         android:text="@string/next"
         android:textColor="@color/textPrimary"
         android:textSize="19dp"

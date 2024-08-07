@@ -108,13 +108,20 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
             @Override
             public void onClick(View v) {
 
+
                 if (getIntent().getStringExtra("registered").equals("yes")) {
-                    Intent intent = new Intent(getApplicationContext(), AppToAppVideo.class);
-                    intent.putExtra("receiverNumber", receiverNumber);
-                    intent.putExtra("type", "video");
-                    intent.putExtra("contactName", receiverName);
-                    //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+
+                    if(ChatSDK.auth().getCurrentUserEntityID()!=null) {
+                        Intent intent = new Intent(getApplicationContext(), AppToAppVideo.class);
+                        intent.putExtra("receiverNumber", receiverNumber);
+                        intent.putExtra("type", "video");
+                        intent.putExtra("contactName", receiverName);
+                        //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+                    else{
+                        Toast.makeText(ContactProfile.this, "Please try again later", Toast.LENGTH_SHORT).show();
+                    }
 
                 } else {
                     Toast.makeText(ContactProfile.this, "Number Not Registered", Toast.LENGTH_SHORT).show();
@@ -127,13 +134,17 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
             @Override
             public void onClick(View v) {
 
+                if(ChatSDK.auth().getCurrentUserEntityID()!=null) {
+                    User user = ChatSDK.db().fetchUserWithEntityID(receiverNumber + "@localhost");
 
-                User user = ChatSDK.db().fetchUserWithEntityID(receiverNumber + "@localhost");
-
-                dm.add(ChatSDK.thread().createThread("", User.convertIfPossible(Arrays.asList(user))).observeOn(RX.main()).subscribe(thread -> {
-                    ChatSDK.ui().startChatActivityForID(ContactProfile.this, thread.getEntityID());
-                    finish();
-                }, ContactProfile.this));
+                    dm.add(ChatSDK.thread().createThread("", User.convertIfPossible(Arrays.asList(user))).observeOn(RX.main()).subscribe(thread -> {
+                        ChatSDK.ui().startChatActivityForID(ContactProfile.this, thread.getEntityID());
+                        finish();
+                    }, ContactProfile.this));
+                }
+                else{
+                    Toast.makeText(ContactProfile.this, "Please try again later", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -141,12 +152,18 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
             @Override
             public void onClick(View v) {
                 if (getIntent().getStringExtra("registered").equals("yes")) {
-                    Intent intent = new Intent(getApplicationContext(), AppToAppAudio.class);
-                    intent.putExtra("receiverNumber", receiverNumber);
-                    intent.putExtra("type", "audio");
-                    intent.putExtra("contactName", receiverName);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+
+                    if(ChatSDK.auth().getCurrentUserEntityID()!=null) {
+                        Intent intent = new Intent(getApplicationContext(), AppToAppAudio.class);
+                        intent.putExtra("receiverNumber", receiverNumber);
+                        intent.putExtra("type", "audio");
+                        intent.putExtra("contactName", receiverName);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+                    else{
+                        Toast.makeText(ContactProfile.this, "Please try again later", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(ContactProfile.this, "Number Not Registered", Toast.LENGTH_SHORT).show();
                 }
@@ -157,11 +174,17 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
         directCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ContactProfile.this, OutgoingCall.class);
-                intent.putExtra("receiverNumber", receiverNumber);
-                intent.putExtra("activityName", "ContactProfile");
-                intent.putExtra("contactName", receiverName);
-                startActivity(intent);
+
+                if(ChatSDK.auth().getCurrentUserEntityID()!=null) {
+                    Intent intent = new Intent(ContactProfile.this, OutgoingCall.class);
+                    intent.putExtra("receiverNumber", receiverNumber);
+                    intent.putExtra("activityName", "ContactProfile");
+                    intent.putExtra("contactName", receiverName);
+                    startActivity(intent);
+                }
+                else{
+                    Toast.makeText(ContactProfile.this, "Please try again later", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

@@ -17,7 +17,7 @@
         android:id="@+id/menuName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/helvetica"
+        android:fontFamily="@font/roboto_medium"
         android:layout_marginLeft="14dp"
         android:text="Help"
         android:textColor="@color/black"
