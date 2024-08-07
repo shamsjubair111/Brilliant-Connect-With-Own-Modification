@@ -67,10 +67,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
+                android:ellipsize="end"
                 android:layout_marginBottom="1dp"
                 android:textColor="@color/brilliant_blue"
                 android:textSize="17sp"
-                android:textStyle="bold" />
+                 />
 
             <TextView
                 android:id="@+id/userContactNumber"

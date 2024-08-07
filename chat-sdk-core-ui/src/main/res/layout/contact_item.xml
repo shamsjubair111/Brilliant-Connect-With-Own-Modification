@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/brilliant_blue"
             android:textSize="17sp"
-            android:textStyle="bold" />
+             />
 
         <TextView
             android:id="@+id/userContactNumber"
