@@ -108,7 +108,7 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
 
     override fun onResume() {
         super.onResume()
-        updateAdapter(allRecords)
+        loadDataFromDatabase()
     }
 
     private fun loadDataFromDatabase() {
