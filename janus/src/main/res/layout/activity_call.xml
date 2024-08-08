@@ -167,7 +167,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/callLayout"
         app:layout_constraintEnd_toEndOf="@+id/callStatusId"
         app:layout_constraintStart_toStartOf="@+id/callStatusId"
-        app:srcCompat="@drawable/cancel" />
+        app:srcCompat="@drawable/ic_cancel" />
 
     <LinearLayout
         android:id="@+id/linearLayout"

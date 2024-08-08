@@ -28,11 +28,15 @@ import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class RTCClient {
+import sdk.chat.core.session.ChatSDK;
+
+public class RTCClient implements Serializable {
 
     private final Application application;
     private final String username;
@@ -50,6 +54,7 @@ public class RTCClient {
     private String type;
     private SurfaceTextureHelper surfaceTextureHelper;
     private SurfaceViewRenderer surfaceViewRenderer;
+    public boolean isMediaStreamDisposed = false;
 
     public RTCClient(Application application, String username, Websocket websocket, PeerConnection.Observer observer) {
         this.application = application;
@@ -68,9 +73,6 @@ public class RTCClient {
         PeerConnectionFactory.initialize(options);
 
 
-//        iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer());
-//        iceServers.add(PeerConnection.IceServer.builder("stun:stun1.l.google.com:19302").createIceServer());
-//        iceServers.add(PeerConnection.IceServer.builder("stun:stun2.l.google.com:19302").createIceServer());
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.cloudflare.com:3478").createIceServer());
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.voip.eutelia.it:3478").createIceServer());
         iceServers.add(PeerConnection.IceServer.builder("stun:ip-9-232.sn2.clouditalia.com:3478").createIceServer());
@@ -125,39 +127,6 @@ public class RTCClient {
         });
     }
 
-//    public void startLocalVideo(SurfaceViewRenderer surface) {
-//        VideoSource localVideoSource = peerConnectionFactory.createVideoSource(false);
-//
-//        // Initialize localAudioSource
-//        MediaConstraints mediaConstraints = new MediaConstraints();
-//        AudioSource localAudioSource = peerConnectionFactory.createAudioSource(mediaConstraints);
-//        SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create(
-//                Thread.currentThread().getName(), eglContext.getEglBaseContext());
-//
-//        videoCapturer = getVideoCapturer(application);
-//        if (videoCapturer != null) {
-//            videoCapturer.initialize(surfaceTextureHelper, surface.getContext(), localVideoSource.getCapturerObserver());
-//            videoCapturer.startCapture(320, 240, 30);
-//        }
-//
-//        localVideoTrack = peerConnectionFactory.createVideoTrack("local_track", localVideoSource);
-//        if (localVideoTrack != null) {
-//            localVideoTrack.addSink(surface);
-//        }
-//
-//        localAudioTrack = peerConnectionFactory.createAudioTrack("local_track_audio", localAudioSource);
-//        if (localAudioTrack != null) {
-//            MediaStream localStream = peerConnectionFactory.createLocalMediaStream("local_stream");
-//            localStream.addTrack(localAudioTrack);
-//            localStream.addTrack(localVideoTrack);
-//
-//            if (peerConnection != null) {
-//                peerConnection.addStream(localStream);
-//            }
-//        }
-//    }
-
-
     public void startLocalVideo(SurfaceViewRenderer surface) {
         if (surface != null) {
             cleanUpSurfaceViewRenderer(surface);
@@ -200,16 +169,27 @@ public class RTCClient {
     public void stopLocalVideo() {
         if (localVideoTrack != null) {
             localVideoTrack.setEnabled(false); // Disable the track
-            localVideoTrack.dispose(); // Dispose the track
-            localVideoTrack = null;
+            if(isMediaStreamDisposed)
+            {
+                localVideoTrack.dispose(); // Dispose the track
+                localVideoTrack = null;
+            }
+
         }
         if (videoCapturer != null) {
             try {
-                videoCapturer.stopCapture();
+                if(isMediaStreamDisposed)
+                {
+                    videoCapturer.stopCapture();
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            videoCapturer.dispose();
+            if(isMediaStreamDisposed)
+            {
+                videoCapturer.dispose();
+
+            }
             videoCapturer = null;
         }
         if (surfaceTextureHelper != null) {
@@ -228,20 +208,32 @@ public class RTCClient {
     }
 
     public void startLocalAudio() {
-
         // Initialize localAudioSource
         MediaConstraints mediaConstraints = new MediaConstraints();
+        mediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("googEchoCancellation", "true"));
+        mediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("googAutoGainControl", "true"));
+        mediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("googNoiseSuppression", "true"));
+        mediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("googHighpassFilter", "true"));
         AudioSource localAudioSource = peerConnectionFactory.createAudioSource(mediaConstraints);
         localAudioTrack = peerConnectionFactory.createAudioTrack("local_track_audio", localAudioSource);
         if (localAudioTrack != null) {
             localStream = peerConnectionFactory.createLocalMediaStream("local_stream");
             localStream.addTrack(localAudioTrack);
             if (peerConnection != null) {
+                for (AudioTrack audioTrack : localStream.audioTracks) {
+                    peerConnection.addTrack(audioTrack, Collections.singletonList(localStream.getId()));
+                }
                 peerConnection.addStream(localStream);
             }
         }
     }
-
+    public void resumeLocalAudio() {
+        if (localAudioTrack != null) {
+            localAudioTrack.setEnabled(true);
+        } else {
+            startLocalAudio();
+        }
+    }
     public void stopLocalAudio() {
         if (localAudioTrack != null) {
             localAudioTrack.setEnabled(false); // Disable the track
@@ -299,12 +291,23 @@ public class RTCClient {
 
 
     public void call(String target, long handleId, long sessionId, String type) {
-        MediaConstraints constraints = new MediaConstraints();
         this.type = type;
-        if (type.equals("audio")) {
+        MediaConstraints constraints = new MediaConstraints();
+        constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
+        AppToAppCall appToAppCallActivity = (AppToAppCall) ChatSDK.callActivities.get("AppToAppCall");
+        if(appToAppCallActivity != null)
+        {
+            if(AppToAppCall.type.contains("audio"))
+            {
+                constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false"));
+            }
+            else {
+                constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
+            }
+        }
+        else {
             constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false"));
-        } else {
-            constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
+
         }
 
 
@@ -328,9 +331,12 @@ public class RTCClient {
                             sdp = sdp.replaceAll("(\\r)", "");
                             sdp = SDPParser.filterCodecs(sdp);
                             body = new JanusMessage.Body("call", target, false);
-                        } else if (websocket.dynamicClassInstance instanceof AppToAppAudio) {
-                            sdp = sdp.replaceAll("(\\r)", "");
-                            sdp = SDPParser.filterCodecs(sdp);
+                        } else if (websocket.dynamicClassInstance instanceof AppToAppCall) {
+                            if(AppToAppCall.type.contains("audio"))
+                            {
+                                sdp = sdp.replaceAll("(\\r)", "");
+                                sdp = SDPParser.filterCodecs(sdp);
+                            }
                             body = new JanusMessage.Body("call", target);
                         } else {
                             body = new JanusMessage.Body("call", target);
@@ -472,7 +478,6 @@ public class RTCClient {
     public void toggleAudio(boolean mute) {
         if (localAudioTrack != null) {
             localAudioTrack.setEnabled(!mute);
-
         }
     }
 
@@ -480,31 +485,18 @@ public class RTCClient {
         localVideoTrack.setEnabled(!cameraPause);
     }
 
-    //    public void endCall() {
-//        peerConnection.close();
-//        iceServers.clear();
-//        peerConnection.dispose();
-//        // Stop all tracks on the local stream
-//        try {
-//
-//                localStream.dispose();
-//                localStream = null;
-//
-//        }
-//        catch (Exception e)
-//        {
-//            System.out.println(e);
-//        }
-//
-//    }
     public void endCall() {
         if (peerConnection != null) {
             peerConnection.close();
             peerConnection.dispose();
             peerConnection = null;
         }
-        if (!(websocket.dynamicClassInstance instanceof OutgoingCall) && localStream != null) {
-            localStream.dispose();
+        if (!(websocket.dynamicClassInstance instanceof OutgoingCall) && localStream != null ) {
+            if(isMediaStreamDisposed)
+            {
+                localStream.dispose();
+                isMediaStreamDisposed = true;
+            }
             localStream = null;
         }
         iceServers.clear();

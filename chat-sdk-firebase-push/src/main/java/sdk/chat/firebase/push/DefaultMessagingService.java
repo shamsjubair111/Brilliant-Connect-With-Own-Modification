@@ -8,7 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.codewithkael.webrtcprojectforrecord.AppToAppAudio;
+import com.codewithkael.webrtcprojectforrecord.AppToAppCall;
 import com.codewithkael.webrtcprojectforrecord.AppToAppVideo;
 import com.codewithkael.webrtcprojectforrecord.ReceiverActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -73,18 +73,13 @@ public class DefaultMessagingService extends FirebaseMessagingService {
             fullScreenIntent.putExtra("senderNumber", senderNumber);
             fullScreenIntent.putExtra("type", messageType);
             PendingIntent fullScreenPendingIntent;
-
-
             final Context context = ChatSDK.ctx();
-
-
             fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 fullScreenPendingIntent = PendingIntent.getActivity(context, 0, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             } else {
                 fullScreenPendingIntent = PendingIntent.getActivity(context, 0, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             }
-
 
             Intent answerIntent = new Intent(this, ReceiverActivity.class);
             answerIntent.putExtra("senderNumber", senderNumber);
@@ -101,8 +96,7 @@ public class DefaultMessagingService extends FirebaseMessagingService {
             deleteIntent.putExtra("senderNumber", senderNumber);
             deleteIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-
-            NotificationDisplayHandler notification = new NotificationDisplayHandler();
+            NotificationDisplayHandler notification = NotificationDisplayHandler.getInstance();
             notification.createCallNotification(getApplicationContext(), appIntent, senderNumber, senderNumber, fullScreenPendingIntent, messageType, answerIntent, deleteIntent);
         } else if (messageType.equals("cancel")) {
 
@@ -121,14 +115,14 @@ public class DefaultMessagingService extends FirebaseMessagingService {
             notificationManager.cancel(100001);
             ChatSDK.mediaStop();
             IncomingCallActivity incomingCallActivity = (IncomingCallActivity) ChatSDK.callActivities.get("incomingCallActivity");
-            AppToAppAudio appToAppAudioActivity = (AppToAppAudio) ChatSDK.callActivities.get("AppToAppAudio");
+            AppToAppCall appToAppCallActivity = (AppToAppCall) ChatSDK.callActivities.get("AppToAppCall");
             AppToAppVideo appToAppVideoActivity = (AppToAppVideo) ChatSDK.callActivities.get("AppToAppVideo");
             ReceiverActivity receiverActivity = (ReceiverActivity) ChatSDK.callActivities.get("ReceiverActivityAudio");
             if (incomingCallActivity != null) {
                 incomingCallActivity.finishAndRemoveTask();
             }
-            if (appToAppAudioActivity != null) {
-                appToAppAudioActivity.finish();
+            if (appToAppCallActivity != null) {
+                appToAppCallActivity.finish();
             }
             if (appToAppVideoActivity != null) {
                 appToAppVideoActivity.finish();
@@ -139,10 +133,10 @@ public class DefaultMessagingService extends FirebaseMessagingService {
 //            }
 
         } else if (messageType.equals("received")) {
-            AppToAppAudio appToAppAudioActivity = (AppToAppAudio) ChatSDK.callActivities.get("AppToAppAudio");
+            AppToAppCall appToAppCallActivity = (AppToAppCall) ChatSDK.callActivities.get("AppToAppCall");
             AppToAppVideo appToAppVideoActivity = (AppToAppVideo) ChatSDK.callActivities.get("AppToAppVideo");
-            if (appToAppAudioActivity != null) {
-                AppToAppAudio.onReceived();
+            if (appToAppCallActivity != null) {
+                AppToAppCall.onReceived();
             } else if (appToAppVideoActivity != null) {
                 AppToAppVideo.onReceived();
             }

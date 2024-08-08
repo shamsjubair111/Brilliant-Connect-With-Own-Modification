@@ -13,8 +13,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.codewithkael.webrtcprojectforrecord.AppToAppAudio;
-import com.codewithkael.webrtcprojectforrecord.AppToAppVideo;
+import com.codewithkael.webrtcprojectforrecord.AppToAppCall;
 import com.codewithkael.webrtcprojectforrecord.OutgoingCall;
 
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
     private LinearLayout apptoappVideoCall;
     private LinearLayout apptoappMessage;
     private LinearLayout apptonumberSms;
-    private LinearLayout apptoappAudioCall;
+    private LinearLayout AppToAppCallCall;
 
 
     public ArrayList<Integer> imageList = new ArrayList<>(Arrays.asList(
@@ -75,7 +74,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
         textView9 = findViewById(R.id.textView9);
         backImage = findViewById(R.id.backImage);
         directCall = findViewById(R.id.directCall);
-        apptoappAudioCall = findViewById(R.id.apptoappAudioCall);
+        AppToAppCallCall = findViewById(R.id.AppToAppCallCall);
         apptoappVideoCall = findViewById(R.id.apptoappVideoCall);
         apptoappMessage = findViewById(R.id.apptoappMessage);
         apptonumberSms = findViewById(R.id.apptonumberSms);
@@ -112,7 +111,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                 if (getIntent().getStringExtra("registered").equals("yes")) {
 
                     if(ChatSDK.auth().getCurrentUserEntityID()!=null) {
-                        Intent intent = new Intent(getApplicationContext(), AppToAppVideo.class);
+                        Intent intent = new Intent(getApplicationContext(), AppToAppCall.class);
                         intent.putExtra("receiverNumber", receiverNumber);
                         intent.putExtra("type", "video");
                         intent.putExtra("contactName", receiverName);
@@ -148,17 +147,20 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
             }
         });
 
-        apptoappAudioCall.setOnClickListener(new View.OnClickListener() {
+        AppToAppCallCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (getIntent().getStringExtra("registered").equals("yes")) {
 
                     if(ChatSDK.auth().getCurrentUserEntityID()!=null) {
-                        Intent intent = new Intent(getApplicationContext(), AppToAppAudio.class);
+                        Intent intent = new Intent(getApplicationContext(), AppToAppCall.class);
                         intent.putExtra("receiverNumber", receiverNumber);
                         intent.putExtra("type", "audio");
                         intent.putExtra("contactName", receiverName);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.setAction(Intent.ACTION_MAIN);
+                        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                         startActivity(intent);
                     }
                     else{

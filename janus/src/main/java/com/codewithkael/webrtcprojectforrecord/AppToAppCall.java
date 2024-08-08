@@ -1,11 +1,9 @@
 package com.codewithkael.webrtcprojectforrecord;
 
 
-import static com.codewithkael.webrtcprojectforrecord.RTCClient.TID;
 import static sdk.chat.core.dao.Keys.Type;
 import static sdk.chat.core.push.AbstractPushHandler.Action;
 import static sdk.chat.core.push.AbstractPushHandler.Body;
-import static sdk.chat.core.push.AbstractPushHandler.EncryptedMessage;
 import static sdk.chat.core.push.AbstractPushHandler.SenderId;
 import static sdk.chat.core.push.AbstractPushHandler.SenderName;
 import static sdk.chat.core.push.AbstractPushHandler.ThreadId;
@@ -13,22 +11,21 @@ import static sdk.chat.core.push.AbstractPushHandler.UserIds;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.codewithkael.webrtcprojectforrecord.databinding.ActivityCallBinding;
 import com.codewithkael.webrtcprojectforrecord.models.JanusCallHandlerInterface;
@@ -37,6 +34,7 @@ import com.codewithkael.webrtcprojectforrecord.models.JanusResponse;
 import com.codewithkael.webrtcprojectforrecord.utils.NumberStringFormater;
 import com.codewithkael.webrtcprojectforrecord.utils.PeerConnectionObserver;
 import com.codewithkael.webrtcprojectforrecord.utils.RTCAudioManager;
+import com.codewithkael.webrtcprojectforrecord.utils.RTCClientSingleton;
 import com.google.gson.Gson;
 import com.permissionx.guolindev.PermissionX;
 
@@ -50,14 +48,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 
-import callHandler.TelcobrightCallMessage;
-import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class AppToAppAudio extends AppCompatActivity implements JanusCallHandlerInterface {
+public  class AppToAppCall extends AppCompatActivity implements JanusCallHandlerInterface {
 
     private static Timer timer;
     private static long startTime;
@@ -65,12 +61,14 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
     public static long sessionId = 0;
     public static long handleId = 0;
     private int step = -1;
+    private static boolean callInProgress = false;
 
     private ActivityCallBinding binding;
     private String userName;
     private static String receiver;
+    private static String receiverNumber;
     private static RTCClient rtcClient;
-    private String TAG = "AppToAppAudio";
+    private String TAG = "AppToAppCall";
     private String target = "";
     private Gson gson = new Gson();
     private boolean isMute = false;
@@ -81,53 +79,117 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
     private boolean isVideo = false;
     HashMap<String, Object> newMessage = new HashMap<>();
 
-    private static String type;
+    public static String type;
+
+    private static final int PERMISSION_REQUEST_CODE = 1;
 
     public static void onReceived() {
-        rtcClient.startLocalAudio();
+        if(type.equals("audio")){
+            rtcClient.startLocalAudio();
+        }
+        RTCClientSingleton.getInstance().setRtcClient(rtcClient);
+        final Context context = ChatSDK.ctx();
         rtcClient.call(receiver, handleId, sessionId, type);
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startForegroundService();
+            }
+        }
+    }
+    private boolean checkPermissions() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+    }
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, PERMISSION_REQUEST_CODE);
+    }
+    private void startForegroundService() {
+        Intent serviceIntent = new Intent(this, AudioCallService.class);
+        serviceIntent.putExtra("receiverNumber",receiverNumber);
+        ContextCompat.startForegroundService(this, serviceIntent);
+    }
+    private void stopForegroundService() {
+        Intent serviceIntent = new Intent(this, AudioCallService.class);
+        stopService(serviceIntent);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        timer = new Timer();
-
-
-
-
-        PermissionX.init(AppToAppAudio.this)
-                .permissions(
-                        Manifest.permission.RECORD_AUDIO
-                ).request((allGranted, grantedList, deniedList) -> {
-                    if (allGranted) {
-                        binding = ActivityCallBinding.inflate(getLayoutInflater());
-                        setContentView(binding.getRoot());
-                        setCallLayoutVisible();
-//                        createNotificationChannel();
-                        init();
-                        ChatSDK.callActivities.put("AppToAppAudio",this);
-                    } else {
-                        Toast.makeText(AppToAppAudio.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
-                    }
-                });
+        type = getIntent().getStringExtra("type");
     }
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("com.codewithkael.webrtcprojectforrecord.ACTION_FINISH_ACTIVITY".equals(intent.getAction())) {
+                ChatSDK.callActivities.remove("AppToAppCall");
+                newMessage.put("type", -1);
+                runOnUiThread(() -> {
+                    ChatSDK.push().sendPushNotification(newMessage);
+                    hangup();
 
+                });
+                if(type.contains("video")){
+                    rtcClient.stopLocalMedia();
+
+                }else {
+                    rtcClient.stopLocalAudio();
+                }
+                rtcClient.endCall();
+                callInProgress = false;
+                finish();
+            }
+            else if("com.codewithkael.webrtcprojectforrecord.ACTION_CHANGE_SPEAKER".equals(intent.getAction()))
+            {
+                isSpeakerMode = !isSpeakerMode;
+                if (isSpeakerMode) {
+                    binding.audioOutputButton.setImageResource(R.drawable.ic_baseline_hearing_24);
+                    rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE);
+                } else {
+                    binding.audioOutputButton.setImageResource(R.drawable.ic_baseline_speaker_up_24);
+                    rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE);
+                }
+            }
+            else if("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE".equals(intent.getAction()))
+            {
+                isMute = !isMute;
+                if (isMute) {
+                    binding.micButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
+                } else {
+                    binding.micButton.setImageResource(R.drawable.ic_baseline_mic_24);
+                }
+                rtcClient.toggleAudio(isMute);
+            }
+            else if("com.codewithkael.webrtcprojectforrecord.ACTION_RESUME".equals(intent.getAction()))
+            {
+                onResume();
+            }
+        }
+    };
 
     private void init() {
+        callInProgress = true;
         // Set the flags to show the activity on the lock screen and turn the screen on
+        IntentFilter filter = new IntentFilter("com.codewithkael.webrtcprojectforrecord.ACTION_FINISH_ACTIVITY");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTEACTION_CHANGE_SPEAKER");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTEACTION_ACTION_RESUME");
+        registerReceiver(broadcastReceiver, filter);
+//        ChatSDK.ctx().registerReceiver(broadcastReceiver, filter, RECEIVER_NOT_EXPORTED);
+        if(type.contains("audio"))
+        {
+            binding.videoButton.setVisibility(View.GONE);
 
-
-//        setContentView(R.layout.activity_call);
-        type = getIntent().getStringExtra("type");
-//        binding.switchCameraButton.setVisibility(View.GONE);
-        binding.videoButton.setVisibility(View.GONE);
+        }
         binding.contactName.setText(getIntent().getStringExtra("contactName"));
         binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
         userName = ChatSDK.auth().getCurrentUserEntityID();       //ChatSDK.currentUser().getName() + "@localhost";
         receiver = NumberStringFormater.normalizePhoneNumber(getIntent().getStringExtra("receiverNumber")) + "@localhost";
-        websocket = new Websocket(this, AppToAppAudio.this);
+        websocket = new Websocket(this, AppToAppCall.this);
         if (userName != null) {
             websocket.initSocket(userName);
         }
@@ -180,23 +242,30 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                 }
             }
         });
-
         rtcAudioManager = new RTCAudioManager(this);
         rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE);
-
         target = receiver;
+        if(type.contains("video"))
+        {
+            rtcClient.initializeSurfaceView(binding.localView);
+            rtcClient.initializeSurfaceView(binding.remoteView);
+            rtcClient.startLocalVideo(binding.localView);
+
 //        });
 
+            binding.videoButton.setOnClickListener(v -> {
+                isCameraPause = !isCameraPause;
+                if (isCameraPause) {
+                    binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_off_24);
+                } else {
+                    binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_24);
+                }
+                rtcClient.toggleCamera(isCameraPause);
+            });
+        }
 
-        binding.micButton.setOnClickListener(v -> {
-            isMute = !isMute;
-            if (isMute) {
-                binding.micButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
-            } else {
-                binding.micButton.setImageResource(R.drawable.ic_baseline_mic_24);
-            }
-            rtcClient.toggleAudio(isMute);
-        });
+//        });
+
 
 
         binding.audioOutputButton.setOnClickListener(v -> {
@@ -210,14 +279,15 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
             }
         });
 
+
         binding.endCallButton.setOnClickListener(v -> {
             try {
-                ChatSDK.callActivities.remove("AppToAppAudio");
+//                finishWithSendNotfication();
+                ChatSDK.callActivities.remove("AppToAppCall");
                 newMessage.put("type", -1);
                 ChatSDK.push().sendPushNotification(newMessage);
-                rtcClient.stopLocalAudio();
+                rtcClient.stopLocalMedia();
                 rtcClient.endCall();
-//                setCallLayoutGone();
                 hangup();
                 finish();
             }
@@ -228,6 +298,32 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
 
 
         });
+
+
+    }
+
+    private void finishWithSendNotfication() {
+        ChatSDK.callActivities.remove("AppToAppCall");
+        newMessage.put("type", -1);
+        runOnUiThread(() -> {
+            ChatSDK.push().sendPushNotification(newMessage);
+            hangup();
+        });
+        try {
+            stopForegroundService();
+            rtcClient.stopLocalAudio();
+            if(type.contains("video"))
+            {
+            rtcClient.stopLocalVideo();
+            }
+            rtcClient.endCall();
+            finish();
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+        }
+
     }
 
     @Override
@@ -266,7 +362,7 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
 
                 if (JanusResponse.plugin.getData().getErrorCode() == 476 || JanusResponse.plugin.getData().getResult().getEvent().contains("registered")) {
 
-                    String receiverNumber = NumberStringFormater.normalizePhoneNumber(getIntent().getStringExtra("receiverNumber"));
+                    receiverNumber = NumberStringFormater.normalizePhoneNumber(getIntent().getStringExtra("receiverNumber"));
                     String roomName = null;
                     roomName = ChatSDK.auth().getCurrentUserEntityID().split("@")[0];   //ChatSDK.currentUser().getName();
 
@@ -278,7 +374,17 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                     userIds.put("userIds", users);
                     String action = "co.chatsdk.QuickReply";
                     String body = "video call";
-                    int callType = 100;
+                    int callType;
+
+                    if(type.contains("video"))
+                    {
+                        callType = 101;
+                    }
+                    else
+                    {
+                        callType = 100;
+                    }
+
                     users.put(ThreadId, userThreadId);
                     newMessage.put(ThreadId, threadEntityID);
                     newMessage.put(SenderName, ChatSDK.auth().getCurrentUserEntityID().split("@")[0]);
@@ -287,21 +393,11 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                     newMessage.put(Action, action);
                     newMessage.put(Body, body);
                     newMessage.put(Type, callType);
-                    ChatSDK.push().sendPushNotification(newMessage);
-
-                    System.out.println("Registered");
-//                    runOnUiThread(() -> {
-//                        websocket.showToast("Registered Success");
-//                    });
                     runOnUiThread(() -> {
-//                        setWhoToCallLayoutGone();
-//                        setCallLayoutVisible();
-//                        websocket.showToast("Registered Success");
+                        ChatSDK.push().sendPushNotification(newMessage);
                         websocket.showToast("Calling");
-//                        rtcClient.startLocalAudio();
-//                        rtcClient.call(receiver,handleId,sessionId);
-                    });
 
+                    });
 
                 }
                 else if (JanusResponse.plugin.getData().getResult().getEvent().contains("registering")) {
@@ -362,8 +458,24 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                 }
                 break;
             case "webrtcup":
-
                 startTimer();
+                if (checkPermissions()) {
+                    startForegroundService();
+                } else {
+                    requestPermissions();
+                }
+                binding.micButton.setOnClickListener(v -> {
+                    Intent changeNotificationIcon = new Intent("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE_NOTIFICATION_ICON");
+                    ChatSDK.ctx().sendBroadcast(changeNotificationIcon);
+                    isMute = !isMute;
+                    if (isMute) {
+                        binding.micButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
+                    } else {
+                        binding.micButton.setImageResource(R.drawable.ic_baseline_mic_24);
+                    }
+                    rtcClient.toggleAudio(isMute);
+                });
+
                 System.out.println("webrtcup");
                 websocket.showToast("webrtcup");
                 break;
@@ -372,14 +484,18 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
                 System.out.println("media received");
                 break;
             case "hangup":
-                rtcClient.stopLocalAudio();
-                sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
-                SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
-                long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
-                if(rowId >0){
-                    websocket.showToast("Data Inserted");
+                callInProgress =false;
+                runOnUiThread(() -> {
+                    rtcClient.stopLocalAudio();
+                    stopForegroundService();
+                    sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+                    SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
+                    long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+                    if(rowId >0){
+                        websocket.showToast("Data Inserted");
 //                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
-                }
+                    }
+                });
                 stopTimer();
                 finish();
 //                finishAffinity();
@@ -388,20 +504,6 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
             case "ack":
                 System.out.println(message.toString());
                 break;
-//            case "detached":
-//                handleDetached(json);
-//                break;
-
-//            case "slowlink":
-//                handleSlowLink(json);
-//                break;
-//            case "error":
-//                handleError(json);
-//                break;
-
-//            case "timeout":
-//                handleTimeout(json);
-//                break;
             default:
                 System.out.println("Unknown message/event  '" + janusType + "' on session " + sessionId);
                 System.out.println(message.toString());
@@ -446,6 +548,7 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     @Override
@@ -492,17 +595,22 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        Toast.makeText(AppToAppAudio.this, "Call in progress", Toast.LENGTH_SHORT).show();
+        Toast.makeText(AppToAppCall.this, "Call in progress", Toast.LENGTH_SHORT).show();
 
         // super.onBackPressed(); // Comment this super call to avoid calling finish() or fragmentmanager's backstack pop operation.
     }
     @Override
     public void finish() {
         super.finish();
+        stopForegroundService();
         websocket.stopKeepAliveTimer();
-//        websocket.showToast("hangup");
         websocket.closeSocket();
-//        rtcClient.stopLocalAudio();
+        callInProgress = false;
+        if(type.contains("video"))
+        {
+            super.finishAndRemoveTask();
+
+        }
     }
 
 
@@ -535,51 +643,52 @@ public class AppToAppAudio extends AppCompatActivity implements JanusCallHandler
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
-    public void startAudioService() {
-        Intent serviceIntent = new Intent(this, AudioService.class);
-        startService(serviceIntent);
-    }
-
-    // Function to stop the audio recording service
-    public void stopAudioService() {
-        Intent serviceIntent = new Intent(this, AudioService.class);
-        stopService(serviceIntent);
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
-        websocket.showToast("Audio is paused");
+//        rtcClient.resumeLocalAudio();
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!callInProgress) {
+            timer = new Timer();
+            if(type.equals("video")){
+                PermissionX.init(AppToAppCall.this)
+                        .permissions(
+                                Manifest.permission.RECORD_AUDIO,
+                                Manifest.permission.CAMERA
+                        ).request((allGranted, grantedList, deniedList) -> {
+                            if (allGranted) {
+                                binding = ActivityCallBinding.inflate(getLayoutInflater());
+                                ChatSDK.callActivities.put("AppToAppCall",this);
+                                setContentView(binding.getRoot());
+                                setCallLayoutVisible();
+                                init();
+                            } else {
+                                Toast.makeText(AppToAppCall.this, "You should accept camera and audio permissions", Toast.LENGTH_LONG).show();
+                                super.finish();
+                            }
+                        });
+            }
+            else {
+                PermissionX.init(AppToAppCall.this)
+                        .permissions(
+                                Manifest.permission.RECORD_AUDIO
+                        ).request((allGranted, grantedList, deniedList) -> {
+                            if (allGranted) {
+                                binding = ActivityCallBinding.inflate(getLayoutInflater());
+                                setContentView(binding.getRoot());
+                                setCallLayoutVisible();
+                                ChatSDK.callActivities.put("AppToAppCall", this);
+                                init();
+                            } else {
+                                Toast.makeText(AppToAppCall.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
+                            }
+                        });
+            }
 
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Audio Service Channel";
-            String description = "Channel for Audio Service notifications";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("10000", name, importance);
-            channel.setDescription(description);
-
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
         }
-    }
-
-    private void showNotification() {
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "10000")
-                .setSmallIcon(R.drawable.minimizebutton)
-                .setContentTitle("Audio Service")
-                .setContentText("Tap to return to the app")
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(10000, builder.build());
     }
 
 }

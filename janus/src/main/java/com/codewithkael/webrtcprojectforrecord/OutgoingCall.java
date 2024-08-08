@@ -5,13 +5,17 @@ import static com.codewithkael.webrtcprojectforrecord.utils.NumberStringFormater
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.codewithkael.webrtcprojectforrecord.databinding.ActivityCallBinding;
 import com.codewithkael.webrtcprojectforrecord.databinding.ActivityMainBinding;
@@ -19,8 +23,10 @@ import com.codewithkael.webrtcprojectforrecord.models.JanusCallHandlerInterface;
 import com.codewithkael.webrtcprojectforrecord.models.JanusMessage;
 import com.codewithkael.webrtcprojectforrecord.models.JanusResponse;
 import com.codewithkael.webrtcprojectforrecord.utils.KeepAliveMessage;
+import com.codewithkael.webrtcprojectforrecord.utils.NumberStringFormater;
 import com.codewithkael.webrtcprojectforrecord.utils.PeerConnectionObserver;
 import com.codewithkael.webrtcprojectforrecord.utils.RTCAudioManager;
+import com.codewithkael.webrtcprojectforrecord.utils.RTCClientSingleton;
 import com.google.gson.Gson;
 import com.permissionx.guolindev.PermissionX;
 import com.permissionx.guolindev.callback.RequestCallback;
@@ -58,7 +64,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
     public static long sessionId = 0;
     public long handleId = 0;
     private int step = -1;
-
+    private static String receiverNumber;
     private ActivityCallBinding binding;
     private String userName;
     private String receiver;
@@ -71,7 +77,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
     private RTCAudioManager rtcAudioManager;
     private boolean isSpeakerMode = false;
     private static String type = "audio";
-
+    private static final int PERMISSION_REQUEST_CODE = 1;
     SQLiteCallFragmentHelper sqLiteCallFragmentHelper;
 
 
@@ -79,11 +85,8 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
+        receiverNumber = NumberStringFormater.normalizePhoneNumber(getIntent().getStringExtra("receiverNumber"));
         timer = new Timer();
-
-
         binding = ActivityCallBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setCallLayoutVisible();
@@ -102,6 +105,30 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
         binding.contactName.setText(getIntent().getStringExtra("contactName"));
         binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
 
+    }
+    private boolean checkPermissions() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+    }
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, PERMISSION_REQUEST_CODE);
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startForegroundService();
+            }
+        }
+    }
+    private void startForegroundService() {
+        Intent serviceIntent = new Intent(this, AudioCallService.class);
+        serviceIntent.putExtra("receiverNumber",receiverNumber);
+        ContextCompat.startForegroundService(this, serviceIntent);
+    }
+    private void stopForegroundService() {
+        Intent serviceIntent = new Intent(this, AudioCallService.class);
+        stopService(serviceIntent);
     }
     public static String removePlusIfPresent(String str) {
         if (str != null && !str.isEmpty() && str.charAt(0) == '+') {
@@ -178,6 +205,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                     if(ChatSDK.shared().getKeyStorage().get("fs_user_id")==null)
                     {
                         websocket.showToast("DID number not found");
+                        stopForegroundService();
                         finish();
                     }
                     userName = "sip:"+ ChatSDK.shared().getKeyStorage().get("fs_user_id")+"@103.248.13.73";
@@ -189,11 +217,13 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                     }
                     else {
                         websocket.showToast("Problem with Caller Number");
+                        stopForegroundService();
                         finish();
                     }
 
                 } catch (InterruptedException e) {
                     websocket.showToast("Error");
+                    stopForegroundService();
                     finish();
                 }
             }
@@ -315,6 +345,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
             websocket.stopKeepAliveTimer();
 //            setCallLayoutGone();
             hangup();
+            stopForegroundService();
             finish();
 //            try {
 //                Intent intent = new Intent(OutgoingCall.this, Class.forName(getIntent().getStringExtra("activityName")));
@@ -461,6 +492,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 websocket.showToast("Time Out");
                 websocket.stopKeepAliveTimer();
                 websocket.closeSocket();
+                stopForegroundService();
                 finish();
             }
             break;
@@ -509,6 +541,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                     System.out.println(message.toString());
                     websocket.stopKeepAliveTimer();
                     websocket.closeSocket();
+                    stopForegroundService();
                     finish();
                     //some works to do
                 }
@@ -567,6 +600,23 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
             case "webrtcup":
 
                 startTimer();
+                if (checkPermissions()) {
+                    RTCClientSingleton.getInstance().setRtcClient(rtcClient);
+                    startForegroundService();
+                } else {
+                    requestPermissions();
+                }
+                binding.micButton.setOnClickListener(v -> {
+                    Intent changeNotificationIcon = new Intent("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE_NOTIFICATION_ICON");
+                    ChatSDK.ctx().sendBroadcast(changeNotificationIcon);
+                    isMute = !isMute;
+                    if (isMute) {
+                        binding.micButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
+                    } else {
+                        binding.micButton.setImageResource(R.drawable.ic_baseline_mic_24);
+                    }
+                    rtcClient.toggleAudio(isMute);
+                });
                 System.out.println("webrtcup");
                 websocket.showToast("webrtcup");
 
@@ -589,6 +639,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
 //                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
                 }
                 stopTimer();
+                stopForegroundService();
                 finish();
 //                finishAffinity();
 //                handleHangup(json);

@@ -14,6 +14,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,7 +23,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.codewithkael.webrtcprojectforrecord.databinding.ActivityCallBinding;
 import com.codewithkael.webrtcprojectforrecord.models.JanusCallHandlerInterface;
@@ -29,6 +34,7 @@ import com.codewithkael.webrtcprojectforrecord.models.JanusMessage;
 import com.codewithkael.webrtcprojectforrecord.models.JanusResponse;
 import com.codewithkael.webrtcprojectforrecord.utils.PeerConnectionObserver;
 import com.codewithkael.webrtcprojectforrecord.utils.RTCAudioManager;
+import com.codewithkael.webrtcprojectforrecord.utils.RTCClientSingleton;
 import com.google.gson.Gson;
 import com.permissionx.guolindev.PermissionX;
 
@@ -59,6 +65,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
     private ActivityCallBinding binding;
     private String userName;
     private String receiver;
+    private static String receiverNumber;
     private static String type;
     private RTCClient rtcClient;
     private String TAG = "ReceiverActivityAudio";
@@ -70,6 +77,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
     private boolean isSpeakerMode = false;
 
     private boolean isVideo = false;
+    private static final int PERMISSION_REQUEST_CODE = 1;
 
     SQLiteCallFragmentHelper sqLiteCallFragmentHelper;
     HashMap<String, Object> newMessage = new HashMap<>();
@@ -112,9 +120,34 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
         binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
 
     }
+    private boolean checkPermissions() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+    }
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, PERMISSION_REQUEST_CODE);
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startForegroundService();
+            }
+        }
+    }
+    private void startForegroundService() {
+        Intent serviceIntent = new Intent(this, AudioCallService.class);
+        serviceIntent.putExtra("receiverNumber",receiverNumber);
+        ContextCompat.startForegroundService(this, serviceIntent);
+    }
+    private void stopForegroundService() {
+        Intent serviceIntent = new Intent(this, AudioCallService.class);
+        stopService(serviceIntent);
+    }
 
     private void init() {
         ChatSDK.mediaStop();
+        receiverNumber = getIntent().getStringExtra("senderNumber");
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(100001);
         userName = ChatSDK.auth().getCurrentUserEntityID();
@@ -234,6 +267,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
             }
             websocket.stopKeepAliveTimer();
             hangup();
+            stopForegroundService();
             finishAndRemoveTask();
 
         });
@@ -270,6 +304,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
 //                websocket.showToast("Time Out");
                 websocket.stopKeepAliveTimer();
                 websocket.closeSocket();
+                stopForegroundService();
                 finish();
             }
             break;
@@ -343,6 +378,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                     System.out.println(message.toString());
                     websocket.stopKeepAliveTimer();
                     websocket.closeSocket();
+                    stopForegroundService();
                     finish();
                     //some works to do
                 }
@@ -425,6 +461,23 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
             case "webrtcup":
 
                 startTimer();
+                if (checkPermissions()) {
+                    RTCClientSingleton.getInstance().setRtcClient(rtcClient);
+                    startForegroundService();
+                } else {
+                    requestPermissions();
+                }
+                binding.micButton.setOnClickListener(v -> {
+                    Intent changeNotificationIcon = new Intent("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE_NOTIFICATION_ICON");
+                    ChatSDK.ctx().sendBroadcast(changeNotificationIcon);
+                    isMute = !isMute;
+                    if (isMute) {
+                        binding.micButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
+                    } else {
+                        binding.micButton.setImageResource(R.drawable.ic_baseline_mic_24);
+                    }
+                    rtcClient.toggleAudio(isMute);
+                });
                 System.out.println("webrtcup");
 
                 websocket.showToast("webrtcup");
@@ -455,6 +508,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                 }
 
                 rtcClient.endCall();
+                stopForegroundService();
                 finishAndRemoveTask();
 //                finish();
                 break;

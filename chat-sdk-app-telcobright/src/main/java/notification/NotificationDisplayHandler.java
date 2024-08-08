@@ -18,7 +18,6 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.PowerManager;
 
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import java.security.SecureRandom;
@@ -26,7 +25,6 @@ import java.security.SecureRandom;
 import io.reactivex.disposables.Disposable;
 
 import io.reactivex.functions.Consumer;
-import sdk.chat.core.R;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -36,7 +34,19 @@ import sdk.chat.core.session.ChatSDK;
 public class NotificationDisplayHandler implements Consumer<Throwable> {
 
     public static final int MESSAGE_NOTIFICATION_ID = 100001;
+    private static NotificationDisplayHandler instance;
 
+    // Private constructor to prevent instantiation
+    public NotificationDisplayHandler() {
+    }
+
+    // Method to return the single instance of the class
+    public static synchronized NotificationDisplayHandler getInstance() {
+        if (instance == null) {
+            instance = new NotificationDisplayHandler();
+        }
+        return instance;
+    }
     @SuppressLint("MissingPermission")
     public Disposable createMessageNotification(Message message) {
 
@@ -92,11 +102,35 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
         return builder.build().subscribe(nb -> {
             NotificationManagerCompat.from(context).notify(MESSAGE_NOTIFICATION_ID, nb.build());
             wakeScreen(context);
+        }, this);
+
+    }
+    @SuppressLint("MissingPermission")
+    public Disposable createOngoingCallNotification(final Context context, Intent resultIntent,
+                                             String userEntityID, String title, PendingIntent pendingIntent,String msgType,Intent answerIntent,Intent deleteIntent) {
+
+        // We are not connected... so we can't mark read or reply
+        NotificationBuilder builder = new NotificationBuilder(context);
+        builder.disableMarkRead();
+        builder.disableReply();
+        double random = Math.random() * 49 + 1;
+        builder = builder.useDefault()
+                .setChannelName("Call_Notification")
+                .setIntent(resultIntent)
+                .setDeleteView(deleteIntent)
+                .addIconForUserEntityID(userEntityID)
+                .setTitle(title)
+                .setText("Incoming "+msgType+" call")
+                .setFullScreenIntent(pendingIntent)
+                .setAnswerIntent(answerIntent);
+
+        return builder.build().subscribe(nb -> {
+            NotificationManagerCompat.from(context).notify(MESSAGE_NOTIFICATION_ID, nb.build());
+            wakeScreen(context);
 
         }, this);
 
     }
-
     @SuppressLint("MissingPermission")
     public Disposable createMessageNotification(final Context context, Intent resultIntent, String userEntityID, String threadEntityId, String title, String message) {
 
