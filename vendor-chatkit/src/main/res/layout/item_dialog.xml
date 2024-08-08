@@ -27,10 +27,9 @@
             android:layout_toRightOf="@id/dialogAvatar"
             android:layout_toStartOf="@id/dialogDate"
             android:ellipsize="end"
-            android:fontFamily="@string/font_fontFamily_medium"
+            android:fontFamily="@font/helvetica"
             android:includeFontPadding="false"
             android:maxLines="1"/>
-
         <TextView
             android:id="@id/dialogDate"
             android:layout_width="wrap_content"

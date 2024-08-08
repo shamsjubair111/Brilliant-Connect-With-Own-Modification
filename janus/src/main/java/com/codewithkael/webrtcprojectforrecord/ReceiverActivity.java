@@ -13,8 +13,10 @@ import static sdk.chat.core.push.AbstractPushHandler.UserIds;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -86,7 +88,53 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
     {
         return type;
     }
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("com.codewithkael.webrtcprojectforrecord.ACTION_FINISH_ACTIVITY".equals(intent.getAction())) {
+                ChatSDK.callActivities.remove("AppToAppCall");
+                newMessage.put("type", -1);
+                runOnUiThread(() -> {
+                    ChatSDK.push().sendPushNotification(newMessage);
+                    hangup();
 
+                });
+                if(type.contains("video")){
+                    rtcClient.stopLocalMedia();
+
+                }else {
+                    rtcClient.stopLocalAudio();
+                }
+                rtcClient.endCall();
+                finish();
+            }
+            else if("com.codewithkael.webrtcprojectforrecord.ACTION_CHANGE_SPEAKER".equals(intent.getAction()))
+            {
+                isSpeakerMode = !isSpeakerMode;
+                if (isSpeakerMode) {
+                    binding.audioOutputButton.setImageResource(R.drawable.ic_baseline_hearing_24);
+                    rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE);
+                } else {
+                    binding.audioOutputButton.setImageResource(R.drawable.ic_baseline_speaker_up_24);
+                    rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE);
+                }
+            }
+            else if("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE".equals(intent.getAction()))
+            {
+                isMute = !isMute;
+                if (isMute) {
+                    binding.micButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
+                } else {
+                    binding.micButton.setImageResource(R.drawable.ic_baseline_mic_24);
+                }
+                rtcClient.toggleAudio(isMute);
+            }
+            else if("com.codewithkael.webrtcprojectforrecord.ACTION_RESUME".equals(intent.getAction()))
+            {
+                onResume();
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -147,6 +195,11 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
 
     private void init() {
         ChatSDK.mediaStop();
+        IntentFilter filter = new IntentFilter("com.codewithkael.webrtcprojectforrecord.ACTION_FINISH_ACTIVITY");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTEACTION_CHANGE_SPEAKER");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTEACTION_ACTION_RESUME");
+        registerReceiver(broadcastReceiver, filter);
         receiverNumber = getIntent().getStringExtra("senderNumber");
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(100001);

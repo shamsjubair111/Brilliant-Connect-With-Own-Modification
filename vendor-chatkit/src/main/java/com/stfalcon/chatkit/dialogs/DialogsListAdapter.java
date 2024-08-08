@@ -19,6 +19,7 @@ package com.stfalcon.chatkit.dialogs;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.annotation.SuppressLint;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
@@ -603,6 +604,7 @@ public class DialogsListAdapter<DIALOG extends IDialog>
         }
 
 
+        @SuppressLint("WrongConstant")
         private void applyDefaultStyle() {
             if (dialogStyle != null) {
                 if (root != null) {
@@ -655,6 +657,7 @@ public class DialogsListAdapter<DIALOG extends IDialog>
             if (dialog.getUnreadCount() > 0) {
                 applyUnreadStyle();
             } else {
+
                 applyDefaultStyle();
             }
 

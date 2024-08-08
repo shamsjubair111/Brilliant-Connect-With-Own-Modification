@@ -4,7 +4,10 @@ package com.codewithkael.webrtcprojectforrecord;
 import static com.codewithkael.webrtcprojectforrecord.utils.NumberStringFormater.reformatPhoneNumber;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -81,7 +84,44 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
     SQLiteCallFragmentHelper sqLiteCallFragmentHelper;
 
 
-
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("com.codewithkael.webrtcprojectforrecord.ACTION_FINISH_ACTIVITY".equals(intent.getAction())) {
+                ChatSDK.callActivities.remove("AppToAppCall");
+                runOnUiThread(() -> {
+                    hangup();
+                });
+                rtcClient.endCall();
+                finish();
+            }
+            else if("com.codewithkael.webrtcprojectforrecord.ACTION_CHANGE_SPEAKER".equals(intent.getAction()))
+            {
+                isSpeakerMode = !isSpeakerMode;
+                if (isSpeakerMode) {
+                    binding.audioOutputButton.setImageResource(R.drawable.ic_baseline_hearing_24);
+                    rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE);
+                } else {
+                    binding.audioOutputButton.setImageResource(R.drawable.ic_baseline_speaker_up_24);
+                    rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE);
+                }
+            }
+            else if("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE".equals(intent.getAction()))
+            {
+                isMute = !isMute;
+                if (isMute) {
+                    binding.micButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
+                } else {
+                    binding.micButton.setImageResource(R.drawable.ic_baseline_mic_24);
+                }
+                rtcClient.toggleAudio(isMute);
+            }
+            else if("com.codewithkael.webrtcprojectforrecord.ACTION_RESUME".equals(intent.getAction()))
+            {
+                onResume();
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -194,7 +234,11 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
     }
     private String publicIP;
     private void init() {
-
+        IntentFilter filter = new IntentFilter("com.codewithkael.webrtcprojectforrecord.ACTION_FINISH_ACTIVITY");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTEACTION_CHANGE_SPEAKER");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTEACTION_ACTION_RESUME");
+        registerReceiver(broadcastReceiver, filter);
 //        userName = "sip:1001@192.168.0.150";
         Thread thread = new Thread(new Runnable() {
             @Override
