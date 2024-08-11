@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -81,7 +82,8 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
 
     private boolean isVideo = false;
     private static final int PERMISSION_REQUEST_CODE = 1;
-
+    private Handler initialCallConnectedHandler;
+    private Runnable disconnectConnectedHandler;
     SQLiteCallFragmentHelper sqLiteCallFragmentHelper;
     HashMap<String, Object> newMessage = new HashMap<>();
 
@@ -119,6 +121,10 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                 }
                 rtcClient.endCall();
                 finish();
+                if (initialCallConnectedHandler != null && disconnectConnectedHandler != null) {
+                    initialCallConnectedHandler.removeCallbacks(disconnectConnectedHandler);
+                }
+
             }
             else if("com.codewithkael.webrtcprojectforrecord.ACTION_CHANGE_SPEAKER".equals(intent.getAction()))
             {
@@ -348,7 +354,9 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
 
 
 
-        new Handler().postDelayed(new Runnable() {
+        initialCallConnectedHandler = new Handler(Looper.getMainLooper());
+
+        disconnectConnectedHandler = new Runnable() {
             @Override
             public void run() {
                 if (callState != CallState.CONNECTED) {
@@ -361,10 +369,14 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                     rtcClient.endCall();
                     hangup();
                     finish();
-                }
+                    if (initialCallConnectedHandler != null && disconnectConnectedHandler != null) {
+                        initialCallConnectedHandler.removeCallbacks(disconnectConnectedHandler);
+                    }
 
+                }
             }
-        }, 20000); // 30 seconds delay
+        };
+        initialCallConnectedHandler.postDelayed(disconnectConnectedHandler, 20000); // 20 seconds delay
     }
     @Override
     public void onNewMessage(JanusResponse message) throws JSONException, IOException {
@@ -400,6 +412,10 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                 websocket.closeSocket();
                 stopForegroundService();
                 finish();
+                if (initialCallConnectedHandler != null && disconnectConnectedHandler != null) {
+                    initialCallConnectedHandler.removeCallbacks(disconnectConnectedHandler);
+                }
+
             }
             break;
             case "event":
@@ -474,6 +490,9 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                     websocket.closeSocket();
                     stopForegroundService();
                     finish();
+                    if (initialCallConnectedHandler != null && disconnectConnectedHandler != null) {
+                        initialCallConnectedHandler.removeCallbacks(disconnectConnectedHandler);
+                    }
                     //some works to do
                 }
 
@@ -575,7 +594,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                 Intent changeCallAction = new Intent("com.codewithkael.webrtcprojectforrecord.ACTION_CONNECTED");
                 ChatSDK.ctx().sendBroadcast(changeCallAction);
 
-                websocket.showToast("webrtcup");
+//                websocket.showToast("webrtcup");
                 break;
             case "media":
                 startTime = System.currentTimeMillis();
@@ -738,6 +757,17 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
         long minutes = (durationInSeconds % 3600) / 60;
         long seconds = durationInSeconds % 60;
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Cancel the Runnable if it hasn't executed yet
+        if (initialCallConnectedHandler != null && disconnectConnectedHandler != null) {
+            initialCallConnectedHandler.removeCallbacks(disconnectConnectedHandler);
+        }
+        stopForegroundService();
+        hangup();
     }
 
 

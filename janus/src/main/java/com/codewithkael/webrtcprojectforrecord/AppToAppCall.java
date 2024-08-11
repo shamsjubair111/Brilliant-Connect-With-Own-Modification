@@ -352,7 +352,14 @@ public class AppToAppCall extends AppCompatActivity implements JanusCallHandlerI
                     ChatSDK.callActivities.remove("AppToAppCall");
                     newMessage.put("type", -1);
                     ChatSDK.push().sendPushNotification(newMessage);
-                    rtcClient.stopLocalMedia();
+                    if(rtcClient!=null){
+                        if (type.contains("video")) {
+                            rtcClient.stopLocalMedia();
+
+                        } else {
+                            rtcClient.stopLocalAudio();
+                        }
+                    }
                     rtcClient.endCall();
                     hangup();
                     finish();
@@ -371,7 +378,14 @@ public class AppToAppCall extends AppCompatActivity implements JanusCallHandlerI
                     ChatSDK.callActivities.remove("AppToAppCall");
                     newMessage.put("type", -1);
                     ChatSDK.push().sendPushNotification(newMessage);
-                    rtcClient.stopLocalMedia();
+                    if(rtcClient!=null){
+                        if (type.contains("video")) {
+                            rtcClient.stopLocalMedia();
+
+                        } else {
+                            rtcClient.stopLocalAudio();
+                        }
+                    }
                     rtcClient.endCall();
                     hangup();
                     finish();
@@ -522,7 +536,7 @@ public class AppToAppCall extends AppCompatActivity implements JanusCallHandlerI
                     }
                     rtcClient.toggleAudio(isMute);
                 });
-                websocket.showToast("webrtcup");
+//                websocket.showToast("webrtcup");
                 break;
             case "media":
                 startTime = System.currentTimeMillis();
@@ -537,7 +551,7 @@ public class AppToAppCall extends AppCompatActivity implements JanusCallHandlerI
                     SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
                     long rowId = sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
                     if (rowId > 0) {
-                        websocket.showToast("Data Inserted");
+//                        websocket.showToast("Data Inserted");
 //                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -585,7 +599,7 @@ public class AppToAppCall extends AppCompatActivity implements JanusCallHandlerI
             sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
             long rowId = sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
             if (rowId > 0) {
-                websocket.showToast("Data Inserted");
+//                websocket.showToast("Data Inserted");
             }
             stopTimer();
             websocket.sendMessage(message.toJson(message));
@@ -739,6 +753,14 @@ public class AppToAppCall extends AppCompatActivity implements JanusCallHandlerI
                 rtcClient.stopLocalAudio();
             }
         }
+        if (initialCallConnectedHandler != null && disconnectConnectedHandler != null) {
+            initialCallConnectedHandler.removeCallbacks(disconnectConnectedHandler);
+        }
+        if (connectedHandler != null && disconnectConnectedHandler != null) {
+            connectedHandler.removeCallbacks(disconnectConnectedHandler);
+        }
+        ringbackToneManager.stopRingbackTone();
+
     }
     @Override
     protected void onDestroy() {
@@ -751,6 +773,9 @@ public class AppToAppCall extends AppCompatActivity implements JanusCallHandlerI
         if (connectedHandler != null && disconnectConnectedHandler != null) {
             connectedHandler.removeCallbacks(disconnectConnectedHandler);
         }
+        ringbackToneManager.stopRingbackTone();
+        stopForegroundService();
+        hangup();
     }
 
 

@@ -372,8 +372,8 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
             case "webrtcup":
 
                 startTimer();
-                System.out.println("webrtcup");
-                websocket.showToast("webrtcup");
+//                System.out.println("webrtcup");
+//                websocket.showToast("webrtcup");
                 break;
             case "media":
                 startTime = System.currentTimeMillis();
@@ -385,7 +385,7 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
                 SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
                 long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
                 if(rowId >0){
-                    websocket.showToast("Data Inserted");
+//                    websocket.showToast("Data Inserted");
 //                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
                 }
                 stopTimer();
@@ -445,7 +445,7 @@ public class AppToAppVideo extends AppCompatActivity implements JanusCallHandler
         SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
         long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
         if(rowId >0){
-            websocket.showToast("Data Inserted");
+//            websocket.showToast("Data Inserted");
 //            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
         }
         stopTimer();

@@ -480,6 +480,7 @@ public class RTCClient implements Serializable {
     }
     public void stopLocalAudio() {
         if (localAudioTrack != null) {
+            localStream.removeTrack(localAudioTrack);
             localAudioTrack.setEnabled(false); // Disable the track
             localAudioTrack.dispose(); // Dispose the track
             localAudioTrack = null;
@@ -487,6 +488,7 @@ public class RTCClient implements Serializable {
         if (peerConnection != null && localStream != null) {
             // Remove the local stream from the peer connection
             peerConnection.removeStream(localStream);
+            localStream =null;
         }
     }
     private void cleanUpSurfaceViewRendererIfNeeded(SurfaceViewRenderer surface) {

@@ -46,7 +46,7 @@ public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
                     id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     contactName + " VARCHAR(255), " +
                     contactNumber + " VARCHAR(255));");
-            showToast("Table Created Successfully");
+//            showToast("Table Created Successfully");
         } catch (SQLException e) {
             Log.e("SQLiteCallFragmentHelper", "Error creating table", e);
             showToast("Exception Caught: " + e);
