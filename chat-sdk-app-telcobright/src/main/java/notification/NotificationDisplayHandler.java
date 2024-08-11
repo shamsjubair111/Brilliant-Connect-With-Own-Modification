@@ -7,6 +7,8 @@
 
 package notification;
 
+
+
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -16,11 +18,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 
 import androidx.core.app.NotificationManagerCompat;
 
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.disposables.Disposable;
 
@@ -35,6 +43,8 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
 
     public static final int MESSAGE_NOTIFICATION_ID = 100001;
     private static NotificationDisplayHandler instance;
+    private Handler handler = new Handler(Looper.getMainLooper());
+
 
     // Private constructor to prevent instantiation
     public NotificationDisplayHandler() {
@@ -105,6 +115,8 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
         }, this);
 
     }
+
+
     @SuppressLint("MissingPermission")
     public Disposable createOngoingCallNotification(final Context context, Intent resultIntent,
                                              String userEntityID, String title, PendingIntent pendingIntent,String msgType,Intent answerIntent,Intent deleteIntent) {

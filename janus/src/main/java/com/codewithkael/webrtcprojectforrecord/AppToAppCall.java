@@ -18,6 +18,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -35,6 +37,7 @@ import com.codewithkael.webrtcprojectforrecord.utils.NumberStringFormater;
 import com.codewithkael.webrtcprojectforrecord.utils.PeerConnectionObserver;
 import com.codewithkael.webrtcprojectforrecord.utils.RTCAudioManager;
 import com.codewithkael.webrtcprojectforrecord.utils.RTCClientSingleton;
+import com.codewithkael.webrtcprojectforrecord.utils.RingbackToneManager;
 import com.google.gson.Gson;
 import com.permissionx.guolindev.PermissionX;
 
@@ -53,7 +56,7 @@ import sdk.chat.core.session.ChatSDK;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public  class AppToAppCall extends AppCompatActivity implements JanusCallHandlerInterface {
+public class AppToAppCall extends AppCompatActivity implements JanusCallHandlerInterface {
 
     private static Timer timer;
     private static long startTime;
@@ -63,7 +66,7 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
     private int step = -1;
     private static boolean callInProgress = false;
 
-    private ActivityCallBinding binding;
+    private  ActivityCallBinding binding;
     private String userName;
     private static String receiver;
     private static String receiverNumber;
@@ -80,16 +83,41 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
     HashMap<String, Object> newMessage = new HashMap<>();
 
     public static String type;
-
+    private Handler connectedHandler;
+    private Handler initialCallConnectedHandler;
+    private Runnable disconnectConnectedHandler;
+    private Runnable disconnectinitIalCallConnectedHandlerHandler;
     private static final int PERMISSION_REQUEST_CODE = 1;
+    static private RingbackToneManager ringbackToneManager ;
+    private boolean  connected  = false;
+    private enum CallState {
+        IDLE,
+        CONNECTING,
+        CALLING,
+        CONNECTED,
+        DISCONNECTED,
+        RINGING
+
+        // Add other states as needed
+    }
+    private static CallState callState;
 
     public static void onReceived() {
-        if(type.equals("audio")){
-            rtcClient.startLocalAudio();
-        }
-        RTCClientSingleton.getInstance().setRtcClient(rtcClient);
-        final Context context = ChatSDK.ctx();
-        rtcClient.call(receiver, handleId, sessionId, type);
+            final Context context = ChatSDK.ctx() ;
+            Intent changeCallActionToReceived = new Intent("com.codewithkael.webrtcprojectforrecord.ACTION_RECEIVED");
+            ChatSDK.ctx().sendBroadcast(changeCallActionToReceived);
+            ringbackToneManager.stopRingbackTone();
+            if (type.equals("audio")) {
+                rtcClient.startLocalAudio();
+            }
+            RTCClientSingleton.getInstance().setRtcClient(rtcClient);
+            rtcClient.call(receiver, handleId, sessionId, type);
+    }
+    public static void onRinging() {
+
+            Intent changeCallActionToRinging = new Intent("com.codewithkael.webrtcprojectforrecord.ACTION_RINGING");
+            ChatSDK.ctx().sendBroadcast(changeCallActionToRinging);
+            ringbackToneManager.startRingbackTone();
     }
 
 
@@ -102,26 +130,33 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
             }
         }
     }
+
     private boolean checkPermissions() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
     }
+
     private void requestPermissions() {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, PERMISSION_REQUEST_CODE);
     }
+
     private void startForegroundService() {
         Intent serviceIntent = new Intent(this, AudioCallService.class);
-        serviceIntent.putExtra("receiverNumber",receiverNumber);
+        serviceIntent.putExtra("receiverNumber", receiverNumber);
         ContextCompat.startForegroundService(this, serviceIntent);
     }
+
     private void stopForegroundService() {
         Intent serviceIntent = new Intent(this, AudioCallService.class);
         stopService(serviceIntent);
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        callState =CallState.IDLE;
         type = getIntent().getStringExtra("type");
     }
+
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -133,18 +168,16 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                     hangup();
 
                 });
-                if(type.contains("video")){
+                if (type.contains("video")) {
                     rtcClient.stopLocalMedia();
 
-                }else {
+                } else {
                     rtcClient.stopLocalAudio();
                 }
                 rtcClient.endCall();
                 callInProgress = false;
                 finish();
-            }
-            else if("com.codewithkael.webrtcprojectforrecord.ACTION_CHANGE_SPEAKER".equals(intent.getAction()))
-            {
+            } else if ("com.codewithkael.webrtcprojectforrecord.ACTION_CHANGE_SPEAKER".equals(intent.getAction())) {
                 isSpeakerMode = !isSpeakerMode;
                 if (isSpeakerMode) {
                     binding.audioOutputButton.setImageResource(R.drawable.ic_baseline_hearing_24);
@@ -153,9 +186,7 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                     binding.audioOutputButton.setImageResource(R.drawable.ic_baseline_speaker_up_24);
                     rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE);
                 }
-            }
-            else if("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE".equals(intent.getAction()))
-            {
+            } else if ("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE".equals(intent.getAction())) {
                 isMute = !isMute;
                 if (isMute) {
                     binding.micButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
@@ -163,27 +194,38 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                     binding.micButton.setImageResource(R.drawable.ic_baseline_mic_24);
                 }
                 rtcClient.toggleAudio(isMute);
-            }
-            else if("com.codewithkael.webrtcprojectforrecord.ACTION_RESUME".equals(intent.getAction()))
-            {
+            } else if ("com.codewithkael.webrtcprojectforrecord.ACTION_RESUME".equals(intent.getAction())) {
                 onResume();
+            }
+            else if ("com.codewithkael.webrtcprojectforrecord.ACTION_RINGING".equals(intent.getAction())) {
+                binding.callStatusId.setText("Ringing");
+                callState = CallState.RINGING;
+            } else if ("com.codewithkael.webrtcprojectforrecord.ACTION_RECEIVED".equals(intent.getAction())) {
+                binding.callStatusId.setText("Connecting");
+                callState = CallState.CONNECTING;
+            }
+            else if ("com.codewithkael.webrtcprojectforrecord.ACTION_CONNECTED".equals(intent.getAction())) {
+                binding.callStatusId.setText("Connected");
+                callState = CallState.CONNECTED;
             }
         }
     };
 
     private void init() {
         callInProgress = true;
+        ringbackToneManager = RingbackToneManager.getInstance();
         // Set the flags to show the activity on the lock screen and turn the screen on
         IntentFilter filter = new IntentFilter("com.codewithkael.webrtcprojectforrecord.ACTION_FINISH_ACTIVITY");
         filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE");
         filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTEACTION_CHANGE_SPEAKER");
         filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTEACTION_ACTION_RESUME");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_RINGING");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_RECEIVED");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_CONNECTED");
         registerReceiver(broadcastReceiver, filter);
 //        ChatSDK.ctx().registerReceiver(broadcastReceiver, filter, RECEIVER_NOT_EXPORTED);
-        if(type.contains("audio"))
-        {
+        if (type.contains("audio")) {
             binding.videoButton.setVisibility(View.GONE);
-
         }
         binding.contactName.setText(getIntent().getStringExtra("contactName"));
         binding.contactNumber.setText(getIntent().getStringExtra("receiverNumber"));
@@ -245,8 +287,7 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
         rtcAudioManager = new RTCAudioManager(this);
         rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.EARPIECE);
         target = receiver;
-        if(type.contains("video"))
-        {
+        if (type.contains("video")) {
             rtcClient.initializeSurfaceView(binding.localView);
             rtcClient.initializeSurfaceView(binding.remoteView);
             rtcClient.startLocalVideo(binding.localView);
@@ -262,10 +303,14 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                 }
                 rtcClient.toggleCamera(isCameraPause);
             });
+            binding.remoteView.setOnClickListener(v -> {
+                rtcClient.switchCamera();
+            });
         }
+//        binding.remoteView.callOnClick(v->{})
+//                binding.switchCameraButton.setOnClickListener(v -> rtcClient.switchCamera());
 
 //        });
-
 
 
         binding.audioOutputButton.setOnClickListener(v -> {
@@ -290,41 +335,54 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                 rtcClient.endCall();
                 hangup();
                 finish();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
 
 
         });
+        initialCallConnectedHandler = new Handler(Looper.getMainLooper());
 
-
-    }
-
-    private void finishWithSendNotfication() {
-        ChatSDK.callActivities.remove("AppToAppCall");
-        newMessage.put("type", -1);
-        runOnUiThread(() -> {
-            ChatSDK.push().sendPushNotification(newMessage);
-            hangup();
-        });
-        try {
-            stopForegroundService();
-            rtcClient.stopLocalAudio();
-            if(type.contains("video"))
-            {
-            rtcClient.stopLocalVideo();
+       disconnectinitIalCallConnectedHandlerHandler =  new Runnable() {
+            @Override
+            public void run() {
+                if (callState == CallState.IDLE ||callState==CallState.CALLING ||callState ==CallState.CONNECTING) {
+                    // Get the updated call state ID
+                    websocket.showToast("Network Error");
+                    ChatSDK.callActivities.remove("AppToAppCall");
+                    newMessage.put("type", -1);
+                    ChatSDK.push().sendPushNotification(newMessage);
+                    rtcClient.stopLocalMedia();
+                    rtcClient.endCall();
+                    hangup();
+                    finish();
+                }
             }
-            rtcClient.endCall();
-            finish();
-        }
-        catch (Exception e)
-        {
-            System.out.println(e);
-        }
+        };
 
+        initialCallConnectedHandler.postDelayed(disconnectinitIalCallConnectedHandlerHandler, 45000); //45 sec wait for call
+
+        connectedHandler = new Handler(Looper.getMainLooper());
+        disconnectConnectedHandler = new Runnable() {
+            @Override
+            public void run() {
+                if (callState != CallState.CONNECTED) {
+                    websocket.showToast("Network Error");
+                    ChatSDK.callActivities.remove("AppToAppCall");
+                    newMessage.put("type", -1);
+                    ChatSDK.push().sendPushNotification(newMessage);
+                    rtcClient.stopLocalMedia();
+                    rtcClient.endCall();
+                    hangup();
+                    finish();
+                }
+            }
+        };
+
+        // Schedule the Runnable to run after 90 seconds
+        connectedHandler.postDelayed(disconnectConnectedHandler, 90000);
     }
+
 
     @Override
     public void onNewMessage(JanusResponse message) throws JSONException {
@@ -358,13 +416,9 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
             break;
             case "event":
                 JanusResponse.plugin = message.getPluginData();
-
-
                 if (JanusResponse.plugin.getData().getErrorCode() == 476 || JanusResponse.plugin.getData().getResult().getEvent().contains("registered")) {
 
                     receiverNumber = NumberStringFormater.normalizePhoneNumber(getIntent().getStringExtra("receiverNumber"));
-                    String roomName = null;
-                    roomName = ChatSDK.auth().getCurrentUserEntityID().split("@")[0];   //ChatSDK.currentUser().getName();
 
                     String threadEntityID = receiverNumber + "@localhost";
                     String userThreadId = ChatSDK.auth().getCurrentUserEntityID();      //ChatSDK.currentUser().getName() + "@localhost";
@@ -376,12 +430,9 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                     String body = "video call";
                     int callType;
 
-                    if(type.contains("video"))
-                    {
+                    if (type.contains("video")) {
                         callType = 101;
-                    }
-                    else
-                    {
+                    } else {
                         callType = 100;
                     }
 
@@ -393,14 +444,12 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                     newMessage.put(Action, action);
                     newMessage.put(Body, body);
                     newMessage.put(Type, callType);
+                    websocket.showToast("Calling");
                     runOnUiThread(() -> {
                         ChatSDK.push().sendPushNotification(newMessage);
-                        websocket.showToast("Calling");
-
                     });
 
-                }
-                else if (JanusResponse.plugin.getData().getResult().getEvent().contains("registering")) {
+                } else if (JanusResponse.plugin.getData().getResult().getEvent().contains("registering")) {
                     System.out.println("Registering...");
                 } else if (JanusResponse.plugin.getData().getResult().getEvent().contains("calling")) {
                     System.out.println("Calling");
@@ -458,12 +507,10 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                 }
                 break;
             case "webrtcup":
+                Intent changeCallAction = new Intent("com.codewithkael.webrtcprojectforrecord.ACTION_CONNECTED");
+                ChatSDK.ctx().sendBroadcast(changeCallAction);
                 startTimer();
-                if (checkPermissions()) {
-                    startForegroundService();
-                } else {
-                    requestPermissions();
-                }
+                startForegroundService();
                 binding.micButton.setOnClickListener(v -> {
                     Intent changeNotificationIcon = new Intent("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE_NOTIFICATION_ICON");
                     ChatSDK.ctx().sendBroadcast(changeNotificationIcon);
@@ -475,8 +522,6 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                     }
                     rtcClient.toggleAudio(isMute);
                 });
-
-                System.out.println("webrtcup");
                 websocket.showToast("webrtcup");
                 break;
             case "media":
@@ -484,14 +529,14 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                 System.out.println("media received");
                 break;
             case "hangup":
-                callInProgress =false;
+                callInProgress = false;
                 runOnUiThread(() -> {
-                    rtcClient.stopLocalAudio();
-                    stopForegroundService();
+//                    rtcClient.stopLocalAudio();
+//                    stopForegroundService();
                     sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
                     SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
-                    long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
-                    if(rowId >0){
+                    long rowId = sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+                    if (rowId > 0) {
                         websocket.showToast("Data Inserted");
 //                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
                     }
@@ -535,15 +580,14 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
     public void hangup() {
         JanusMessage.Body body = new JanusMessage.Body("hangup");
         JanusMessage message = new JanusMessage("message", body, TID(), sessionId, handleId);
-        sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
-        SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
-        long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
-        if(rowId >0){
-            websocket.showToast("Data Inserted");
-//            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
-        }
-        stopTimer();
+
         try {
+            sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
+            long rowId = sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+            if (rowId > 0) {
+                websocket.showToast("Data Inserted");
+            }
+            stopTimer();
             websocket.sendMessage(message.toJson(message));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -599,22 +643,9 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
 
         // super.onBackPressed(); // Comment this super call to avoid calling finish() or fragmentmanager's backstack pop operation.
     }
-    @Override
-    public void finish() {
-        super.finish();
-        stopForegroundService();
-        websocket.stopKeepAliveTimer();
-        websocket.closeSocket();
-        callInProgress = false;
-        if(type.contains("video"))
-        {
-            super.finishAndRemoveTask();
-
-        }
-    }
 
 
-    public  void startTimer() {
+    public void startTimer() {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -629,7 +660,7 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
         }, 1000, 1000); // Start updating every second
     }
 
-    public  void stopTimer() {
+    public void stopTimer() {
         timer.cancel();
         long duration = System.currentTimeMillis() - startTime;
 
@@ -648,12 +679,13 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
         super.onPause();
 //        rtcClient.resumeLocalAudio();
     }
+
     @Override
     protected void onResume() {
         super.onResume();
-        if(!callInProgress) {
+        if (!callInProgress) {
             timer = new Timer();
-            if(type.equals("video")){
+            if (type.equals("video")) {
                 PermissionX.init(AppToAppCall.this)
                         .permissions(
                                 Manifest.permission.RECORD_AUDIO,
@@ -661,7 +693,7 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                         ).request((allGranted, grantedList, deniedList) -> {
                             if (allGranted) {
                                 binding = ActivityCallBinding.inflate(getLayoutInflater());
-                                ChatSDK.callActivities.put("AppToAppCall",this);
+                                ChatSDK.callActivities.put("AppToAppCall", this);
                                 setContentView(binding.getRoot());
                                 setCallLayoutVisible();
                                 init();
@@ -670,8 +702,7 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
                                 super.finish();
                             }
                         });
-            }
-            else {
+            } else {
                 PermissionX.init(AppToAppCall.this)
                         .permissions(
                                 Manifest.permission.RECORD_AUDIO
@@ -690,5 +721,38 @@ public  class AppToAppCall extends AppCompatActivity implements JanusCallHandler
 
         }
     }
+    @Override
+    public void finish() {
+        super.finish();
+        stopTimer();
+        stopForegroundService();
+        ringbackToneManager.stopRingbackTone();
+        websocket.stopKeepAliveTimer();
+        websocket.closeSocket();
+        callInProgress = false;
+        if(rtcClient!=null){
+            if (type.contains("video")) {
+                rtcClient.stopLocalMedia();
+                super.finishAndRemoveTask();
+
+            } else {
+                rtcClient.stopLocalAudio();
+            }
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Cancel the Runnable if it hasn't executed yet
+        if (initialCallConnectedHandler != null && disconnectConnectedHandler != null) {
+            initialCallConnectedHandler.removeCallbacks(disconnectConnectedHandler);
+        }
+        if (connectedHandler != null && disconnectConnectedHandler != null) {
+            connectedHandler.removeCallbacks(disconnectConnectedHandler);
+        }
+    }
+
+
 
 }

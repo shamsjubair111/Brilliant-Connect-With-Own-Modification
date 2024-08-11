@@ -20,6 +20,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -88,11 +89,22 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
     {
         return type;
     }
+    public enum CallState {
+        IDLE,
+        CONNECTING,
+        CALLING,
+        CONNECTED,
+        DISCONNECTED,
+        RINGING
+
+        // Add other states as needed
+    }
+    private static CallState callState;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if ("com.codewithkael.webrtcprojectforrecord.ACTION_FINISH_ACTIVITY".equals(intent.getAction())) {
-                ChatSDK.callActivities.remove("AppToAppCall");
+                ChatSDK.callActivities.remove("ReceiverActivity");
                 newMessage.put("type", -1);
                 runOnUiThread(() -> {
                     ChatSDK.push().sendPushNotification(newMessage);
@@ -133,11 +145,16 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
             {
                 onResume();
             }
+            else if ("com.codewithkael.webrtcprojectforrecord.ACTION_CONNECTED".equals(intent.getAction())) {
+                binding.callStatusId.setText("Connected");
+                callState = CallState.CONNECTED;
+            }
         }
     };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        callState = CallState.IDLE;
 
         timer = new Timer();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -154,7 +171,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                         setContentView(binding.getRoot());
                         setCallLayoutVisible();
                         init();
-                        ChatSDK.callActivities.put("ReceiverActivityAudio",this);
+                        ChatSDK.callActivities.put("ReceiverActivity",this);
                     } else {
                         Toast.makeText(ReceiverActivity.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
                     }
@@ -199,6 +216,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
         filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE");
         filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTEACTION_CHANGE_SPEAKER");
         filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_MUTEACTION_ACTION_RESUME");
+        filter.addAction("com.codewithkael.webrtcprojectforrecord.ACTION_CONNECTED");
         registerReceiver(broadcastReceiver, filter);
         receiverNumber = getIntent().getStringExtra("senderNumber");
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -282,6 +300,9 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                 }
                 rtcClient.toggleCamera(isCameraPause);
             });
+            binding.remoteView.setOnClickListener(v -> {
+                rtcClient.switchCamera();
+            });
 //            binding.switchCameraButton.setOnClickListener(v -> rtcClient.switchCamera());
 
         }
@@ -324,6 +345,26 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
             finishAndRemoveTask();
 
         });
+
+
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (callState != CallState.CONNECTED) {
+                    // Get the updated call state ID
+                    websocket.showToast("Network Error");
+                    ChatSDK.callActivities.remove("ReceiverActivity");
+                    newMessage.put("type", -1);
+                    ChatSDK.push().sendPushNotification(newMessage);
+                    rtcClient.stopLocalMedia();
+                    rtcClient.endCall();
+                    hangup();
+                    finish();
+                }
+
+            }
+        }, 20000); // 30 seconds delay
     }
     @Override
     public void onNewMessage(JanusResponse message) throws JSONException, IOException {
@@ -531,7 +572,8 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                     }
                     rtcClient.toggleAudio(isMute);
                 });
-                System.out.println("webrtcup");
+                Intent changeCallAction = new Intent("com.codewithkael.webrtcprojectforrecord.ACTION_CONNECTED");
+                ChatSDK.ctx().sendBroadcast(changeCallAction);
 
                 websocket.showToast("webrtcup");
                 break;
@@ -563,7 +605,6 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                 rtcClient.endCall();
                 stopForegroundService();
                 finishAndRemoveTask();
-//                finish();
                 break;
             case "ack":
                 System.out.println(message.toString());
@@ -614,13 +655,6 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
     {
         JanusMessage.Body body = new JanusMessage.Body("hangup");
         JanusMessage message = new JanusMessage("message", body, TID(), sessionId, handleId);
-//        sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
-//        SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
-//        long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
-//        if(rowId >0){
-//            websocket.showToast("Data Inserted");
-////            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
-//        }
         stopTimer();
         try {
             websocket.sendMessage(message.toJson(message));

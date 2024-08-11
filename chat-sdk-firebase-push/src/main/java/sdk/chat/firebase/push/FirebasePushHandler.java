@@ -79,36 +79,36 @@ public class FirebasePushHandler extends AbstractPushHandler {
         if (data != null) {
 
 
-            if(data.get("type").toString().equals("101")
-                    ||data.get("type").toString().equals("100")
-                    ||data.get("type").toString().equals("-2")
-                    ||data.get("type").toString().equals("-1"))
-            {
-                functions().getHttpsCallable("pushToCall").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
+            String type = data.get("type").toString();
 
-//                functions().getHttpsCallable("").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
+            switch (type) {
+                case "101":
+                case "100":
+                case "-2":
+                case "-1":
+                case "-3":
+                case "-4":
+                    functions().getHttpsCallable("pushToCall").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
+                        if (task.getException() != null) {
+                            Logger.error(task.getException());
+                        } else {
+                            Logger.debug(task.getResult().getData().toString());
+                        }
+                        return null;
+                    });
+                    break;
 
-                    if(task.getException() != null) {
-                        Logger.error(task.getException());
-                    }
-                    else {
-                        Logger.debug(task.getResult().getData().toString());
-                    }
-                    return null;
-                });
+                default:
+                    functions().getHttpsCallable("pushToChannels").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
+                        if (task.getException() != null) {
+                            Logger.error(task.getException());
+                        } else {
+                            Logger.debug(task.getResult().getData().toString());
+                        }
+                        return null;
+                    });
+                    break;
             }
-            else {
-                functions().getHttpsCallable("pushToChannels").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
-                    if(task.getException() != null) {
-                        Logger.error(task.getException());
-                    }
-                    else {
-                        Logger.debug(task.getResult().getData().toString());
-                    }
-                    return null;
-                });
-            }
-
 
         }
     }

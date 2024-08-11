@@ -88,7 +88,6 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
         @Override
         public void onReceive(Context context, Intent intent) {
             if ("com.codewithkael.webrtcprojectforrecord.ACTION_FINISH_ACTIVITY".equals(intent.getAction())) {
-                ChatSDK.callActivities.remove("AppToAppCall");
                 runOnUiThread(() -> {
                     hangup();
                 });

@@ -34,7 +34,6 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                     context.sendBroadcast(changeIcon);
                     Intent changeNotificationIcon = new Intent("com.codewithkael.webrtcprojectforrecord.ACTION_MUTE_NOTIFICATION_ICON");
                     context.sendBroadcast(changeNotificationIcon);
-
                 }
             }
             else if (ACTION_CHANGE_SPEAKER.equals(action)) {

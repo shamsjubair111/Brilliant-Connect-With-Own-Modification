@@ -73,21 +73,29 @@ public class RTCClient implements Serializable {
         PeerConnectionFactory.initialize(options);
 
 
-        iceServers.add(PeerConnection.IceServer.builder("stun:stun.cloudflare.com:3478").createIceServer());
-        iceServers.add(PeerConnection.IceServer.builder("stun:stun.voip.eutelia.it:3478").createIceServer());
-        iceServers.add(PeerConnection.IceServer.builder("stun:ip-9-232.sn2.clouditalia.com:3478").createIceServer());
-        iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").setUsername("83eebabf8b4cce9d5dbcb649").setPassword("2D7JvfkOQtBdYW3R").createIceServer());
-
+//        iceServers.add(PeerConnection.IceServer.builder("stun:stun.cloudflare.com:3478").createIceServer());
+//        iceServers.add(PeerConnection.IceServer.builder("stun:stun.voip.eutelia.it:3478").createIceServer());
+//        iceServers.add(PeerConnection.IceServer.builder("stun:ip-9-232.sn2.clouditalia.com:3478").createIceServer());
+//        iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").setUsername("83eebabf8b4cce9d5dbcb649").setPassword("2D7JvfkOQtBdYW3R").createIceServer());
+//
 
         peerConnectionFactory = createPeerConnectionFactory();
         peerConnection = createPeerConnection(observer);
     }
 
     private PeerConnectionFactory createPeerConnectionFactory() {
-        return PeerConnectionFactory.builder()
-                .setVideoEncoderFactory(new DefaultVideoEncoderFactory(eglContext.getEglBaseContext(), true, true))
-                .setVideoDecoderFactory(new DefaultVideoDecoderFactory(eglContext.getEglBaseContext()))
-                .createPeerConnectionFactory();
+        if(this.peerConnectionFactory==null)
+        {
+            return PeerConnectionFactory.builder()
+                    .setVideoEncoderFactory(new DefaultVideoEncoderFactory(eglContext.getEglBaseContext(), true, true))
+                    .setVideoDecoderFactory(new DefaultVideoDecoderFactory(eglContext.getEglBaseContext()))
+                    .createPeerConnectionFactory();
+        }
+        else
+        {
+            return  peerConnectionFactory;
+        }
+
     }
 
     private PeerConnection createPeerConnection(PeerConnection.Observer observer) {
@@ -95,6 +103,7 @@ public class RTCClient implements Serializable {
     }
 
     private void configureVideoEncoder(VideoSource videoSource) {
+
         // Set additional encoder settings if needed
         // For example, configure bitrate and resolution constraints
         MediaConstraints videoConstraints = new MediaConstraints();
@@ -107,11 +116,6 @@ public class RTCClient implements Serializable {
     }
 
 
-    private void cleanUpSurfaceViewRenderer(SurfaceViewRenderer surface) {
-
-        surface.release();
-        surface.clearImage();
-    }
 
     public void initializeSurfaceView(SurfaceViewRenderer surfaceViewRenderer) {
         this.surfaceViewRenderer = surfaceViewRenderer;
@@ -166,46 +170,7 @@ public class RTCClient implements Serializable {
         }
     }
 
-    public void stopLocalVideo() {
-        if (localVideoTrack != null) {
-            localVideoTrack.setEnabled(false); // Disable the track
-            if(isMediaStreamDisposed)
-            {
-                localVideoTrack.dispose(); // Dispose the track
-                localVideoTrack = null;
-            }
 
-        }
-        if (videoCapturer != null) {
-            try {
-                if(isMediaStreamDisposed)
-                {
-                    videoCapturer.stopCapture();
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if(isMediaStreamDisposed)
-            {
-                videoCapturer.dispose();
-
-            }
-            videoCapturer = null;
-        }
-        if (surfaceTextureHelper != null) {
-            surfaceTextureHelper.dispose();
-            surfaceTextureHelper = null;
-        }
-        if (peerConnection != null && localStream != null) {
-            // Remove the local stream from the peer connection
-            peerConnection.removeStream(localStream);
-            localStream = null; // Reset localStream reference
-        }
-        if (this.surfaceViewRenderer != null) {
-            cleanUpSurfaceViewRenderer(this.surfaceViewRenderer);
-
-        }
-    }
 
     public void startLocalAudio() {
         // Initialize localAudioSource
@@ -227,29 +192,7 @@ public class RTCClient implements Serializable {
             }
         }
     }
-    public void resumeLocalAudio() {
-        if (localAudioTrack != null) {
-            localAudioTrack.setEnabled(true);
-        } else {
-            startLocalAudio();
-        }
-    }
-    public void stopLocalAudio() {
-        if (localAudioTrack != null) {
-            localAudioTrack.setEnabled(false); // Disable the track
-            localAudioTrack.dispose(); // Dispose the track
-            localAudioTrack = null;
-        }
-        if (peerConnection != null && localStream != null) {
-            // Remove the local stream from the peer connection
-            peerConnection.removeStream(localStream);
-        }
-    }
 
-    public void stopLocalMedia() {
-        stopLocalAudio();
-        stopLocalVideo();
-    }
 
     private CameraVideoCapturer getVideoCapturer(Application application) {
         if (Camera2Enumerator.isSupported(application)) {
@@ -309,7 +252,6 @@ public class RTCClient implements Serializable {
             constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false"));
 
         }
-
 
         peerConnection.createOffer(new SdpObserver() {
             @Override
@@ -476,7 +418,7 @@ public class RTCClient implements Serializable {
     }
 
     public void toggleAudio(boolean mute) {
-        if (localAudioTrack != null) {
+        if (localAudioTrack != null&& !isMediaStreamDisposed) {
             localAudioTrack.setEnabled(!mute);
         }
     }
@@ -484,7 +426,79 @@ public class RTCClient implements Serializable {
     public void toggleCamera(boolean cameraPause) {
         localVideoTrack.setEnabled(!cameraPause);
     }
+    private void cleanUpSurfaceViewRenderer(SurfaceViewRenderer surface) {
+        surface.release();
+        surface.clearImage();
+        surfaceViewRenderer.release();
+    }
 
+    public void stopLocalVideo() {
+        stopVideoCapturer();
+        disposeLocalVideoTrack();
+        disposeSurfaceTextureHelper();
+        removeLocalStream();
+        cleanUpSurfaceViewRendererIfNeeded(this.surfaceViewRenderer);
+    }
+    private void stopVideoCapturer() {
+        if (videoCapturer != null) {
+            try {
+                if (isMediaStreamDisposed) {
+                    videoCapturer.stopCapture();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (isMediaStreamDisposed) {
+                videoCapturer.dispose();
+            }
+            videoCapturer = null;
+        }
+    }
+    private void disposeLocalVideoTrack() {
+        if (localVideoTrack != null) {
+            localVideoTrack.setEnabled(false);
+            if (isMediaStreamDisposed) {
+                localVideoTrack.removeSink(surfaceViewRenderer);
+                localVideoTrack.dispose();
+            }
+            localVideoTrack = null;
+        }
+    }
+
+    private void disposeSurfaceTextureHelper() {
+        if (surfaceTextureHelper != null) {
+            surfaceTextureHelper.dispose();
+            surfaceTextureHelper = null;
+        }
+    }
+
+    private void removeLocalStream() {
+        if (peerConnection != null && localStream != null) {
+            peerConnection.removeStream(localStream);
+            localStream = null;
+        }
+    }
+    public void stopLocalAudio() {
+        if (localAudioTrack != null) {
+            localAudioTrack.setEnabled(false); // Disable the track
+            localAudioTrack.dispose(); // Dispose the track
+            localAudioTrack = null;
+        }
+        if (peerConnection != null && localStream != null) {
+            // Remove the local stream from the peer connection
+            peerConnection.removeStream(localStream);
+        }
+    }
+    private void cleanUpSurfaceViewRendererIfNeeded(SurfaceViewRenderer surface) {
+        if (surface != null) {
+            cleanUpSurfaceViewRenderer(surface);
+        }
+    }
+
+    public void stopLocalMedia() {
+        stopLocalAudio();
+        stopLocalVideo();
+    }
     public void endCall() {
         if (peerConnection != null) {
             peerConnection.close();

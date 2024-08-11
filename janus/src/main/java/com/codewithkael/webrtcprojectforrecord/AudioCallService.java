@@ -142,7 +142,7 @@ public class AudioCallService extends Service {
                     .setOngoing(true)
                     .setStyle(
                             Notification.CallStyle.forOngoingCall(incomingCaller, endCallPendingIntent))
-                    .setPriority(Notification.PRIORITY_HIGH)
+                    .setPriority(Notification.PRIORITY_DEFAULT)
                     .setContentIntent(launchPendingIntent)
                     .addAction(new Notification.Action.Builder(icon, "Mute", mutePendingIntent).build());
 //                    .addAction(new Notification.Action.Builder(R.drawable.baseline_call_end_24_red, "End Call", endCallPendingIntent)
@@ -156,7 +156,7 @@ public class AudioCallService extends Service {
                     .setSmallIcon(R.drawable.ic_launcher_foreground)
                     .setOngoing(true)
                     .setSilent(true)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setContentIntent(launchPendingIntent)
                     .addAction(icon, "Mute", mutePendingIntent)
 //                    .addAction(R.drawable.baseline_call_end_24_red, "End Call", endCallPendingIntent)
@@ -175,6 +175,8 @@ public class AudioCallService extends Service {
                     NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription("Notifications for ongoing calls");
             channel.setSound(null, null); // Disable sound for the channel
+            channel.getLockscreenVisibility();
+            channel.setImportance( NotificationManager.IMPORTANCE_LOW);
 
             // Register the channel with the system
             if (notificationManager != null) {
