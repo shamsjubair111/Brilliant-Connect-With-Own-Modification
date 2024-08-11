@@ -50,20 +50,6 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
     private LinearLayout apptonumberSms;
     private LinearLayout AppToAppCallCall;
 
-
-    public ArrayList<Integer> imageList = new ArrayList<>(Arrays.asList(
-            R.drawable.ragnar,
-            R.drawable.sazid_vai,
-            R.drawable.suchi_apu,
-            R.drawable.maruf_vai,
-            R.drawable.angela_merkel,
-            R.drawable.joe_biden,
-            R.drawable.donald_trump,
-            R.drawable.messi,
-            R.drawable.ronaldo
-
-    ));
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -115,6 +101,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                         intent.putExtra("receiverNumber", receiverNumber);
                         intent.putExtra("type", "video");
                         intent.putExtra("contactName", receiverName);
+                        intent.putExtra("photo", contactImage);
                         //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                     }
@@ -157,6 +144,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                         intent.putExtra("receiverNumber", receiverNumber);
                         intent.putExtra("type", "audio");
                         intent.putExtra("contactName", receiverName);
+                        intent.putExtra("photo", contactImage);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.setAction(Intent.ACTION_MAIN);
                         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -182,6 +170,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
                     intent.putExtra("receiverNumber", receiverNumber);
                     intent.putExtra("activityName", "ContactProfile");
                     intent.putExtra("contactName", receiverName);
+                    intent.putExtra("photo", contactImage);
                     startActivity(intent);
                 }
                 else{

@@ -78,7 +78,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         holder.contactName.setText(contactName);
         holder.contactNumber.setText(contactNumber);
 
-        if (contactPhoto != null) {
+        if (contactPhoto != null && !contactPhoto.isEmpty()) {
             holder.contactPhoto.setImageURI(Uri.parse(contactPhoto));
             holder.contactPhoto.setVisibility(View.VISIBLE);
             holder.letterImage.setVisibility(View.GONE);
@@ -98,7 +98,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
             intent.putExtra("contactName", contactName);
             intent.putExtra("contactNumber", contactNumber);
 
-            if (contactPhoto != null) {
+            if (contactPhoto != null && !contactPhoto.isEmpty()) {
                 intent.putExtra("contactImage", contactPhoto);
             } else{
                 intent.putExtra("contactImage", "");

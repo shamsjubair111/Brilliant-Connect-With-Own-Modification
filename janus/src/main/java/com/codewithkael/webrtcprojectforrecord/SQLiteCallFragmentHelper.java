@@ -18,19 +18,23 @@ import java.util.List;
 
 public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
 
-    private static final String databaseName = "CallDetails.db";
-    private final String tableName = "callList";
-    private static final int databaseVersion = 1;
+    private static final String DB_NAME = "CallDetails.db";
+    private static final String TABLE_NAME = "callList";
+    private static final int DB_VERSION = 2;
 
-    private final String id = "_id";
-    private final String contactName = "contactName";
-    private final String contactNumber = "contactNumber";
+    private static final String ID = "_id";
+    private static final String NAME = "name";
+    private static final String NUMBER = "number";
+    private static final String PHOTO = "photo";
     private SQLiteDatabase sqliteDatabase;
 
     private Context context;
 
     public SQLiteCallFragmentHelper(@Nullable Context context) {
-        super(context != null ? context.getApplicationContext() : null, databaseName, null, databaseVersion);
+        super(context != null ? context.getApplicationContext() : null, DB_NAME, null, DB_VERSION);
+        if (context == null) {
+            throw new IllegalArgumentException("Context must not be null");
+        }
         this.context = context;
     }
 
@@ -42,73 +46,88 @@ public class SQLiteCallFragmentHelper extends SQLiteOpenHelper {
         }
 
         try {
-            db.execSQL("CREATE TABLE " + tableName + " (" +
-                    id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    contactName + " VARCHAR(255), " +
-                    contactNumber + " VARCHAR(255));");
+            db.execSQL("CREATE TABLE " + TABLE_NAME + " (" +
+                    ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    NAME + " VARCHAR(255), " +
+                    NUMBER + " VARCHAR(255), " +
+                    PHOTO + " VARCHAR(255));");
 //            showToast("Table Created Successfully");
         } catch (SQLException e) {
             Log.e("SQLiteCallFragmentHelper", "Error creating table", e);
-            showToast("Exception Caught: " + e);
+            showToast("Exception Caught: " + e.getMessage());
         }
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
-            // db.execSQL("DROP TABLE IF EXISTS " + tableName);
-            // onCreate(db);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+            onCreate(db);
+            showToast("Database upgraded successfully");
         } catch (SQLException e) {
             Log.e("SQLiteCallFragmentHelper", "Error upgrading table", e);
-            showToast("Exception Caught onUpgrade");
+            showToast("Exception Caught onUpgrade: " + e.getMessage());
         }
     }
 
-    public long insertData(String contactName, String contactNumber) {
+    public long insertData(String name, String number, String photo) {
         long rowId = -1;
         try {
             sqliteDatabase = this.getWritableDatabase();
+            sqliteDatabase.beginTransaction();  // Start transaction
             ContentValues contentValues = new ContentValues();
-            contentValues.put(this.contactName, contactName);
-            contentValues.put(this.contactNumber, contactNumber);
-            rowId = sqliteDatabase.insert(tableName, null, contentValues);
+            contentValues.put(NAME, name);
+            contentValues.put(NUMBER, number);
+            contentValues.put(PHOTO, photo);
+            rowId = sqliteDatabase.insertOrThrow(TABLE_NAME, null, contentValues);
+            sqliteDatabase.setTransactionSuccessful();  // Mark transaction as successful
         } catch (SQLException e) {
             Log.e("SQLiteCallFragmentHelper", "Error inserting data", e);
-            showToast("Error inserting data: " + e);
+            showToast("Error inserting data: " + e.getMessage());
         } finally {
-            if (sqliteDatabase != null && sqliteDatabase.isOpen()) {
-                sqliteDatabase.close();
+            if (sqliteDatabase != null) {
+                sqliteDatabase.endTransaction();  // End transaction
+                if (sqliteDatabase.isOpen()) {
+                    sqliteDatabase.close();
+                }
             }
         }
         return rowId;
     }
 
-    public List<CallRecords> getAllRecords() {
-        List<CallRecords> returnList = new ArrayList<>();
+    public List<CallRecord> getAllRecords() {
+        List<CallRecord> returnList = new ArrayList<>();
         Cursor cursor = null;
 
         try {
             sqliteDatabase = this.getReadableDatabase();
-            String query = "SELECT * FROM " + tableName + " ORDER BY " + id + " DESC";
+            String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY " + ID + " DESC";
             cursor = sqliteDatabase.rawQuery(query, null);
 
             if (cursor.moveToFirst()) {
                 do {
-                    int idIndex = cursor.getColumnIndex(id);
-                    int nameIndex = cursor.getColumnIndex(contactName);
-                    int numberIndex = cursor.getColumnIndex(contactNumber);
+                    int idIndex = cursor.getColumnIndex(ID);
+                    int nameIndex = cursor.getColumnIndex(NAME);
+                    int numberIndex = cursor.getColumnIndex(NUMBER);
+                    int photoIndex = cursor.getColumnIndex(PHOTO);
 
-                    String contactId = cursor.getString(idIndex);
-                    String contactName = cursor.getString(nameIndex);
-                    String contactNumber = cursor.getString(numberIndex);
+                    if (idIndex == -1 || nameIndex == -1 || numberIndex == -1 || photoIndex == -1) {
+                        Log.e("SQLiteCallFragmentHelper", "Invalid column index");
+                        continue;
+                    }
 
-                    CallRecords callRecords = new CallRecords(contactId, contactName, contactNumber);
-                    returnList.add(callRecords);
+                    String id = cursor.getString(idIndex);
+                    String name = cursor.getString(nameIndex);
+                    String number = cursor.getString(numberIndex);
+                    String photo = cursor.getString(photoIndex);
+
+                    CallRecord callRecord = new CallRecord(id, name, number, photo);
+                    returnList.add(callRecord);
                 } while (cursor.moveToNext());
             }
         } catch (SQLException e) {
             Log.e("SQLiteCallFragmentHelper", "Error reading data", e);
-            showToast("Error reading data: " + e);
+            showToast("Error reading data: " + e.getMessage());
         } finally {
             if (cursor != null) {
                 cursor.close();

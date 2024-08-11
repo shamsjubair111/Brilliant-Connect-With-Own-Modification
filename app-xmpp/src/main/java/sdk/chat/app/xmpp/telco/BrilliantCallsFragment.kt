@@ -1,5 +1,6 @@
 package sdk.chat.app.xmpp.telco
 
+import CallRecordAdapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
@@ -10,9 +11,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.ListView
 import androidx.annotation.RequiresApi
-import com.codewithkael.webrtcprojectforrecord.CallRecords
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.codewithkael.webrtcprojectforrecord.CallRecord
 import com.codewithkael.webrtcprojectforrecord.SQLiteCallFragmentHelper
 import com.lassi.common.utils.Logger
 import sdk.chat.core.session.ChatSDK
@@ -25,13 +27,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class BrilliantCallsFragment : BaseFragment(), SearchSupported {
-    private lateinit var listViewContacts: ListView
+    private lateinit var recyclerViewCalls: RecyclerView
     private lateinit var fab: ImageView
-    private lateinit var adapter: CustomAdapter
+    private lateinit var adapter: CallRecordAdapter
 
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
-    private var allRecords: List<CallRecords> = mutableListOf()
-    private var filteredContacts: MutableList<CallRecords> = mutableListOf()
+    private var allRecords: List<CallRecord> = mutableListOf()
+    private var filteredContacts: MutableList<CallRecord> = mutableListOf()
 
     override fun getLayout(): Int {
         return R.layout.fragment_brilliant_calls
@@ -41,7 +43,7 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_brilliant_calls, container, false)
-        listViewContacts = view.findViewById(R.id.contactListView)
+        recyclerViewCalls = view.findViewById(R.id.recyclerViewCalls)
         fab = view.findViewById(R.id.fab)
         return view
     }
@@ -66,6 +68,11 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
             }
         }
         connectivityManager.registerDefaultNetworkCallback(networkCallback)
+
+        // Set up RecyclerView
+        recyclerViewCalls.layoutManager = LinearLayoutManager(requireContext())
+        adapter = CallRecordAdapter(requireContext(), filteredContacts)
+        recyclerViewCalls.adapter = adapter
 
         loadDataFromDatabase()
     }
@@ -94,7 +101,7 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
     override fun filter(text: String?) {
         if (text != null) {
             filteredContacts = allRecords.filter { contact ->
-                contact.contactName?.lowercase(Locale.getDefault())
+                contact.name?.lowercase(Locale.getDefault())
                     ?.contains(text.lowercase(Locale.getDefault())) == true
             }.toMutableList()
             updateAdapter(filteredContacts)
@@ -126,12 +133,8 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
         }
     }
 
-    private fun updateAdapter(records: List<CallRecords>) {
+    private fun updateAdapter(records: List<CallRecord>) {
         Logger.d("UpdateAdapter", "Updating adapter with ${records.size} records")
-        context?.let {
-            adapter = CustomAdapter(it, records)
-            listViewContacts.adapter = adapter
-            adapter.notifyDataSetChanged()
-        }
+        adapter.updateData(records)
     }
 }

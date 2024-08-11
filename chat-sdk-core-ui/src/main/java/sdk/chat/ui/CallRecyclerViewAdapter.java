@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.codewithkael.webrtcprojectforrecord.CallRecords;
+import com.codewithkael.webrtcprojectforrecord.CallRecord;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,11 +28,11 @@ public class CallRecyclerViewAdapter extends RecyclerView.Adapter<ContactViewHol
 
 
     Context context;
-    List<CallRecords> list;
+    List<CallRecord> list;
     Set<String> registeredUsers;
 
 
-    public CallRecyclerViewAdapter(Context context, List<CallRecords> items, Set<String> registeredUsers) {
+    public CallRecyclerViewAdapter(Context context, List<CallRecord> items, Set<String> registeredUsers) {
         this.context = context;
         this.list = items;
         this.registeredUsers = registeredUsers;
@@ -49,10 +49,10 @@ public class CallRecyclerViewAdapter extends RecyclerView.Adapter<ContactViewHol
     @Override
     public void onBindViewHolder(@NonNull ContactViewHolder holder, int position) {
         try {
-            CallRecords contact = list.get(position);
+            CallRecord contact = list.get(position);
 
 
-            String contactNumber = contact.getContactNumber();
+            String contactNumber = contact.getNumber();
             String validContactNumber = validPhoneNumber(contactNumber);
 //            Log.d("currentContact.getNumber()", validContactNumber);
 
@@ -84,20 +84,20 @@ public class CallRecyclerViewAdapter extends RecyclerView.Adapter<ContactViewHol
 //            }
 //            else {
                 holder.letterImage.setVisibility(View.VISIBLE);
-                String[] splitArray = contact.getContactName().trim().split("[\\s]+");
+                String[] splitArray = contact.getName().trim().split("[\\s]+");
                 String st = (splitArray.length < 2) ? String.valueOf(splitArray[0].charAt(0)) : splitArray[0].charAt(0) + "" + splitArray[1].charAt(0);
                 holder.letterImage.setText(st.toUpperCase());
                 holder.userImage.setImageResource(R.drawable.profile_circle);
 //            }
 
 
-            holder.userContactName.setText(contact.getContactName());
+            holder.userContactName.setText(contact.getName());
             holder.userContactNumber.setText(contactNumber);
 
 
             holder.constraintLayout.setOnClickListener(v -> {
                 Intent intent = new Intent(context, ContactProfile.class);
-                intent.putExtra("contactName", contact.getContactName());
+                intent.putExtra("contactName", contact.getName());
                 intent.putExtra("contactNumber", contactNumber);
 
 

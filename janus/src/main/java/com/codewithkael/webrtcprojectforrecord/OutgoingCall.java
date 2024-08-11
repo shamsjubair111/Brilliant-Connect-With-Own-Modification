@@ -440,7 +440,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
         JanusMessage message = new JanusMessage("message", body, TID(), sessionId, handleId);
         sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteCallFragmentHelper.getWritableDatabase();
-        long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+        long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"), getIntent().getStringExtra("photo"));
         if(rowId >0){
 //            websocket.showToast("Data Inserted");
 //            Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
@@ -676,7 +676,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 websocket.closeSocket();
                 rtcClient.stopLocalAudio();
                 sqLiteCallFragmentHelper = new SQLiteCallFragmentHelper(this);
-                long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"));
+                long rowId =  sqLiteCallFragmentHelper.insertData(getIntent().getStringExtra("contactName"), getIntent().getStringExtra("receiverNumber"), getIntent().getStringExtra("photo"));
                 if(rowId >0){
 //                    websocket.showToast("Data Inserted");
 //                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();

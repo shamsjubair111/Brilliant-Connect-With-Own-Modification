@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import sdk.chat.core.dao.Keys
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.ExtendServices
