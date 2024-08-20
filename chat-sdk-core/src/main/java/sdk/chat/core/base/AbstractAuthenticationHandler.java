@@ -61,12 +61,6 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
         currentUserID = null;
         isAuthenticatedThisSession = false;
         ChatSDK.shared().getKeyStorage().remove(Keys.CurrentUserID);
-
-        Context context = ChatSDK.shared().context();
-        SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove(PREF_KEY_CURRENT_USER_ID);
-        editor.apply();
     }
 
     /**

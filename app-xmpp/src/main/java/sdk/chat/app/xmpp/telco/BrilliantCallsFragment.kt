@@ -22,16 +22,14 @@ import sdk.chat.demo.xmpp.R
 import sdk.chat.ui.fragments.BaseFragment
 import sdk.chat.ui.interfaces.SearchSupported
 import java.util.Locale
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class BrilliantCallsFragment : BaseFragment(), SearchSupported {
     private lateinit var recyclerViewCalls: RecyclerView
     private lateinit var fab: ImageView
     private lateinit var adapter: CallRecordAdapter
 
-    private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var allRecords: List<CallRecord> = mutableListOf()
     private var filteredContacts: MutableList<CallRecord> = mutableListOf()
 
@@ -42,18 +40,34 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_brilliant_calls, container, false)
-        recyclerViewCalls = view.findViewById(R.id.recyclerViewCalls)
-        fab = view.findViewById(R.id.fab)
-        return view
+        return inflater.inflate(R.layout.fragment_brilliant_calls, container, false)
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        recyclerViewCalls = view.findViewById(R.id.recyclerViewCalls)
+        fab = view.findViewById(R.id.fab)
+
+        setupRecyclerView()
+        setupNetworkCallback()
+
+        // Load data from the database
+        loadDataFromDatabase()
+    }
+
+    private fun setupRecyclerView() {
+        recyclerViewCalls.layoutManager = LinearLayoutManager(requireContext())
+        adapter = CallRecordAdapter(requireContext(), filteredContacts)
+        recyclerViewCalls.adapter = adapter
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun setupNetworkCallback() {
         val connectivityManager =
-            requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+
         networkCallback = object : ConnectivityManager.NetworkCallback() {
             @SuppressLint("CheckResult")
             override fun onAvailable(network: Network) {
@@ -67,34 +81,30 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
                 }
             }
         }
-        connectivityManager.registerDefaultNetworkCallback(networkCallback)
 
-        // Set up RecyclerView
-        recyclerViewCalls.layoutManager = LinearLayoutManager(requireContext())
-        adapter = CallRecordAdapter(requireContext(), filteredContacts)
-        recyclerViewCalls.adapter = adapter
-
-        loadDataFromDatabase()
+        connectivityManager?.registerDefaultNetworkCallback(networkCallback!!)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         val connectivityManager =
-            requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        connectivityManager.unregisterNetworkCallback(networkCallback)
+            requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+
+        networkCallback?.let {
+            connectivityManager?.unregisterNetworkCallback(it)
+        }
     }
 
-    @SuppressLint("Range")
     override fun initViews() {
         Logger.d("reloading", "Text is null or empty")
     }
 
     override fun clearData() {
-        // TODO: Implement clearing data if needed
+        filteredContacts.clear()
+        updateAdapter(filteredContacts)
     }
 
     override fun reloadData() {
-        // TODO: Implement reloading data if needed
         loadDataFromDatabase()
     }
 
@@ -119,22 +129,34 @@ class BrilliantCallsFragment : BaseFragment(), SearchSupported {
     }
 
     private fun loadDataFromDatabase() {
+        if (!isAdded || context == null) {
+            Logger.d("LoadData", "Fragment not attached to context")
+            return
+        }
+
         CoroutineScope(Dispatchers.IO).launch {
             val sqLiteCallFragmentHelper = context?.let { SQLiteCallFragmentHelper(it) }
-            if (sqLiteCallFragmentHelper != null) {
-                allRecords = sqLiteCallFragmentHelper.allRecords
+            sqLiteCallFragmentHelper?.let {
+                allRecords = it.allRecords
                 Logger.d("LoadData", "Fetched ${allRecords.size} records")
-                CoroutineScope(Dispatchers.Main).launch {
-                    updateAdapter(allRecords)
+
+                withContext(Dispatchers.Main) {
+                    if (isAdded) { // Ensure fragment is still attached
+                        updateAdapter(allRecords)
+                    }
                 }
-            } else {
+            } ?: run {
                 Logger.d("LoadData", "SQLiteCallFragmentHelper is null")
             }
         }
     }
 
     private fun updateAdapter(records: List<CallRecord>) {
-        Logger.d("UpdateAdapter", "Updating adapter with ${records.size} records")
-        adapter.updateData(records)
+        if (isAdded && ::adapter.isInitialized && recyclerViewCalls.layoutManager != null) {
+            Logger.d("UpdateAdapter", "Updating adapter with ${records.size} records")
+            adapter.updateData(records)
+        } else {
+            Logger.d("UpdateAdapter", "Skipping update: Adapter not initialized or Fragment not attached")
+        }
     }
 }
