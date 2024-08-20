@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +19,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
@@ -171,8 +171,31 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
 
     @Override
     public void filter(String text) {
+        if (text == null) {
+            text = "";
+        }
         if (contacts == null) {
-            Log.e("ContactsFragment", "Contacts list is null");
+            String finalText = text;
+            reloadData(() -> {
+                applyFilter(finalText);
+            });
+            return;
+        }
+        applyFilter(text);
+    }
+
+    private void applyFilter(String text) {
+        if (text.trim().isEmpty()) {
+            if (contacts != null) {
+                adapter1 = new ContactsAdapter(getActivity(), contacts, registeredUsers);
+                if (recyclerView != null) {
+                    recyclerView.setAdapter(adapter1);
+                } else {
+                    Log.e("ContactsFragment", "RecyclerView is null");
+                }
+            } else {
+                Log.e("ContactsFragment", "Contacts list is null");
+            }
             return;
         }
 
@@ -184,12 +207,19 @@ public class ContactsFragment extends BaseFragment implements SearchSupported, L
         }
 
         adapter1 = new ContactsAdapter(getActivity(), filteredContacts, registeredUsers);
-
         if (recyclerView != null) {
             recyclerView.setAdapter(adapter1);
         } else {
             Log.e("ContactsFragment", "RecyclerView is null");
         }
+    }
+
+    private void reloadData(Runnable onDataLoaded) {
+        if (contacts == null) {
+            LoaderManager.getInstance(this).restartLoader(0, null, this);
+        }
+
+        new Handler().postDelayed(onDataLoaded::run, 1000);
     }
 
 
