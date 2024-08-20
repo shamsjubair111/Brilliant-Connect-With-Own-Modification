@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.textfield.TextInputEditText
 import com.hbb20.CountryCodePicker
@@ -28,15 +29,18 @@ class BrilliantOTPLoginActivity: BaseActivity() {
         ccp = findViewById(R.id.ccp)
         continueButton = findViewById(R.id.btnContinue)
 
-        ccp?.let { ccp ->
+        if (ccp != null && continueButton != null) {
             findViewById<TextInputEditText>(R.id.editText)?.let { et ->
-                ccp.registerCarrierNumberEditText(et)
-                ccp.setNumberAutoFormattingEnabled(true)
+                ccp?.registerCarrierNumberEditText(et)
+                ccp?.setNumberAutoFormattingEnabled(true)
                 et.addTextChangedListener {
-                    validate(ccp.isValidFullNumber)
+                    validate(ccp?.isValidFullNumber ?: false)
                 }
             }
-            validate(ccp.isValidFullNumber)
+            validate(ccp?.isValidFullNumber ?: false)
+        } else {
+            Log.e("OTPLogin", "CCP or ContinueButton is null")
+            finish() // Optionally handle the error case
         }
 
         continueButton?.setOnClickListener {
@@ -59,12 +63,23 @@ class BrilliantOTPLoginActivity: BaseActivity() {
 
     private fun next() {
         scope.launch {
-            val intent = Intent(this@BrilliantOTPLoginActivity, BrilliantOTPVerificationActivity::class.java)
             ccp?.let {
-                intent.putExtra("phone-number", it.fullNumberWithPlus)
-                withContext(Dispatchers.Main) {
-                    ChatSDK.ui().startActivity(this@BrilliantOTPLoginActivity, intent)
+                val phoneNumber = it.fullNumberWithPlus
+                if (!isFinishing && phoneNumber.isNotEmpty()) {
+                    val intent = Intent(this@BrilliantOTPLoginActivity, BrilliantOTPVerificationActivity::class.java)
+                    intent.putExtra("phone-number", phoneNumber)
+                    Log.d("OTPLogin", "Phone number: $phoneNumber")
+                    withContext(Dispatchers.Main) {
+                        ChatSDK.ui().startActivity(this@BrilliantOTPLoginActivity, intent)
+                    }
+                } else {
+                    Log.e("OTPLogin", "Invalid phone number or activity is finishing")
+                    Toast.makeText(this@BrilliantOTPLoginActivity, "Invalid phone number", Toast.LENGTH_SHORT).show()
+                    continueButton?.isEnabled = true
                 }
+            } ?: run {
+                Log.e("OTPLogin", "CountryCodePicker is null")
+                continueButton?.isEnabled = true
             }
         }
     }
