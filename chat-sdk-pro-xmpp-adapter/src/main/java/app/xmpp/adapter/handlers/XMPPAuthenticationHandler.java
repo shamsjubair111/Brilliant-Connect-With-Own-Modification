@@ -76,7 +76,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                 user = details.username;
             }
 
-            ChatSDK.db().openDatabase(user + domain);
+            ChatSDK.db().openDatabase(user + "@" +domain);
 
             if (isAuthenticatedThisSession() || isAuthenticated()) {
 //                return Completable.error(ChatSDK.getException(R.string.already_authenticated));
