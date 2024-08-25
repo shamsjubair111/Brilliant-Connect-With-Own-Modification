@@ -205,24 +205,31 @@ public class DefaultMessagingService extends FirebaseMessagingService {
     private static String getMessageType(RemoteMessage remoteMessage) {
         String messageType = "default";
         try {
-            if (remoteMessage.getData().get("chat_sdk_push_type").toString() != null) {
-                messageType = remoteMessage.getData().get("chat_sdk_push_type").toString();
-                if (messageType.equals("100")) {
-                    messageType = "audio";
-                } else if (messageType.equals("101")) {
-                    messageType = "video";
-                } else if (messageType.equals("-1")) {
-                    messageType = "cancel";
-                } else if (messageType.equals("-2")) {
-                    messageType = "received";
-                } else if (messageType.equals("-3")) {
-                    messageType = "ringing";
-                } else if (messageType.equals("-4")) {
-                    messageType = "noResponse";
+            String pushType = remoteMessage.getData().get("chat_sdk_push_type");
+            if (pushType != null) {
+                switch (pushType) {
+                    case "100":
+                        messageType = "audio";
+                        break;
+                    case "101":
+                        messageType = "video";
+                        break;
+                    case "-1":
+                        messageType = "cancel";
+                        break;
+                    case "-2":
+                        messageType = "received";
+                        break;
+                    case "-3":
+                        messageType = "ringing";
+                        break;
+                    case "-4":
+                        messageType = "noResponse";
+                        break;
                 }
             }
         } catch (Exception e) {
-            Log.d("Default Message", "onMessageReceived() called with: remoteMessage = [" + remoteMessage + "]");
+            Log.d("DefaultMessagingService", "Error processing remote message: " + e.getMessage());
         }
         return messageType;
     }
