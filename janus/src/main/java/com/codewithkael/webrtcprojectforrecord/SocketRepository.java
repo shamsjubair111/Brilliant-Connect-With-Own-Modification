@@ -26,7 +26,7 @@ public class SocketRepository {
     public void initSocket(String username) {
         userName = username;
         try {
-            webSocket = new WebSocketClient(new URI("ws://192.168.68.120:3000")) {
+            webSocket = new WebSocketClient(new URI("ws://103.248.13.73:3000")) {
                 @Override
                 public void onOpen(ServerHandshake handshakedata) {
                     sendMessageToSocket(new MessageModel("store_user", username, null, null));

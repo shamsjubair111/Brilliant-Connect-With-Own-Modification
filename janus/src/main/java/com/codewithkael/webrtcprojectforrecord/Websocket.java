@@ -58,7 +58,7 @@ public class Websocket {
             httpHeaders.put("Sec-Websocket-Protocol","janus-protocol");
 
 //            webSocket = new WebSocketClient(new URI("wss://tb.intercloud.com.bd/"),httpHeaders) {
-            webSocket = new WebSocketClient(new URI("wss://103.248.13.76/"),httpHeaders) {
+            webSocket = new WebSocketClient(new URI("wss://192.168.96.252/"),httpHeaders) {
 //            webSocket = new WebSocketClient(new URI("wss://192.168.0.105/"),httpHeaders) {
 //            webSocket = new WebSocketClient(new URI("wss://192.168.68.122/"),httpHeaders) {
                 @Override

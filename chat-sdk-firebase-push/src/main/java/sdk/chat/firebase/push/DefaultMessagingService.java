@@ -69,6 +69,7 @@ public class DefaultMessagingService extends FirebaseMessagingService {
                     }
                 }
             }
+
             ChatSDK.mediaStart(true, getApplicationContext());
             Intent fullScreenIntent = new Intent(getApplicationContext(), IncomingCallActivity.class);
             fullScreenIntent.putExtra("senderNumber", senderNumber);
