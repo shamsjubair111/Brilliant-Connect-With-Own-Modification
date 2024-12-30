@@ -1,7 +1,7 @@
 1. Go to app-xmpp -> kotlin+java -> telco -> BrilliantApi.java 
 give proper url for variables url, xmppUrl and freeswitchUrl.
 var url = "https://server_ip/test/api/VendorOTP/SendOTP"
-var xmppURL = "http://server_ip::port/api/register"//"http://36.255.71.143:5443/api/register"
+var xmppURL = "http://server_ip::port/api/register"
 var freeswitchURL = "http://server_ip:port"
 
 3. Go to app-xmpp -> kotlin+java -> MainApplication.java
