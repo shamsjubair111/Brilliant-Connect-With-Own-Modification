@@ -90,14 +90,14 @@ class SettingsAdapter(private val context: Context, private val settingsData: Li
 
             viewHolderDisposables.clear()
             if (phoneNumber != null) {
-                val disposable: Disposable = Brilliant.shared().api.addBalance(phoneNumber, amount)
-                    .observeOn(RX.main())
-                    .subscribe({
-                        Toast.makeText(context, "Balance added: $amount", Toast.LENGTH_SHORT).show()
-                    }, { error ->
-                        Toast.makeText(context, "Error adding balance: ${error.message}", Toast.LENGTH_SHORT).show()
-                    })
-                viewHolderDisposables.add(disposable)
+//                val disposable: Disposable = Brilliant.shared().api.addBalance(phoneNumber, amount)
+//                    .observeOn(RX.main())
+//                    .subscribe({
+//                        Toast.makeText(context, "Balance added: $amount", Toast.LENGTH_SHORT).show()
+//                    }, { error ->
+//                        Toast.makeText(context, "Error adding balance: ${error.message}", Toast.LENGTH_SHORT).show()
+//                    })
+//                viewHolderDisposables.add(disposable)
             } else {
                 Toast.makeText(context, "Invalid phone number", Toast.LENGTH_SHORT).show()
             }
@@ -109,14 +109,14 @@ class SettingsAdapter(private val context: Context, private val settingsData: Li
 
             viewHolderDisposables.clear()
             if (phoneNumber != null) {
-                val disposable: Disposable = Brilliant.shared().api.checkBalance(phoneNumber)
-                    .observeOn(RX.main())
-                    .subscribe({ response ->
-                        Toast.makeText(context, "Your current balance: $response", Toast.LENGTH_SHORT).show()
-                    }, { error ->
-                        Toast.makeText(context, "Error checking balance: ${error.message}", Toast.LENGTH_SHORT).show()
-                    })
-                viewHolderDisposables.add(disposable)
+//                val disposable: Disposable = Brilliant.shared().api.checkBalance(phoneNumber)
+//                    .observeOn(RX.main())
+//                    .subscribe({ response ->
+//                        Toast.makeText(context, "Your current balance: $response", Toast.LENGTH_SHORT).show()
+//                    }, { error ->
+//                        Toast.makeText(context, "Error checking balance: ${error.message}", Toast.LENGTH_SHORT).show()
+//                    })
+//                viewHolderDisposables.add(disposable)
             } else {
                 Toast.makeText(context, "Invalid phone number", Toast.LENGTH_SHORT).show()
             }

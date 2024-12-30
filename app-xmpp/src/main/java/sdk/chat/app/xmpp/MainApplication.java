@@ -85,7 +85,7 @@ public class MainApplication extends Application {
                     .addModule(XMPPModule.builder()
 //                            .setXMPP("75.119.138.93", "xmpp.app", 5222)
 //                          .setXMPP("36.255.71.143", "localhost", 5222)
-                          .setXMPP("103.209.42.15", "localhost", 5222)
+                          .setXMPP("103.209.42.15", "ej.hobenaki.com", 5222)
                             .setSecurityMode("disabled")
                             .setAllowServerConfiguration(false)
                             .setPingInterval(5)

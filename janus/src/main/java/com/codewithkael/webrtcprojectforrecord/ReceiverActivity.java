@@ -384,9 +384,11 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
         switch (janusType) {
             case "keepalive":
                 System.out.println("Got a keepalive on session " + sessionId);
+                System.out.println("keepalive case");
                 break;
             case "server_info":
             case "success":
+                System.out.println("success case");
                 if(message.getSessionId() == 0)
                 {
                     JanusResponse.Data = message.getData();
@@ -405,6 +407,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                 System.out.println("Session Running... ");
                 break;
             case "timeout":
+                System.out.println("timeout case");
             {
                 System.out.println("Time out....... ");
 //                websocket.showToast("Time Out");
@@ -419,6 +422,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
             }
             break;
             case "event":
+                System.out.println("event case");
                 JanusResponse.plugin = message.getPluginData();
                 if (JanusResponse.plugin.getData().getErrorCode() == 476 || JanusResponse.plugin.getData().getResult().getEvent().contains("registered"))
                 {
@@ -520,6 +524,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                         SessionDescription session = new SessionDescription(
                                 SessionDescription.Type.OFFER, message.getJsep().getSdp());
                         rtcClient.onRemoteSessionReceived(session);
+
 //                    if(type.equals("audio")){
 //                        rtcClient.startLocalAudio();
 //                    }else {
@@ -538,6 +543,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
 //                        binding.switchCameraButton.setOnClickListener(v -> rtcClient.switchCamera());
 //
 //                    }
+
 
                         rtcClient.answer(sessionId, handleId);
 
@@ -573,7 +579,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
                 break;
             case "webrtcup":
 
-                startTimer();
+//                startTimer();
                 if (checkPermissions()) {
                     RTCClientSingleton.getInstance().setRtcClient(rtcClient);
                     startForegroundService();
@@ -597,6 +603,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
 //                websocket.showToast("webrtcup");
                 break;
             case "media":
+//                startTime = System.currentTimeMillis();
                 startTime = System.currentTimeMillis();
                 System.out.println("media received");
                 break;
@@ -609,7 +616,7 @@ public class ReceiverActivity extends AppCompatActivity implements JanusCallHand
 //                    websocket.showToast("Data Inserted");
 ////                    Toast.makeText(this, "Data Inserted", Toast.LENGTH_SHORT).show();
 //                }
-                stopTimer();
+//                stopTimer();
                 websocket.stopKeepAliveTimer();
 //                websocket.showToast("hangup");
                 websocket.closeSocket();

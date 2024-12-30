@@ -76,7 +76,7 @@ public class RTCClient implements Serializable {
 //        iceServers.add(PeerConnection.IceServer.builder("stun:stun.cloudflare.com:3478").createIceServer());
 //        iceServers.add(PeerConnection.IceServer.builder("stun:stun.voip.eutelia.it:3478").createIceServer());
 //        iceServers.add(PeerConnection.IceServer.builder("stun:ip-9-232.sn2.clouditalia.com:3478").createIceServer());
-//        iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").setUsername("83eebabf8b4cce9d5dbcb649").setPassword("2D7JvfkOQtBdYW3R").createIceServer());
+        iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").setUsername("83eebabf8b4cce9d5dbcb649").setPassword("2D7JvfkOQtBdYW3R").createIceServer());
 //
 
         peerConnectionFactory = createPeerConnectionFactory();

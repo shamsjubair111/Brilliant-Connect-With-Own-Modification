@@ -245,18 +245,20 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 try {
                     publicIP = getPublicIP();
                     publicIP = reformatIP(publicIP);
-                    if(ChatSDK.shared().getKeyStorage().get("fs_user_id")==null)
-                    {
-                        websocket.showToast("DID number not found");
-                        stopForegroundService();
-                        finish();
-                    }
-                    userName = "sip:"+ ChatSDK.shared().getKeyStorage().get("fs_user_id")+"@103.248.13.73";
+//                    if(ChatSDK.shared().getKeyStorage().get("fs_user_id")==null)
+//                    {
+//                        websocket.showToast("DID number not found");
+//                        stopForegroundService();
+//                        finish();
+//                    }
+//                    userName = "sip:"+ ChatSDK.shared().getKeyStorage().get("fs_user_id")+"@103.248.13.73";
+                    userName = "sip:"+ "09638000020"+"@36.255.68.136";
                     receiver = removePlusIfPresent(getIntent().getStringExtra("receiverNumber"));
                     String callerNumber = reformatPhoneNumber(ChatSDK.auth().getCurrentUserEntityID());
                     if(callerNumber!="")
                     {
-                        receiver = "sip:"+publicIP+ callerNumber +receiver+"@103.248.13.73";
+                        receiver = "sip:"+publicIP+ callerNumber +receiver+"@36.255.68.136";
+//                        receiver = "sip:"+publicIP+ callerNumber +receiver+"@103.248.13.73";
                     }
                     else {
                         websocket.showToast("Problem with Caller Number");
@@ -522,9 +524,10 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 {
                     JanusResponse.Data = message.getData();
                     handleId = JanusResponse.Data.getId();
-//                    registerToSIP(userName, "1001", "1001", "1001", "sip:192.168.0.150:5080");
+//                    registerToSIP(userName, "1001", "1001", "1234", "sip:36.255.68.136:5060");
 //                    registerToSIP(userName, "9638000123", "9638000123", "telcobright$9638000123", "sip:103.248.13.73");
-                    registerToSIP(userName, ChatSDK.shared().getKeyStorage().get("fs_user_id"), ChatSDK.shared().getKeyStorage().get("fs_user_id"), "telcobright$9638000123", "sip:103.248.13.73");
+                    registerToSIP(userName, "09638000020", "09638000020", "1234", "sip:36.255.68.136:5060");
+//                    registerToSIP(userName, ChatSDK.shared().getKeyStorage().get("fs_user_id"), ChatSDK.shared().getKeyStorage().get("fs_user_id"), "telcobright$9638000123", "sip:103.248.13.73");
                     websocket.startKeepAliveTimer();
                 }
                 System.out.println("Session Running... ");

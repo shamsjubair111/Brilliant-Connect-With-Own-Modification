@@ -13,7 +13,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class RegisteredUserService {
-    private static final String ejabberdApiUrl = "http://103.209.42.15:5443/api";//"http://36.255.71.143:5443/api";
+    private static final String ejabberdApiUrl = "http://ej.hobenaki.com:5443/api";//"http://36.255.71.143:5443/api";
     private static final String host = "localhost";
     public static Set<String> listRegisteredUsers() {
         Set<String> result = new HashSet<>();
