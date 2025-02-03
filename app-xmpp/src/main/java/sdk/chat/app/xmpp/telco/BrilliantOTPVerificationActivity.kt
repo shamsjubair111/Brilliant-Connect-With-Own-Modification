@@ -96,17 +96,17 @@ class BrilliantOTPVerificationActivity: BaseActivity(), OTPListener {
         }
     }
 
-//    fun startNextActivity(phoneNumber: String) {
-//        phoneNumber?.let {
-//            Brilliant.shared().api.registerToFreeswitch(it).observeOn(RX.main()).subscribe({
-//                startNextActivity()
-//            }, {
-//                it.message?.let { message ->
-//                    showToast(message)
-//                }
-//            })
-//        }
-//    }
+    fun startNextActivity(phoneNumber: String) {
+        phoneNumber?.let {
+            Brilliant.shared().api.registerToFreeswitch(it).observeOn(RX.main()).subscribe({
+                startNextActivity(phoneNumber)
+            }, {
+                it.message?.let { message ->
+                    showToast(message)
+                }
+            })
+        }
+    }
 
     fun startNextActivity() {
         val intent = Intent(this, BrilliantIntroActivity::class.java)

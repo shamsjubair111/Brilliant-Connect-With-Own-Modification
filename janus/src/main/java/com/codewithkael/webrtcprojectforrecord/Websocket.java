@@ -61,7 +61,8 @@ public class Websocket {
 //            webSocket = new WebSocketClient(new URI("wss://36.255.68.143/"),httpHeaders) {
 //            webSocket = new WebSocketClient(new URI("wss://192.168.0.105/"),httpHeaders) {
 //            webSocket = new WebSocketClient(new URI("wss://192.168.68.122/"),httpHeaders) {
-            webSocket = new WebSocketClient(new URI("wss://36.255.68.143/"),httpHeaders) {
+//            webSocket = new WebSocketClient(new URI("wss://36.255.68.143/"),httpHeaders) {
+            webSocket = new WebSocketClient(new URI("wss://103.209.42.30/"),httpHeaders) {
 //            webSocket = new WebSocketClient(new URI("wss://janus.hobenaki.com/"),httpHeaders) {
 //            webSocket = new WebSocketClient(new URI("wss://103.248.13.76/"),httpHeaders) {
                 @Override
