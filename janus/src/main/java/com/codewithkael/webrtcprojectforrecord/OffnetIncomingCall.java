@@ -58,7 +58,7 @@ import sdk.chat.core.session.ChatSDK;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerInterface {
+public class OffnetIncomingCall extends AppCompatActivity implements JanusCallHandlerInterface {
 
 
     private static Timer timer;
@@ -129,14 +129,14 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
         binding = ActivityCallBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setCallLayoutVisible();
-        PermissionX.init(OutgoingCall.this)
+        PermissionX.init(OffnetIncomingCall.this)
                 .permissions(
                         Manifest.permission.RECORD_AUDIO
                 ).request((allGranted, grantedList, deniedList) -> {
                     if (allGranted) {
                         init();
                     } else {
-                        Toast.makeText(OutgoingCall.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
+                        Toast.makeText(OffnetIncomingCall.this, "You should accept all permissions", Toast.LENGTH_LONG).show();
                     }
                 });
 //        binding.switchCameraButton.setVisibility(View.GONE);
@@ -252,8 +252,8 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
 //                        finish();
 //                    }
 //                    userName = "sip:"+ ChatSDK.shared().getKeyStorage().get("fs_user_id")+"@103.248.13.73";
-                    userName = "sip:"+ ChatSDK.shared().getKeyStorage().get("fs_user_id")+"@103.209.42.54";
-//                    userName = "sip:"+ "09638000020"+"@103.209.42.54";
+//                    userName = "sip:"+ ChatSDK.shared().getKeyStorage().get("fs_user_id")+"@103.209.42.54";
+                    userName = "sip:"+ "09638000020"+"@103.209.42.54";
                     receiver = removePlusIfPresent(getIntent().getStringExtra("receiverNumber"));
                     String callerNumber = reformatPhoneNumber(ChatSDK.auth().getCurrentUserEntityID());
                     if(callerNumber!="")
@@ -292,7 +292,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
 //        receiver = "sip:1000@192.168.0.150:5080";
 //        receiver = "sip:1002@103.248.13.73";
 //        userName = getIntent().getStringExtra("username");
-        websocket = new Websocket( this,OutgoingCall.this);
+        websocket = new Websocket( this,OffnetIncomingCall.this);
         if (userName != null) {
             websocket.initSocket(userName);
         }
@@ -526,11 +526,11 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                 {
                     JanusResponse.Data = message.getData();
                     handleId = JanusResponse.Data.getId();
-//                    registerToSIP(userName, "09638000020", "09638000020", "1234", "sip:103.209.42.54:5060");
+                    registerToSIP(userName, "09638000020", "09638000020", "1234", "sip:103.209.42.54:5060");
 //                    registerToSIP(userName, "9638000123", "9638000123", "telcobright$9638000123", "sip:103.248.13.73");
 //                    registerToSIP(userName, "09638000020", "09638000020", "1234", "sip:36.255.68.136:5060");
 //                    registerToSIP(userName, ChatSDK.shared().getKeyStorage().get("fs_user_id"), ChatSDK.shared().getKeyStorage().get("fs_user_id"), "telcobright$9638000123", "sip:103.248.13.73");
-                    registerToSIP(userName, ChatSDK.shared().getKeyStorage().get("fs_user_id"), ChatSDK.shared().getKeyStorage().get("fs_user_id"), "1234", "sip:103.209.42.54");
+//                    registerToSIP(userName, ChatSDK.shared().getKeyStorage().get("fs_user_id"), ChatSDK.shared().getKeyStorage().get("fs_user_id"), "1234", "sip:103.209.42.54");
                     websocket.startKeepAliveTimer();
                 }
                 System.out.println("Session Running... ");
@@ -560,7 +560,7 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
 //                        setCallLayoutVisible();
                         websocket.showToast("Registered Success");
                         rtcClient.startLocalAudio();
-                        rtcClient.call(receiver,handleId,sessionId, type);
+//                        rtcClient.call(receiver,handleId,sessionId, type);
                     });
 
 
@@ -660,8 +660,8 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
 //                    }
 
 
-//                        rtcClient.answertoSip(sessionId, handleId,"audio");
-                        rtcClient.answer(sessionId, handleId);
+                        rtcClient.answertoSip(sessionId, handleId,"audio");
+//                        rtcClient.answer(sessionId, handleId);
 
                     }
                     //some works to do
@@ -673,8 +673,8 @@ public class OutgoingCall extends AppCompatActivity implements JanusCallHandlerI
                     SessionDescription session = new SessionDescription(
                             SessionDescription.Type.OFFER, message.getJsep().getSdp());
                     rtcClient.onRemoteSessionReceived(session);
-//                    rtcClient.answertoSip(sessionId, handleId,"audio");
-                    rtcClient.answer(sessionId, handleId);
+                    rtcClient.answertoSip(sessionId, handleId,"audio");
+//                    rtcClient.answer(sessionId, handleId);
 
                 }
                 else

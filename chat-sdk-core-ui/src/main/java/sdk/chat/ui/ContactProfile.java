@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.codewithkael.webrtcprojectforrecord.AppToAppCall;
+import com.codewithkael.webrtcprojectforrecord.OffnetIncomingCall;
 import com.codewithkael.webrtcprojectforrecord.OutgoingCall;
 
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
     private LinearLayout apptoappMessage;
     private LinearLayout apptonumberSms;
     private LinearLayout AppToAppCallCall;
+    private LinearLayout Offnet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
         apptoappVideoCall = findViewById(R.id.apptoappVideoCall);
         apptoappMessage = findViewById(R.id.apptoappMessage);
         apptonumberSms = findViewById(R.id.apptonumberSms);
+        Offnet = findViewById(R.id.Offnet);
 
         receiverName = getIntent().getStringExtra("contactName");
         userNameTextView.setText(receiverName);
@@ -141,6 +144,32 @@ public class ContactProfile extends AppCompatActivity implements Consumer<Throwa
 
                     if(ChatSDK.auth().getCurrentUserEntityID()!=null) {
                         Intent intent = new Intent(getApplicationContext(), AppToAppCall.class);
+                        intent.putExtra("receiverNumber", receiverNumber);
+                        intent.putExtra("type", "audio");
+                        intent.putExtra("contactName", receiverName);
+                        intent.putExtra("photo", contactImage);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.setAction(Intent.ACTION_MAIN);
+                        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        startActivity(intent);
+                    }
+                    else{
+                        Toast.makeText(ContactProfile.this, "Please try again later", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(ContactProfile.this, "Number Not Registered", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        Offnet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getIntent().getStringExtra("registered").equals("yes")) {
+
+                    if(ChatSDK.auth().getCurrentUserEntityID()!=null) {
+                        Intent intent = new Intent(getApplicationContext(), OffnetIncomingCall.class);
                         intent.putExtra("receiverNumber", receiverNumber);
                         intent.putExtra("type", "audio");
                         intent.putExtra("contactName", receiverName);

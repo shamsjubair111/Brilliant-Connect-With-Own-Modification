@@ -11,68 +11,64 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+
     <application
-        android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-
         android:label="@string/app_name"
-
-        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
-
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".OffnetIncomingCall"
+            android:configChanges="orientation|screenSize|keyboard"
+            android:exported="true"
+            android:foregroundServiceType="microphone|camera"
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true"  />
+
         <service
             android:name=".AudioCallService"
             android:enabled="true"
-            android:foregroundServiceType="microphone|camera"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="microphone|camera" />
+
         <activity
             android:name=".OutgoingCall"
+            android:configChanges="orientation|screenSize|keyboard"
             android:exported="true"
-            android:showOnLockScreen="true"
-            android:turnScreenOn="true"
             android:foregroundServiceType="microphone|camera"
-            android:configChanges="orientation|screenSize|keyboard">
-        </activity>
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true" />
         <activity
             android:name=".AppToAppCall"
+            android:configChanges="orientation|screenSize|keyboard"
             android:exported="true"
-            android:showOnLockScreen="true"
-            android:turnScreenOn="true"
             android:foregroundServiceType="microphone|camera"
-            android:configChanges="orientation|screenSize|keyboard">
-
-        </activity>
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true" />
         <activity
             android:name=".AppToAppVideo"
+            android:configChanges="orientation|screenSize|keyboard"
             android:exported="true"
-            android:showOnLockScreen="true"
-            android:turnScreenOn="true"
             android:foregroundServiceType="microphone|camera"
-            android:configChanges="orientation|screenSize|keyboard">
-        </activity>
-
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true" />
         <activity
             android:name=".ReceiverActivity"
+            android:configChanges="orientation|screenSize|keyboard"
             android:exported="true"
-            android:showOnLockScreen="true"
-            android:turnScreenOn="true"
             android:foregroundServiceType="microphone|camera"
-            android:configChanges="orientation|screenSize|keyboard">
-        </activity>
-        <receiver android:name=".utils.NotificationActionReceiver" />
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true" />
 
-<!--        <activity-->
-<!--            android:name=".MainActivity"-->
-<!--            android:exported="true"-->
-<!--            android:configChanges="orientation|screenSize|keyboard">-->
-<!--        </activity>-->
+        <receiver android:name=".utils.NotificationActionReceiver" />
     </application>
 
 </manifest>

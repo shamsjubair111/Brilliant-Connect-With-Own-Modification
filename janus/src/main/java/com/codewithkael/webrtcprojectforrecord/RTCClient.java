@@ -3,6 +3,7 @@ package com.codewithkael.webrtcprojectforrecord;
 import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.codewithkael.webrtcprojectforrecord.models.JanusMessage;
 import com.codewithkael.webrtcprojectforrecord.utils.SDPParser;
@@ -354,6 +355,70 @@ public class RTCClient implements Serializable {
 
         MediaConstraints constraints = new MediaConstraints();
         this.type = ReceiverActivity.getType();
+        Log.i("error", this.type+"");
+//        System.out.println(this.type);
+        if (type.equals("audio")) {
+            constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false"));
+        } else {
+            constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
+        }
+
+        peerConnection.createAnswer(new SdpObserver() {
+            @Override
+            public void onCreateSuccess(SessionDescription sessionDescription) {
+                peerConnection.setLocalDescription(new SdpObserver() {
+                    @Override
+                    public void onCreateSuccess(SessionDescription sessionDescription) {
+                        System.out.println(sessionDescription);
+                    }
+
+                    @Override
+                    public void onSetSuccess() {
+                        String sdp = sessionDescription.description;
+                        String type = sessionDescription.type.toString().toLowerCase();
+                        JanusMessage.Body body = new JanusMessage.Body("accept");
+                        JanusMessage.Jsep jsep = new JanusMessage.Jsep(type, sdp);
+                        JanusMessage message = new JanusMessage("message", body, TID(), jsep, sessionId, handleId);
+                        try {
+                            websocket.sendMessage(message.toJson(message));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    @Override
+                    public void onCreateFailure(String s) {
+                        System.out.println(s);
+                    }
+
+                    @Override
+                    public void onSetFailure(String s) {
+                        System.out.println(s);
+                    }
+                }, sessionDescription);
+            }
+
+            @Override
+            public void onSetSuccess() {
+            }
+
+            @Override
+            public void onCreateFailure(String s) {
+            }
+
+            @Override
+            public void onSetFailure(String s) {
+            }
+        }, constraints);
+    }
+
+
+    public void answertoSip(long sessionId, long handleId, String type) {
+
+        MediaConstraints constraints = new MediaConstraints();
+
+
+//        System.out.println(this.type);
         if (type.equals("audio")) {
             constraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false"));
         } else {

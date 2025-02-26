@@ -81,6 +81,7 @@ public class Websocket {
                     try {
 
                              messageInterface.onNewMessage(gson.fromJson(message, JanusResponse.class));
+                             Log.w("Janus Message", message);
 
                     } catch (Exception e) {
                         e.printStackTrace();

@@ -86,7 +86,7 @@ class BrilliantOTPVerificationActivity: BaseActivity(), OTPListener {
             // Register the user
             phoneNumber?.let {
                 Brilliant.shared().api.register(it, "123").observeOn(RX.main()).subscribe({
-                    startNextActivity()
+                    startNextActivity(it)
                 }, {
                     it.message?.let { message ->
                         showToast(message)
@@ -99,7 +99,7 @@ class BrilliantOTPVerificationActivity: BaseActivity(), OTPListener {
     fun startNextActivity(phoneNumber: String) {
         phoneNumber?.let {
             Brilliant.shared().api.registerToFreeswitch(it).observeOn(RX.main()).subscribe({
-                startNextActivity(phoneNumber)
+                startNextActivity()
             }, {
                 it.message?.let { message ->
                     showToast(message)
